@@ -1,6 +1,11 @@
+// Copyright (c) 2010, Nicholas "Indy" Ray. All rights reserved.
+// See the LICENSE file for usage, modification, and distribution terms.
 #include <QtGui/QApplication>
 #include <QTimer>
+#include <assert.h>
 #include "glwindow_qt.h"
+
+#include "view_decl.h"
 
 int InitWindowAndLoop(int argc, char** argv)
 {
@@ -10,26 +15,30 @@ int InitWindowAndLoop(int argc, char** argv)
     return a.exec();
 }
 
-
 GLProxy::GLProxy(QWidget* parent) : QGLWidget(parent)
-{}
+{
+    view = 0;
+}
 
 GLProxy::~GLProxy()
-{}
+{
+    FinishView(view);
+}
 
 void GLProxy::InitializeGL()
-{}
+{
+    assert(!view); // Might have to clean up the view if this fires.
+    view = InitView();
+}
 
 void GLProxy::resizeGL(int w, int h)
-{}
+{
+    ResizeView(view, w, h);
+}
 
 void GLProxy::paintGL()
 {
-    static float r = 1.0f;
-    glClearColor(r, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    if(r == 1.0f) r = 0.0f;
-    else r = 1.0f;
+    UpdateView(view);
 }
 
 GLWindow::GLWindow(QWidget* parent) : QMainWindow(parent)

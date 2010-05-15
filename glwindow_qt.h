@@ -1,3 +1,5 @@
+// Copyright (c) 2010, Nicholas "Indy" Ray. All rights reserved.
+// See the LICENSE file for usage, modification, and distribution terms.
 #ifndef _GLWINDOW_QT_H_
 #define _GLWINDOW_QT_H_
 
@@ -14,6 +16,8 @@ protected:
     void InitializeGL();
     void resizeGL(int w, int h);
     void paintGL();
+private:
+    struct ViewInfo* view;
 };
 
 class GLWindow : public QMainWindow
