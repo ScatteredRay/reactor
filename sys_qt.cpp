@@ -37,6 +37,8 @@ GLWindow::GLWindow(QWidget* parent) : QMainWindow(parent)
     gl = new GLProxy(this);
     setCentralWidget(gl);
 
+    resize(1280, 768);
+
     // start a timer to run the loop.
     loop_timer = new QTimer(this);
     connect(loop_timer, SIGNAL(timeout()), gl, SLOT(updateGL()));
