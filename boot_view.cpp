@@ -9,6 +9,7 @@ struct ViewInfo{};
 
 ViewInfo* InitView()
 {
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     return 0;
 }
 
@@ -20,9 +21,10 @@ void ResizeView(ViewInfo*, int width, int height)
 
 void UpdateView(ViewInfo*)
 {
-    static float r = 1.0f;
-    glClearColor(r, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    if(r == 1.0f) r = 0.0f;
-    else r = 1.0f;
+    glBegin(GL_TRIANGLES);
+    glVertex3f(0.0, 1.0, 0.0);
+    glVertex3f(-1.0, -1.0, 0.0);
+    glVertex3f(1.0, -1.0, 0.0);
+    glEnd();
 }
