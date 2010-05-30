@@ -13,7 +13,7 @@ public:
     GLProxy(QWidget* parent = 0);
     ~GLProxy();
 protected:
-    void InitializeGL();
+    void initializeGL();
     void resizeGL(int w, int h);
     void paintGL();
 private:

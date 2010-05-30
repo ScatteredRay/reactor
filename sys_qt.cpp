@@ -25,7 +25,7 @@ GLProxy::~GLProxy()
     FinishView(view);
 }
 
-void GLProxy::InitializeGL()
+void GLProxy::initializeGL()
 {
     assert(!view); // Might have to clean up the view if this fires.
     view = InitView();
