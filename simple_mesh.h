@@ -46,4 +46,6 @@ VertexAttribute* AddVertexAttribute(VertexDef Def,
                                     GLenum data_type);
 void ApplyVertexDef(VertexDef Def);
 
+void DestroyVertexDef(VertexDef Def);
+
 #endif //_SIMPLE_MESH_H_

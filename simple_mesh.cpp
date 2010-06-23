@@ -25,6 +25,12 @@ VertexDef CreateVertexDef(size_t size, unsigned int attrs)
     return VD;
 }
 
+void DestroyVertexDef(VertexDef Def)
+{
+    delete[] Def->attributes;
+    delete Def;
+}
+
 VertexAttribute* AddVertexAttribute(VertexDef Def,
                                     unsigned int idx,
                                     Vertex_Attributes attr_type,

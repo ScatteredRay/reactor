@@ -66,6 +66,7 @@ ViewInfo* InitView()
 
 void FinishView(ViewInfo* view)
 {
+    DestroyVertexDef(view->boot_vert);
     delete view;
 }
 
