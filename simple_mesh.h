@@ -19,6 +19,7 @@ enum Vertex_Attributes
 };
 
 GLuint CreateMesh(unsigned int num_verticies, size_t vertex_size, void* data);
+void DestroyMesh(GLuint buffer);
 
 struct VertexAttribute
 {

@@ -15,6 +15,11 @@ GLuint CreateMesh(unsigned int num_verticies, size_t vertex_size, void* data)
     return vbuffer;
 }
 
+void DestroyMesh(GLuint buffer)
+{
+    glDeleteBuffers(1, &buffer);
+}
+
 VertexDef CreateVertexDef(size_t size, unsigned int attrs)
 {
     VertexDef VD = new Vertex_Def();
