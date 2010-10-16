@@ -89,9 +89,8 @@ void DestroyMesh(Editor_Mesh* mesh)
 
 void DrawEditorMesh(Editor_Mesh* mesh)
 {
-    // Stop applying this multiple times!
-    ApplyVertexDef(editor_vertex_def);
-    
     glBindBuffer(GL_ARRAY_BUFFER, mesh->gl_mesh);
+    ApplyVertexDef(editor_vertex_def);
+
     glDrawArrays(mesh->gl_primitive_type, 0, mesh->gl_index_count);
 }

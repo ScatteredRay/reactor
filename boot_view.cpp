@@ -90,11 +90,10 @@ void UpdateView(ViewInfo* view)
 
     glUseProgram(view->basic_shader);
     glUniform4f(view->diffuse_color_uniform,
-                0.0f, 1.0f, 0.0f, 1.0f);
-
-    ApplyVertexDef(view->boot_vert);
+    0.0f, 1.0f, 0.0f, 1.0f);
 
     glBindBuffer(GL_ARRAY_BUFFER, view->test_mesh);
+    ApplyVertexDef(view->boot_vert);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     glUniform4f(view->diffuse_color_uniform,
