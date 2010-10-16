@@ -4,6 +4,8 @@
 #include "simple_shader.h"
 #include "simple_vectors.h"
 #include "simple_mesh.h"
+
+#include "editor_meshes.h"
 #include <gl.h>
 
 struct boot_vert
@@ -33,6 +35,7 @@ struct ViewInfo
     GLint diffuse_color_uniform;
     VertexDef boot_vert;
     GLuint test_mesh;
+    Editor_Mesh* grid;
 };
 
 ViewInfo* InitView()
@@ -61,11 +64,18 @@ ViewInfo* InitView()
     verts[2].location.z = 0.0;
 
     view->test_mesh = CreateMesh(3, sizeof(boot_vert), verts);
+
+    InitEditor();
+    view->grid = CreateGridMesh(10, 0.1);
+
     return view;
 }
 
 void FinishView(ViewInfo* view)
 {
+    DestroyMesh(view->grid);
+    CleanupEditor();
+
     DestroyMesh(view->test_mesh);
     DestroyVertexDef(view->boot_vert);
     delete view;
@@ -86,4 +96,8 @@ void UpdateView(ViewInfo* view)
 
     glBindBuffer(GL_ARRAY_BUFFER, view->test_mesh);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    glUniform4f(view->diffuse_color_uniform,
+                1.0f, 0.0f, 0.0f, 1.0f);
+    DrawEditorMesh(view->grid);
 }
