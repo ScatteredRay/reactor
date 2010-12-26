@@ -36,6 +36,8 @@ struct ViewInfo
     VertexDef boot_vert;
     GLuint test_mesh;
     Editor_Mesh* grid;
+    
+    bool bMouseDown;
 };
 
 ViewInfo* InitView()
@@ -50,23 +52,10 @@ ViewInfo* InitView()
 
     view->boot_vert = boot_vert_def();
 
-    boot_vert verts[3];
-    verts[0].location.x = 0.0;
-    verts[0].location.y = 1.0;
-    verts[0].location.z = 0.0;
-
-    verts[1].location.x = -1.0;
-    verts[1].location.y = -1.0;
-    verts[1].location.z = 0.0;
-
-    verts[2].location.x = 1.0;
-    verts[2].location.y = -1.0;
-    verts[2].location.z = 0.0;
-
-    view->test_mesh = CreateMesh(3, sizeof(boot_vert), verts);
-
     InitEditor();
-    view->grid = CreateGridMesh(10, 0.1);
+    view->grid = CreateGridMesh(21, 0.1);
+
+    view->bMouseDown = false;
 
     return view;
 }
@@ -76,7 +65,6 @@ void FinishView(ViewInfo* view)
     DestroyMesh(view->grid);
     CleanupEditor();
 
-    DestroyMesh(view->test_mesh);
     DestroyVertexDef(view->boot_vert);
     delete view;
 }
@@ -90,13 +78,11 @@ void UpdateView(ViewInfo* view)
 
     glUseProgram(view->basic_shader);
     glUniform4f(view->diffuse_color_uniform,
-    0.0f, 1.0f, 0.0f, 1.0f);
-
-    glBindBuffer(GL_ARRAY_BUFFER, view->test_mesh);
-    ApplyVertexDef(view->boot_vert);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    glUniform4f(view->diffuse_color_uniform,
                 1.0f, 0.0f, 0.0f, 1.0f);
     DrawEditorMesh(view->grid);
+}
+
+void MouseDown(ViewInfo* view)
+{
+    view->bMouseDown = true;
 }

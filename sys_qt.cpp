@@ -41,6 +41,14 @@ void GLProxy::paintGL()
     UpdateView(view);
 }
 
+// Input
+
+void GLProxy::mousePressEvent(QMouseEvent* e)
+{
+    void MouseDown(ViewInfo* view);
+    MouseDown(view);
+}
+
 GLWindow::GLWindow(QWidget* parent) : QMainWindow(parent)
 {
     gl = new GLProxy(this);
