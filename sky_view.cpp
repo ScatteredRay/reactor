@@ -1,9 +1,11 @@
 // Copyright (c) 2010, Nicholas "Indy" Ray. All rights reserved.
 // See the LICENSE file for usage, modification, and distribution terms.
+#include <stdio.h>
 #include "view_decl.h"
 #include "simple_shader.h"
 #include "simple_vectors.h"
 #include "simple_mesh.h"
+#include "obj_load.h"
 
 #include "editor_meshes.h"
 #include <gl.h>
@@ -36,6 +38,11 @@ struct ViewInfo
     VertexDef boot_vert;
     GLuint test_mesh;
     Editor_Mesh* grid;
+
+    VertexDef collision_vert;
+    obj_mesh* collision_mesh;
+    GLuint collision_gl_mesh;
+    GLuint collision_mesh_indices;
     
     bool bMouseDown;
 };
@@ -57,11 +64,43 @@ ViewInfo* InitView()
 
     view->bMouseDown = false;
 
+    view->collision_vert = obj_vert_def();
+    view->collision_mesh = obj_load_mesh("data/collision.obj");
+    view->collision_gl_mesh = CreateMesh(view->collision_mesh->vertex_count,
+                                         sizeof(obj_vert),
+                                         view->collision_mesh->verticies);
+
+    for(unsigned int i=0; i<view->collision_mesh->vertex_count; i++)
+        printf("Vertex: %f, %f, %f\n",
+               view->collision_mesh->verticies[i].location.x,
+               view->collision_mesh->verticies[i].location.y,
+               view->collision_mesh->verticies[i].location.z);
+
+    for(unsigned int i=0; i<view->collision_mesh->face_count; i++)
+        printf("Face: %d, %d, %d\n",
+               view->collision_mesh->faces[i].a,
+               view->collision_mesh->faces[i].b,
+               view->collision_mesh->faces[i].c);
+
+    glGenBuffers(1, &view->collision_mesh_indices);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, view->collision_mesh_indices);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 view->collision_mesh->face_count * sizeof(obj_face),
+                 view->collision_mesh->faces,
+                 GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    
+
     return view;
 }
 
 void FinishView(ViewInfo* view)
 {
+    DestroyMesh(view->collision_gl_mesh);
+    glDeleteBuffers(1, &view->collision_mesh_indices);
+    delete view->collision_mesh;
+    
     DestroyMesh(view->grid);
     CleanupEditor();
 
@@ -79,6 +118,17 @@ void UpdateView(ViewInfo* view)
     glUseProgram(view->basic_shader);
     glUniform4f(view->diffuse_color_uniform,
                 1.0f, 0.0f, 0.0f, 1.0f);
+
+    glBindBuffer(GL_ARRAY_BUFFER, view->collision_gl_mesh);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, view->collision_mesh_indices);
+    ApplyVertexDef(view->collision_vert);
+
+    glDrawElements(GL_TRIANGLES,
+                   view->collision_mesh->face_count*3,
+                   GL_UNSIGNED_SHORT, 0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
     DrawEditorMesh(view->grid);
 }
 
