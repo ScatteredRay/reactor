@@ -11,6 +11,7 @@
 #include "core_systems.h"
 
 #include "character.h"
+#include "camera.h"
 
 #include "editor_meshes.h"
 
@@ -46,6 +47,7 @@ struct ViewInfo
     GLint diffuse_color_uniform;
     VertexDef boot_vert;
     GLuint test_mesh;
+
     Editor_Mesh* grid;
 
     VertexDef collision_vert;
@@ -57,6 +59,8 @@ struct ViewInfo
 
     PlayerInput* player_input[Num_Players];
     Character* character;
+
+    Camera* camera;
 };
 
 ViewInfo* InitView()
@@ -80,7 +84,7 @@ ViewInfo* InitView()
     view->boot_vert = boot_vert_def();
 
     InitEditor();
-    view->grid = CreateGridMesh(21, 0.1);
+    view->grid = CreateGridMesh(21, 1);
 
     view->bMouseDown = false;
 
@@ -111,6 +115,7 @@ ViewInfo* InitView()
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+    view->camera = InitCamera(1024, 768);
 
     InitCharacters();
     view->character = CreateCharacter(view->player_input[0]);
@@ -123,6 +128,8 @@ void FinishView(ViewInfo* view)
 {
     DestroyCharacter(view->character);
     FinishCharacters();
+
+    DestroyCamera(view->camera);
 
     DestroyMesh(view->collision_gl_mesh);
     glDeleteBuffers(1, &view->collision_mesh_indices);
@@ -139,8 +146,10 @@ void FinishView(ViewInfo* view)
     delete view;
 }
 
-void ResizeView(ViewInfo*, int, int)
-{}
+void ResizeView(ViewInfo* view, int width, int height)
+{
+    SetCameraProjection(view->camera, width, height);
+}
 
 void UpdateView(ViewInfo* view)
 {
@@ -150,9 +159,21 @@ void UpdateView(ViewInfo* view)
 
     UpdateCharacter(view->character, 0.02f);
 
+    Vector3 char_location = GetCharacterLocation(view->character);
+
+    UpdateCamera(view->camera, &char_location, 1);
+
     glClear(GL_COLOR_BUFFER_BIT);
 
+
+
     glUseProgram(view->basic_shader);
+
+    Matrix4 view_projection = CameraGetWorldToProjection(view->camera);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf((float*)&view_projection);
+
     glUniform4f(view->diffuse_color_uniform,
                 160.0f / 255.0f, 0.0f, 1.0f, 1.0f);
 
@@ -167,7 +188,7 @@ void UpdateView(ViewInfo* view)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     glUniform4f(view->diffuse_color_uniform,
-                1.0f, 0.0f, 0.0f, 1.0f);
+                0.25f, 0.0f, 0.0f, 1.0f);
 
     DrawEditorMesh(view->grid);
 

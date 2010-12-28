@@ -39,12 +39,12 @@ VertexDef gen_character_vert_def()
 }
 
 const character_vert char_mesh[] =
-{{{-0.1f, -0.1f, 0.0f}, {0.0f, 0.0f}},
- {{-0.1f, 0.1f, 0.0f},  {0.0f, 1.0f}},
- {{0.1f, -0.1f, 0.0f},  {1.0f, 0.0f}},
- {{-0.1f, 0.1f, 0.0f},  {0.0f, 1.0f}},
- {{0.1f, -0.1f, 0.0f},  {1.0f, 0.0f}},
- {{0.1f, 0.1f, 0.0f},   {1.0f, 1.0f}}};
+{{{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}},
+ {{-1.0f, 1.0f, 0.0f},  {0.0f, 1.0f}},
+ {{1.0f, -1.0f, 0.0f},  {1.0f, 0.0f}},
+ {{-1.0f, 1.0f, 0.0f},  {0.0f, 1.0f}},
+ {{1.0f, -1.0f, 0.0f},  {1.0f, 0.0f}},
+ {{1.0f, 1.0f, 0.0f},   {1.0f, 1.0f}}};
 
 void InitCharacters()
 {
@@ -76,13 +76,23 @@ Character* CreateCharacter(PlayerInput* input)
     return character;
 }
 
+float SmoothInput(float x)
+{
+    return 2 * x * x * (x >= 0 ? 1 : -1);
+}
+
 void UpdateCharacter(Character* character, float DeltaTime)
 {
     character->location
         += DeltaTime *
-        Vector3(GetAxisState(character->input, Input_Move_X),
-                GetAxisState(character->input, Input_Move_Y),
+        Vector3(SmoothInput(GetAxisState(character->input, Input_Move_X)),
+                SmoothInput(GetAxisState(character->input, Input_Move_Y)),
                 0.0f);
+}
+
+Vector3 GetCharacterLocation(Character* character)
+{
+    return character->location;
 }
 
 void RenderCharacter(Character* character)
@@ -92,7 +102,6 @@ void RenderCharacter(Character* character)
     ApplyVertexDef(character_vert_def);
 
     Matrix4 local_to_world = Matrix4::translation(character->location);
-    //local_to_world = transpose(local_to_world);
 
     glUniformMatrix4fv(character_local_to_world_uniform, 1, false, (float*)&local_to_world);
     glUniform1i(character_sampler_uniform, 0);

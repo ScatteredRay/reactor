@@ -5,6 +5,6 @@ uniform mat4 local_to_world;
 
 void main(void)
 {
-    gl_Position = local_to_world * gl_Vertex;
+    gl_Position = gl_ModelViewProjectionMatrix * local_to_world * gl_Vertex;
     gl_TexCoord[0] = gl_MultiTexCoord0;
 }
