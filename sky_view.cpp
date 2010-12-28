@@ -89,12 +89,12 @@ ViewInfo* InitView()
     view->bMouseDown = false;
 
     view->collision_vert = obj_vert_def();
-    view->collision_mesh = obj_load_mesh("data/collision.obj");
+    view->collision_mesh = obj_load_mesh("data/World_Test_001.obj");
     view->collision_gl_mesh = CreateMesh(view->collision_mesh->vertex_count,
                                          sizeof(obj_vert),
                                          view->collision_mesh->verticies);
 
-    for(unsigned int i=0; i<view->collision_mesh->vertex_count; i++)
+    /*for(unsigned int i=0; i<view->collision_mesh->vertex_count; i++)
         printf("Vertex: %f, %f, %f\n",
                view->collision_mesh->verticies[i].location.x,
                view->collision_mesh->verticies[i].location.y,
@@ -104,7 +104,7 @@ ViewInfo* InitView()
         printf("Face: %d, %d, %d\n",
                view->collision_mesh->faces[i].a,
                view->collision_mesh->faces[i].b,
-               view->collision_mesh->faces[i].c);
+               view->collision_mesh->faces[i].c);*/
 
     glGenBuffers(1, &view->collision_mesh_indices);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, view->collision_mesh_indices);
@@ -166,8 +166,11 @@ void UpdateView(ViewInfo* view)
     glClear(GL_COLOR_BUFFER_BIT);
 
 
-
     glUseProgram(view->basic_shader);
+
+    glUniform4f(view->diffuse_color_uniform,
+                0.25f, 0.0f, 0.0f, 1.0f);
+    DrawEditorMesh(view->grid);
 
     Matrix4 view_projection = CameraGetWorldToProjection(view->camera);
 
@@ -186,11 +189,6 @@ void UpdateView(ViewInfo* view)
                    GL_UNSIGNED_SHORT, 0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    glUniform4f(view->diffuse_color_uniform,
-                0.25f, 0.0f, 0.0f, 1.0f);
-
-    DrawEditorMesh(view->grid);
 
     RenderCharacter(view->character);
 }

@@ -78,7 +78,7 @@ Character* CreateCharacter(PlayerInput* input)
 
 float SmoothInput(float x)
 {
-    return 2 * x * x * (x >= 0 ? 1 : -1);
+    return 10 * x * x * (x >= 0 ? 1 : -1);
 }
 
 void UpdateCharacter(Character* character, float DeltaTime)

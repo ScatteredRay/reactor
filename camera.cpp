@@ -5,7 +5,7 @@ const Vector3 camera_start_location = Vector3(0.0, 0.0, 85.0);
 const Vector3 camera_up_vector = Vector3(0.0, 1.0, 0.0);
 const float fovx = (40.0f / 360.0f) * 2 * PI;
 const float zNear = 10.0f;
-const float zFar = 100.0f;
+const float zFar = 500.0f; //1000.0f to get background plane
 
 struct Camera
 {
