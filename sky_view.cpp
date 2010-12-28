@@ -6,6 +6,8 @@
 #include "simple_vectors.h"
 #include "simple_mesh.h"
 #include "obj_load.h"
+#include "input.h"
+#include "core_systems.h"
 
 #include "editor_meshes.h"
 #include <gl.h>
@@ -45,11 +47,18 @@ struct ViewInfo
     GLuint collision_mesh_indices;
     
     bool bMouseDown;
+
+    PlayerInput* player_input;
 };
 
 ViewInfo* InitView()
 {
     ViewInfo* view = new ViewInfo();
+
+    init_sdl_system();
+
+    view->player_input = InitPlayerInput();
+
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     view->basic_shader = CreateShaderProgram(SHADER_CONSTANT_COLOR);
     view->diffuse_color_uniform = glGetUniformLocation(view->basic_shader,
@@ -105,6 +114,10 @@ void FinishView(ViewInfo* view)
     CleanupEditor();
 
     DestroyVertexDef(view->boot_vert);
+
+    DestroyPlayerInput(view->player_input);
+    finalize_sdl_system();
+
     delete view;
 }
 
@@ -117,7 +130,7 @@ void UpdateView(ViewInfo* view)
 
     glUseProgram(view->basic_shader);
     glUniform4f(view->diffuse_color_uniform,
-                1.0f, 0.0f, 0.0f, 1.0f);
+                160.0f / 255.0f, 0.0f, 1.0f, 1.0f);
 
     glBindBuffer(GL_ARRAY_BUFFER, view->collision_gl_mesh);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, view->collision_mesh_indices);
@@ -128,6 +141,9 @@ void UpdateView(ViewInfo* view)
                    GL_UNSIGNED_SHORT, 0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    glUniform4f(view->diffuse_color_uniform,
+                1.0f, 0.0f, 0.0f, 1.0f);
 
     DrawEditorMesh(view->grid);
 }
