@@ -5,30 +5,20 @@
 
 using namespace std;
 
-PlayerInput* LocalPlayerInput;
-
-struct InputSymIndexMap
+struct InputMapping
 {
-	const char* Name;
-	int Index;
+    InputType type;
+    int input_map;
+    int joy_index;
+    bool invert;
 };
 
-const InputSymIndexMap InputNameMap[] =
-{{"jump", Input_Jump},
- {"move-x", Input_Move_X},
- {"move-y", Input_Move_Y},
- {NULL, 0}};
-
-int IndexFromSymName(const char* Symbol)
-{
-	const InputSymIndexMap* SymMap = InputNameMap;
-	while(SymMap->Name != NULL)
-	{
-		if(strcmp(SymMap->Name, Symbol) == 0)
-			return SymMap->Index;
-		SymMap++;
-	}
-}
+// Playstation 3 controller input map.
+const InputMapping DefaultInputMap[] =
+{{Input_Type_Axis, Input_Move_X, 0, false},
+ {Input_Type_Axis, Input_Move_Y, 1, true},
+ {Input_Type_Button, Input_Jump, 14, false},
+ {Input_Type_End, 0, 0, false}};
 
 struct PlayerInput
 {
@@ -40,16 +30,47 @@ struct PlayerInput
 	bool ButtonValues[Input_Max_Button];
 };
 
-void InitSchemeInput();
-
-PlayerInput* InitPlayerInput()
+void InitPlayerInputMapping(PlayerInput* In)
 {
-	PlayerInput* In = new PlayerInput();
-	In->Joy = NULL;
+    const InputMapping* InputMap = DefaultInputMap;
+    In->AxisMap.clear();
+    In->ButtonMap.clear();
+    
+    while(InputMap->type != Input_Type_End)
+    {
+        if(InputMap->type == Input_Type_Axis)
+        {
+            In->AxisMap.push_back(
+                pair<AxisInputs, pair<int, bool> >(
+                    (AxisInputs)InputMap->input_map,
+                    pair<int, bool>(
+                        InputMap->joy_index,
+                        InputMap->invert)));
+        }
+        else
+        {
+            In->ButtonMap.push_back(
+                pair<ButtonInputs, int>(
+                    (ButtonInputs)InputMap->input_map,
+                    InputMap->joy_index));
+        }
+        InputMap++;
+    }
+}
 
+unsigned int InitPlayerInputs(PlayerInput** Inputs, unsigned int DesiredInputs)
+{
 	unsigned int num_sticks = SDL_NumJoysticks();
-    for(unsigned int i = 0; i<num_sticks; i++)
+    for(unsigned int i = 0; i<DesiredInputs; i++)
 	{
+        if(i >= num_sticks)
+        {
+            Inputs[i] = NULL;
+            continue;
+        }
+
+        PlayerInput* In = new PlayerInput();
+        In->Joy = NULL;
 		In->Joy = SDL_JoystickOpen(i);
 		printf("-----------------------\n");
 		printf("Joystick: %s\n", SDL_JoystickName(i));
@@ -57,10 +78,8 @@ PlayerInput* InitPlayerInput()
 			 SDL_JoystickNumAxes(In->Joy),
 			 SDL_JoystickNumButtons(In->Joy),
 			 SDL_JoystickNumBalls(In->Joy));
-		//InitSchemeInput();
-		//scheme_set_external_data(scheme_vm, In);
-		//scheme_load_file_name(scheme_vm, "input.scm");
-		//scheme_set_external_data(scheme_vm, NULL);
+
+        InitPlayerInputMapping(In);
 
 		for(list<pair<AxisInputs, pair<int, bool> > >::iterator p = In->AxisMap.begin(); p != In->AxisMap.end(); p++)
 		{
@@ -71,29 +90,26 @@ PlayerInput* InitPlayerInput()
 		{
 			printf("ButtonMap, Input:%d Index:%d\n", (*p).first, (*p).second);
 		}
+        Inputs[i] = In;
 	}
 
-	return In;
+    return num_sticks;
 
-	/*In->HIDManager = IOHIDManagerCreate(kCFAllocatorDefault, 0);
-
-	CFDictionaryRef MatchingDictRef = CFDictionaryCreateMutable(kCFAllocatorDefault, 0, NULL, NULL);
-	CFDictionarySetValue(MatchingDictRef, kIOHIDProductIDKey, &0x268);
-	IOHIDManagerSetDeviceMatching(In->HIDManager, NULL);
-
-	CFRelease(MatchingDictRef);*/
-	
 }
 
-void DestroyPlayerInput(PlayerInput* Input)
+void DestroyPlayerInputs(PlayerInput** Input, unsigned int Inputs)
 {
-	//IOHIDManagerClose(Input->HIDManager);
-	//CFRelease(In->HIDManager);
+    for(unsigned int i=0; i<Inputs; i++)
+    {
+        if(!Input[i])
+            continue;
 
-	if(Input->Joy)
-		SDL_JoystickClose(Input->Joy);
+        if(Input[i]->Joy)
+            SDL_JoystickClose(Input[i]->Joy);
 	
-	delete Input;
+        delete Input[i];
+        Input[i]  = NULL;
+    }
 }
 
 void UpdateInput(PlayerInput* Input)
@@ -127,44 +143,3 @@ float GetAxisState(PlayerInput* Input, AxisInputs Axis)
 		return 0.0f;
 	return Input->AxisValues[Axis];
 }
-
-static const char* InputMapDocs =
-"(input-map \"Sets up the input mapping for a joystick.\" (nil) (string \"Controller ID\" ((symbol \"Input Dest\") (list \"Input Source\")))";
-
-/*pointer InputMap(scheme* sc, pointer p)
-{
-	PlayerInput* Input = (PlayerInput*)sc->ext_data;
-	const char* InputDev = string_value(pair_car(p));
-
-	if(strcmp(SDL_JoystickName(SDL_JoystickIndex(Input->Joy)), InputDev) == 0)
-	{
-		Input->AxisMap.clear();
-		Input->ButtonMap.clear();
-		pointer rest = pair_cdr(p);
-		while(rest != sc->NIL)
-		{
-			pointer map = pair_car(rest);
-			if(strcmp(symname(car(map)), "axis-map") == 0)
-			{
-				bool bInvert = false;
-				if(strcmp(symname(cadr(map)), "invert") == 0)
-				{
-					bInvert = true;
-					// Invert Input
-					map = cdr(map);
-				}
-				Input->AxisMap.push_back(pair<AxisInputs, pair<int, bool> >((AxisInputs)IndexFromSymName(symname(cadr(map))), pair<int, bool>(ivalue(caddr(map)), bInvert)));
-			}
-			else if(strcmp(symname(car(map)), "button-map") == 0)
-			{
-				Input->ButtonMap.push_back(pair<ButtonInputs, int>((ButtonInputs)IndexFromSymName(symname(cadr(map))), ivalue(caddr(map))));
-			}
-			rest = pair_cdr(rest);
-		}
-	}
-}
-
-void InitSchemeInput()
-{
-	scheme_define(scheme_vm, scheme_vm->global_env, mk_symbol(scheme_vm, "input-map"), mk_foreign_func(scheme_vm, &InputMap));
-}*/

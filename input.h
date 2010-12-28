@@ -14,12 +14,17 @@ enum ButtonInputs
 	Input_Max_Button = 1
 };
 
+enum InputType 
+{
+    Input_Type_Axis,
+    Input_Type_Button,
+    Input_Type_End
+};
+
 struct PlayerInput;
 
-extern PlayerInput* LocalPlayerInput;
-
-PlayerInput* InitPlayerInput();
-void DestroyPlayerInput(PlayerInput* Input);
+unsigned int InitPlayerInputs(PlayerInput** Inputs, unsigned int DesiredInputs);
+void DestroyPlayerInputs(PlayerInput** Input, unsigned int Inputs);
 void UpdateInput(PlayerInput* Input);
 bool GetButtonState(PlayerInput* Input, ButtonInputs Btn);
 float GetAxisState(PlayerInput* Input, AxisInputs Axis);

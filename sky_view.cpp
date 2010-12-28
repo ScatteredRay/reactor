@@ -33,6 +33,8 @@ VertexDef boot_vert_def()
 
 // Example view implementation.
 
+const int Num_Players = 2;
+
 struct ViewInfo
 {
     GLuint basic_shader;
@@ -48,7 +50,7 @@ struct ViewInfo
     
     bool bMouseDown;
 
-    PlayerInput* player_input;
+    PlayerInput* player_input[Num_Players];
 };
 
 ViewInfo* InitView()
@@ -57,7 +59,7 @@ ViewInfo* InitView()
 
     init_sdl_system();
 
-    view->player_input = InitPlayerInput();
+    InitPlayerInputs(view->player_input, Num_Players);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     view->basic_shader = CreateShaderProgram(SHADER_CONSTANT_COLOR);
@@ -115,7 +117,7 @@ void FinishView(ViewInfo* view)
 
     DestroyVertexDef(view->boot_vert);
 
-    DestroyPlayerInput(view->player_input);
+    DestroyPlayerInputs(view->player_input, Num_Players);
     finalize_sdl_system();
 
     delete view;
@@ -126,6 +128,10 @@ void ResizeView(ViewInfo*, int, int)
 
 void UpdateView(ViewInfo* view)
 {
+    for(int i=0; i<Num_Players; i++)
+        if(view->player_input[i])
+            UpdateInput(view->player_input[i]);
+
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(view->basic_shader);
