@@ -2,10 +2,12 @@
 #define _CHARACTER_H_
 
 struct Character;
+struct PlayerInput;
 
 void InitCharacters();
 void FinishCharacters();
-Character* CreateCharacter();
+Character* CreateCharacter(PlayerInput* input);
+void UpdateCharacter(Character* character, float DeltaTime);
 void RenderCharacter(Character* caracter);
 void DestroyCharacter(Character* character);
 

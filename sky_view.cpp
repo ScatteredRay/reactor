@@ -13,6 +13,8 @@
 #include "character.h"
 
 #include "editor_meshes.h"
+
+#include <assert.h>
 #include <gl.h>
 
 struct boot_vert
@@ -63,7 +65,9 @@ ViewInfo* InitView()
 
     init_sdl_system();
 
-    InitPlayerInputs(view->player_input, Num_Players);
+    int num_inputs = InitPlayerInputs(view->player_input, Num_Players);
+    
+    assert(num_inputs >= 1);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     view->basic_shader = CreateShaderProgram(SHADER_CONSTANT_COLOR);
@@ -109,7 +113,7 @@ ViewInfo* InitView()
 
 
     InitCharacters();
-    view->character = CreateCharacter();
+    view->character = CreateCharacter(view->player_input[0]);
     
 
     return view;
@@ -143,6 +147,8 @@ void UpdateView(ViewInfo* view)
     for(int i=0; i<Num_Players; i++)
         if(view->player_input[i])
             UpdateInput(view->player_input[i]);
+
+    UpdateCharacter(view->character, 0.02f);
 
     glClear(GL_COLOR_BUFFER_BIT);
 

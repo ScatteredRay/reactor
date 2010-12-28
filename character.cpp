@@ -1,18 +1,24 @@
 #include <character.h>
 #include <gl.h>
+#include "vectormath.h"
+
 #include "simple_mesh.h"
 #include "simple_vectors.h"
 #include "simple_shader.h"
 #include "simple_texture.h"
+#include "input.h"
 
 struct Character
 {
+    Vector3 location;
+    PlayerInput* input;
 };
 
 VertexDef character_vert_def;
 GLuint character_mesh;
 GLuint character_texture;
 GLint character_sampler_uniform;
+GLint character_local_to_world_uniform;
 GLuint character_shader;
 
 struct character_vert
@@ -48,6 +54,7 @@ void InitCharacters()
 
     character_shader = CreateShaderProgram(SHADER_CHARACTER);
     character_sampler_uniform = glGetUniformLocation(character_shader, "sprite_tex");
+    character_local_to_world_uniform = glGetUniformLocation(character_shader, "local_to_world");
 
     character_texture = CreateTextureFromBMP("data/PFX_test_001.bmp");
 }
@@ -59,10 +66,23 @@ void FinishCharacters()
     DestroyMesh(character_mesh);
 }
 
-Character* CreateCharacter()
+Character* CreateCharacter(PlayerInput* input)
 {
     Character* character = new Character();
+
+    character->location = Vector3(0.0f, 0.0f, 0.0f);
+    character->input = input;
+
     return character;
+}
+
+void UpdateCharacter(Character* character, float DeltaTime)
+{
+    character->location
+        += DeltaTime *
+        Vector3(GetAxisState(character->input, Input_Move_X),
+                GetAxisState(character->input, Input_Move_Y),
+                0.0f);
 }
 
 void RenderCharacter(Character* character)
@@ -71,6 +91,10 @@ void RenderCharacter(Character* character)
     glBindBuffer(GL_ARRAY_BUFFER, character_mesh);
     ApplyVertexDef(character_vert_def);
 
+    Matrix4 local_to_world = Matrix4::translation(character->location);
+    //local_to_world = transpose(local_to_world);
+
+    glUniformMatrix4fv(character_local_to_world_uniform, 1, false, (float*)&local_to_world);
     glUniform1i(character_sampler_uniform, 0);
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, character_texture);
