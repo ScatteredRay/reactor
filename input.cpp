@@ -127,7 +127,7 @@ void UpdateInput(PlayerInput* Input)
 	{
 		Input->ButtonValues[(*p).first] = SDL_JoystickGetButton(Input->Joy, (*p).second);
 	}
-	printf("Move Input X: %f Y: %f Jump: %d\n", Input->AxisValues[Input_Move_X], Input->AxisValues[Input_Move_Y], Input->ButtonValues[Input_Jump]);
+	//printf("Move Input X: %f Y: %f Jump: %d\n", Input->AxisValues[Input_Move_X], Input->AxisValues[Input_Move_Y], Input->ButtonValues[Input_Jump]);
 }
 
 bool GetButtonState(PlayerInput* Input, ButtonInputs Btn)

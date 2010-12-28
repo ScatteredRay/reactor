@@ -19,7 +19,7 @@ enum Vertex_Attributes
     VERTEX_NORMALIZED_OTHER_ATTR
 };
 
-GLuint CreateMesh(unsigned int num_verticies, size_t vertex_size, void* data);
+GLuint CreateMesh(unsigned int num_verticies, size_t vertex_size, const void* data);
 void DestroyMesh(GLuint buffer);
 
 struct VertexAttribute

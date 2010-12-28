@@ -7,6 +7,7 @@
 #include "simple_mesh.h"
 #include "simple_vectors.h"
 #include "obj_load.h"
+#include "file.h"
 
 bool is_newline(char c)
 {
@@ -142,23 +143,10 @@ void parse_face_index(char** c, unsigned short* v, unsigned short* n, unsigned s
 
 obj_mesh* obj_load_mesh(const char* filename)
 {
-    FILE* file = fopen(filename, "r");
+    char* buffer = load_entire_file(filename, "r");
 
-    if(!file)
-    {
-        printf("Input File \"%s\" does not exist.\n", filename);
+    if(!buffer)
         return NULL;
-    }
-
-    fseek(file, 0, SEEK_END);
-    size_t flen = ftell(file);
-    rewind(file);
-
-    char* buffer = new char[flen+1];
-    fread(buffer, 1, flen, file);
-    buffer[flen] = '\0';
-    fclose(file);
-
 
     // Build size counts
     char* curr = buffer;

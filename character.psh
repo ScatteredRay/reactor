@@ -1,0 +1,10 @@
+// Copyright (c) 2010, Nicholas "Indy" Ray. All rights reserved.
+// See the LICENSE file for usage, modification, and distribution terms.
+
+uniform sampler2D sprite_tex;
+
+void main(void)
+{
+    gl_FragColor = texture2D(sprite_tex, gl_TexCoord[0].xy);
+    //    gl_FragColor = vec4(gl_TexCoord[0].xy, 1.0, 1.0);
+}

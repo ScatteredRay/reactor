@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <gl.h>
 
-GLuint CreateMesh(unsigned int num_verticies, size_t vertex_size, void* data)
+GLuint CreateMesh(unsigned int num_verticies, size_t vertex_size, const void* data)
 {
     GLuint vbuffer;
     glGenBuffers(1, &vbuffer);

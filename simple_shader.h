@@ -8,7 +8,8 @@ typedef unsigned int GLuint;
 // Map declared near the bottom of simple_shader.cpp needs to be kept in sync!
 enum shader_id
 {
-    SHADER_CONSTANT_COLOR = 0
+    SHADER_CONSTANT_COLOR = 0,
+    SHADER_CHARACTER = 1
 };
 
 GLuint CreateShaderProgram(shader_id shader);

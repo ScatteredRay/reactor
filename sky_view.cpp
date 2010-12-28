@@ -4,10 +4,13 @@
 #include "view_decl.h"
 #include "simple_shader.h"
 #include "simple_vectors.h"
+#include "simple_texture.h"
 #include "simple_mesh.h"
 #include "obj_load.h"
 #include "input.h"
 #include "core_systems.h"
+
+#include "character.h"
 
 #include "editor_meshes.h"
 #include <gl.h>
@@ -51,6 +54,7 @@ struct ViewInfo
     bool bMouseDown;
 
     PlayerInput* player_input[Num_Players];
+    Character* character;
 };
 
 ViewInfo* InitView()
@@ -67,6 +71,7 @@ ViewInfo* InitView()
                                                        "diffuse_color");
 
     glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
     view->boot_vert = boot_vert_def();
 
@@ -101,6 +106,10 @@ ViewInfo* InitView()
                  GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+
+    InitCharacters();
+    view->character = CreateCharacter();
     
 
     return view;
@@ -108,6 +117,9 @@ ViewInfo* InitView()
 
 void FinishView(ViewInfo* view)
 {
+    DestroyCharacter(view->character);
+    FinishCharacters();
+
     DestroyMesh(view->collision_gl_mesh);
     glDeleteBuffers(1, &view->collision_mesh_indices);
     delete view->collision_mesh;
@@ -152,6 +164,8 @@ void UpdateView(ViewInfo* view)
                 1.0f, 0.0f, 0.0f, 1.0f);
 
     DrawEditorMesh(view->grid);
+
+    RenderCharacter(view->character);
 }
 
 void MouseDown(ViewInfo* view)
