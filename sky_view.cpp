@@ -81,6 +81,9 @@ ViewInfo* InitView()
 
     view->environment_shader = CreateShaderProgram(SHADER_ENVIRONMENT);
 
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
@@ -162,7 +165,7 @@ void UpdateView(ViewInfo* view)
 
     UpdateCamera(view->camera, &char_location, 1);
 
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     Matrix4 view_projection = CameraGetWorldToProjection(view->camera);
     glMatrixMode(GL_PROJECTION);

@@ -13,6 +13,16 @@ struct obj_vert
     vector4 emissive;
 };
 
+struct material_params
+{
+    vector3 diffuse;
+    vector3 ambient;
+    vector3 specular;
+    float specular_power;
+    vector3 emissive;
+    float emissive_brightness;
+};
+
 VertexDef obj_vert_def();
 
 struct obj_mesh

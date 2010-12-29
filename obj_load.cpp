@@ -29,6 +29,18 @@ bool is_number_char(char c)
     return (c >= '0') && (c <= '9');
 }
 
+bool is_alpha_char(char c)
+{
+    return
+        ((c >= 'a') && (c <= 'z')) ||
+        ((c >= 'A') && (c <= 'Z'));
+}
+
+bool is_symbol_char(char c)
+{
+    return is_alpha_char(c);
+}
+
 bool is_extended_hex_char(char c)
 {
     return (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
@@ -48,7 +60,10 @@ bool check_match(char* curr, const char* cmp)
         cmp++;
     }
 
-    return true;
+    if(is_whitespace(*curr))
+        return true;
+    else
+        return false;
 }
 
 void skip_line(char** curr)
@@ -116,6 +131,32 @@ int parse_int(char** c)
     return strtol(buffer, NULL, 10);
 }
 
+char* parse_symbol(char** c)
+{
+    char* curr = *c;
+
+    while(is_whitespace(*curr))
+        curr++;
+
+    if(!is_symbol_char(*curr))
+        return NULL;
+    
+    char* start = curr;
+
+    while(is_symbol_char(*curr))
+    {
+        curr++;
+    }
+
+    char* buffer = new char[(curr + 1 - start) * sizeof(char)];
+    strncpy(buffer, start, (curr - start));
+    buffer[curr-start] = '\0';
+
+    *c = curr;
+
+    return buffer;
+}
+
 // Very minimal obj parser, isn't very robust and loads the entire thing file at a time,
 // should do for our job though.
 
@@ -141,7 +182,7 @@ void parse_face_index(char** c, unsigned short* v, unsigned short* t, unsigned s
     *c = curr;
 }
 
-void populate_face(char** c, obj_vert* vert, vector3* positions, vector2* uvs, vector3* normals)
+void populate_face(char** c, obj_vert* vert, vector3* positions, vector2* uvs, vector3* normals, material_params& params)
 {
     unsigned short position, uv, normal;
     parse_face_index(c,
@@ -152,10 +193,20 @@ void populate_face(char** c, obj_vert* vert, vector3* positions, vector2* uvs, v
     vert->location = positions[position];
     vert->uv = uvs[uv];
     vert->normal = normals[normal];
-    vert->diffuse.x = 0.0f;
-    vert->diffuse.y = 1.0f;
-    vert->diffuse.z = 0.0f;
+    vert->diffuse = params.diffuse;
+    //printf("diffuse: %f %f %f\n", vert->diffuse.x, vert->diffuse.y, vert->diffuse.z);
+    vert->ambient = params.ambient;
+    vert->specular.x = params.specular.x;
+    vert->specular.y = params.specular.y;
+    vert->specular.z = params.specular.z;
+    vert->specular.w = params.specular_power;
+    vert->emissive.x = params.emissive.x;
+    vert->emissive.y = params.emissive.y;
+    vert->emissive.z = params.emissive.z;
+    vert->emissive.w = params.emissive_brightness;
 }
+
+bool load_ssh(const char* shname, material_params* params);
 
 obj_mesh* obj_load_mesh(const char* filename)
 {
@@ -180,13 +231,13 @@ obj_mesh* obj_load_mesh(const char* filename)
             continue;
         }
 
-        if(check_match(curr, "v "))
+        if(check_match(curr, "v"))
             position_count++;
-        else if(check_match(curr, "vt "))
+        else if(check_match(curr, "vt"))
             uv_count++;
-        else if(check_match(curr, "vn "))
+        else if(check_match(curr, "vn"))
             normal_count++;
-        else if(check_match(curr, "f "))
+        else if(check_match(curr, "f"))
             face_count++;
 
         skip_line(&curr);
@@ -208,6 +259,9 @@ obj_mesh* obj_load_mesh(const char* filename)
 
     // Actually parse the obj file
 
+    material_params current_params;
+    load_ssh("Default", &current_params);
+
     curr = buffer;
 
     while(*curr != '\0')
@@ -218,7 +272,7 @@ obj_mesh* obj_load_mesh(const char* filename)
             continue;
         }
 
-        if(check_match(curr, "v "))
+        if(check_match(curr, "v"))
         {
             curr++;
             assert(pidx < position_count);
@@ -228,7 +282,7 @@ obj_mesh* obj_load_mesh(const char* filename)
             pidx++;
             skip_line(&curr);
         }
-        else if(check_match(curr, "vt "))
+        else if(check_match(curr, "vt"))
         {
             curr += 2;
             assert(uvidx < uv_count);
@@ -237,7 +291,7 @@ obj_mesh* obj_load_mesh(const char* filename)
             uvidx++;
             skip_line(&curr);
         }
-        else if(check_match(curr, "vn "))
+        else if(check_match(curr, "vn"))
         {
             curr += 2;
             assert(nidx < normal_count);
@@ -248,15 +302,27 @@ obj_mesh* obj_load_mesh(const char* filename)
             nidx++;
             skip_line(&curr);
         }
-        else if(check_match(curr, "f "))
+        else if(check_match(curr, "f"))
         {
             curr++;
             assert(fidx+2 < face_count*3);
 
-            populate_face(&curr, &verticies[fidx++], positions, uvs, normals);
-            populate_face(&curr, &verticies[fidx++], positions, uvs, normals);
-            populate_face(&curr, &verticies[fidx++], positions, uvs, normals);
+            populate_face(&curr, &verticies[fidx++], positions, uvs, normals, current_params);
+            populate_face(&curr, &verticies[fidx++], positions, uvs, normals, current_params);
+            populate_face(&curr, &verticies[fidx++], positions, uvs, normals, current_params);
 
+            skip_line(&curr);
+        }
+        else if(check_match(curr, "usemtl"))
+        {
+            curr += 6;
+            char* material = parse_symbol(&curr);
+            if(material)
+            {
+                if(!load_ssh(material, &current_params))
+                        load_ssh("Default", &current_params);
+                delete [] material;
+            }
             skip_line(&curr);
         }
         else
@@ -276,6 +342,89 @@ obj_mesh* obj_load_mesh(const char* filename)
     delete [] buffer;
 
     return mesh;
+}
+
+// Parse shading files
+
+struct param_parse_map
+{
+    const char* symbol;
+    size_t offset;
+    unsigned int count;
+};
+
+const param_parse_map material_parse_mapping[] =
+{{"Diffuse", (size_t)&((material_params*)NULL)->diffuse, 3},
+ {"Ambient", (size_t)&((material_params*)NULL)->ambient, 3},
+ {"Specular", (size_t)&((material_params*)NULL)->specular, 3},
+ {"SpecularPower", (size_t)&((material_params*)NULL)->specular_power, 1},
+ {"Emissive", (size_t)&((material_params*)NULL)->emissive, 3},
+ {"EmissiveBrightness", (size_t)&((material_params*)NULL)->emissive_brightness, 1},
+ {NULL, 0, 0}};
+
+bool load_ssh(const char* shname, material_params* params)
+{
+    const char* shpath = "data/world/materials/";
+    const char* shext = ".ssh";
+    char* filename = new char[strlen(shname) +
+                              strlen(shpath) +
+                              strlen(shext) + 1];
+
+    strcpy(filename, shpath);
+    strcpy(filename + strlen(filename), shname);
+    strcpy(filename + strlen(filename), shext);
+
+    char* buffer = load_entire_file(filename, "r");
+    delete filename;
+
+    if(!buffer)
+        return false;
+
+    char* curr = buffer;
+
+    while(*curr != '\0')
+    {
+        if(is_whitespace(*curr))
+        {
+            curr++;
+            continue;
+        }
+        
+        if(*curr == '#')
+        {
+            skip_line(&curr);
+            continue;
+        }
+
+        const param_parse_map* P = material_parse_mapping;
+        while(P->symbol)
+        {
+            if(check_match(curr, P->symbol))
+            {
+                curr += strlen(P->symbol);
+                for(unsigned int i=0; i<P->count; i++)
+                {
+                    ((float*)((char*)params+P->offset))[i] = parse_float(&curr);
+                }
+                skip_line(&curr);
+                break;
+            }
+            P++;
+        }
+
+        if(!P->symbol)
+        {
+            printf("Unparsable line while parsing material: %s\n", shname);
+            skip_line(&curr);
+        }
+            
+    }
+
+    //printf("Material Diffuse: %f %f %f\n", params->diffuse.x, params->diffuse.y, params->diffuse.z);
+
+    delete [] buffer;
+
+    return true;
 }
 
 #include <gl.h>
