@@ -9,7 +9,8 @@ typedef unsigned int GLuint;
 enum shader_id
 {
     SHADER_CONSTANT_COLOR = 0,
-    SHADER_CHARACTER = 1
+    SHADER_ENVIRONMENT = 1,
+    SHADER_CHARACTER = 2
 };
 
 GLuint CreateShaderProgram(shader_id shader);

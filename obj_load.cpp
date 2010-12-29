@@ -119,7 +119,7 @@ int parse_int(char** c)
 // Very minimal obj parser, isn't very robust and loads the entire thing file at a time,
 // should do for our job though.
 
-void parse_face_index(char** c, unsigned short* v, unsigned short* n, unsigned short* t)
+void parse_face_index(char** c, unsigned short* v, unsigned short* t, unsigned short* n)
 {
     char* curr = *c;
 
@@ -131,14 +131,30 @@ void parse_face_index(char** c, unsigned short* v, unsigned short* n, unsigned s
     if(v) *v = i;
     assert(*curr == '/');
     curr++;
-    i = parse_int(&curr) - 1; // normal index
-    if(n) *n = i;
+    i = parse_int(&curr) - 1; // texture index
+    if(t) *t = i;
     assert(*curr == '/');
     curr++;
-    i = parse_int(&curr) - 1; // tangent index
-    if(t) *t = i;
+    i = parse_int(&curr) - 1; // normal index
+    if(n) *n = i;
 
     *c = curr;
+}
+
+void populate_face(char** c, obj_vert* vert, vector3* positions, vector2* uvs, vector3* normals)
+{
+    unsigned short position, uv, normal;
+    parse_face_index(c,
+                     &position,
+                     &uv,
+                     &normal);
+
+    vert->location = positions[position];
+    vert->uv = uvs[uv];
+    vert->normal = normals[normal];
+    vert->diffuse.x = 0.0f;
+    vert->diffuse.y = 1.0f;
+    vert->diffuse.z = 0.0f;
 }
 
 obj_mesh* obj_load_mesh(const char* filename)
@@ -151,7 +167,9 @@ obj_mesh* obj_load_mesh(const char* filename)
     // Build size counts
     char* curr = buffer;
 
-    unsigned int vertex_count = 0;
+    unsigned int position_count = 0;
+    unsigned int uv_count = 0;
+    unsigned int normal_count = 0;
     unsigned int face_count = 0;
 
     while(*curr != '\0')
@@ -163,7 +181,11 @@ obj_mesh* obj_load_mesh(const char* filename)
         }
 
         if(check_match(curr, "v "))
-            vertex_count++;
+            position_count++;
+        else if(check_match(curr, "vt "))
+            uv_count++;
+        else if(check_match(curr, "vn "))
+            normal_count++;
         else if(check_match(curr, "f "))
             face_count++;
 
@@ -172,16 +194,18 @@ obj_mesh* obj_load_mesh(const char* filename)
     }
 
 
-    printf("Vertices: %d, Faces: %d.\n", vertex_count, face_count);
+    printf("Vertices: %d, Faces: %d.\n", position_count, face_count);
 
-    obj_vert* verticies = new obj_vert[vertex_count];
+    vector3* positions = new vector3[position_count];
+    vector2* uvs = new vector2[uv_count];
+    vector3* normals = new vector3[normal_count];
+    obj_vert* verticies = new obj_vert[face_count*3];
 
-    obj_face* faces = new obj_face[face_count];
-
-    unsigned int vidx = 0;
+    unsigned int pidx = 0;
+    unsigned int uvidx = 0;
+    unsigned int nidx = 0;
     unsigned int fidx = 0;
-    
-    
+
     // Actually parse the obj file
 
     curr = buffer;
@@ -197,21 +221,42 @@ obj_mesh* obj_load_mesh(const char* filename)
         if(check_match(curr, "v "))
         {
             curr++;
-            assert(vidx < vertex_count);
-            verticies[vidx].location.x = parse_float(&curr);
-            verticies[vidx].location.y = parse_float(&curr);
-            verticies[vidx].location.z = parse_float(&curr);
-            vidx++;
+            assert(pidx < position_count);
+            positions[pidx].x = parse_float(&curr);
+            positions[pidx].y = parse_float(&curr);
+            positions[pidx].z = parse_float(&curr);
+            pidx++;
+            skip_line(&curr);
+        }
+        else if(check_match(curr, "vt "))
+        {
+            curr += 2;
+            assert(uvidx < uv_count);
+            uvs[uvidx].x = parse_float(&curr);
+            uvs[uvidx].y = parse_float(&curr);
+            uvidx++;
+            skip_line(&curr);
+        }
+        else if(check_match(curr, "vn "))
+        {
+            curr += 2;
+            assert(nidx < normal_count);
+
+            normals[nidx].x = parse_float(&curr);
+            normals[nidx].y = parse_float(&curr);
+            normals[nidx].z = parse_float(&curr);
+            nidx++;
             skip_line(&curr);
         }
         else if(check_match(curr, "f "))
         {
             curr++;
-            assert(fidx < face_count);
-            parse_face_index(&curr, &faces[fidx].a, NULL, NULL);
-            parse_face_index(&curr, &faces[fidx].b, NULL, NULL);
-            parse_face_index(&curr, &faces[fidx].c, NULL, NULL);
-            fidx++;
+            assert(fidx+2 < face_count*3);
+
+            populate_face(&curr, &verticies[fidx++], positions, uvs, normals);
+            populate_face(&curr, &verticies[fidx++], positions, uvs, normals);
+            populate_face(&curr, &verticies[fidx++], positions, uvs, normals);
+
             skip_line(&curr);
         }
         else
@@ -221,10 +266,12 @@ obj_mesh* obj_load_mesh(const char* filename)
 
     obj_mesh* mesh = new obj_mesh();
 
-    mesh->vertex_count = vertex_count;
+    mesh->vertex_count = face_count*3;
     mesh->verticies = verticies;
-    mesh->face_count = face_count;
-    mesh->faces = faces;
+
+    delete [] positions;
+    delete [] uvs;
+    delete [] normals;
 
     delete [] buffer;
 
@@ -236,9 +283,15 @@ obj_mesh* obj_load_mesh(const char* filename)
 VertexDef obj_vert_def()
 {
     obj_vert* proxy = 0;
-    VertexDef VD = CreateVertexDef(sizeof(obj_vert), 1);
+    VertexDef VD = CreateVertexDef(sizeof(obj_vert), 7);
     int i = 0;
     AddVertexAttribute(VD, i++, VERTEX_POSITION_ATTR, (size_t)&proxy->location, 3, GL_FLOAT);
+    AddVertexAttribute(VD, i++, VERTEX_NORMAL_ATTR, (size_t)&proxy->normal, 3, GL_FLOAT);
+    AddVertexAttribute(VD, i++, VERTEX_UV_ATTR, (size_t)&proxy->uv, 2, GL_FLOAT);
+    AddVertexAttribute(VD, i++, VERTEX_COLOR_ATTR, (size_t)&proxy->diffuse, 3, GL_FLOAT);
+    AddVertexAttribute(VD, i++, VERTEX_OTHER_ATTR_0, (size_t)&proxy->ambient, 3, GL_FLOAT);
+    AddVertexAttribute(VD, i++, VERTEX_OTHER_ATTR_1, (size_t)&proxy->specular, 4, GL_FLOAT);
+    AddVertexAttribute(VD, i++, VERTEX_OTHER_ATTR_2, (size_t)&proxy->emissive, 4, GL_FLOAT);
 
     return VD;
 }

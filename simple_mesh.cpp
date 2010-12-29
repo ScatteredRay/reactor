@@ -85,17 +85,22 @@ void ApplyVertexDef(VertexDef Def)
                               Def->stride,
                               (void*)A->offset);
             break;
-        case VERTEX_OTHER_ATTR:
-            // How are we going to set Vertex Attribute indicies, 0 for testing.
-            glVertexAttribPointer(0,
+        case VERTEX_OTHER_ATTR_0:
+        case VERTEX_OTHER_ATTR_1:
+        case VERTEX_OTHER_ATTR_2:
+        case VERTEX_OTHER_ATTR_3:
+            glVertexAttribPointer(A->attr-VERTEX_OTHER_ATTR_0,
                                   A->num_elements,
                                   A->type,
                                   false,
                                   Def->stride,
                                   (void*)A->offset);
             break;
-        case VERTEX_NORMALIZED_OTHER_ATTR:
-            glVertexAttribPointer(0,
+        case VERTEX_NORMALIZED_OTHER_ATTR_0:
+        case VERTEX_NORMALIZED_OTHER_ATTR_1:
+        case VERTEX_NORMALIZED_OTHER_ATTR_2:
+        case VERTEX_NORMALIZED_OTHER_ATTR_3:
+            glVertexAttribPointer(A->attr-VERTEX_NORMALIZED_OTHER_ATTR_0,
                                   A->num_elements,
                                   A->type,
                                   true,

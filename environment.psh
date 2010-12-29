@@ -1,0 +1,9 @@
+// Copyright (c) 2010, Nicholas "Indy" Ray. All rights reserved.
+// See the LICENSE file for usage, modification, and distribution terms.
+
+varying vec4 color;
+
+void main(void)
+{
+    gl_FragColor = color;
+}
