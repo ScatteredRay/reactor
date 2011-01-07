@@ -109,6 +109,7 @@ void RenderCharacter(Character* character)
     glBindTexture(GL_TEXTURE_2D, character_texture);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void DestroyCharacter(Character* character)

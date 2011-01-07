@@ -89,7 +89,7 @@ void ApplyVertexDef(VertexDef Def)
         case VERTEX_OTHER_ATTR_1:
         case VERTEX_OTHER_ATTR_2:
         case VERTEX_OTHER_ATTR_3:
-            glVertexAttribPointer(A->attr-VERTEX_OTHER_ATTR_0,
+            glVertexAttribPointer(A->attr-VERTEX_OTHER_ATTR_0 + 1,
                                   A->num_elements,
                                   A->type,
                                   false,
@@ -100,7 +100,7 @@ void ApplyVertexDef(VertexDef Def)
         case VERTEX_NORMALIZED_OTHER_ATTR_1:
         case VERTEX_NORMALIZED_OTHER_ATTR_2:
         case VERTEX_NORMALIZED_OTHER_ATTR_3:
-            glVertexAttribPointer(A->attr-VERTEX_NORMALIZED_OTHER_ATTR_0,
+            glVertexAttribPointer(A->attr-VERTEX_NORMALIZED_OTHER_ATTR_0 + 1,
                                   A->num_elements,
                                   A->type,
                                   true,

@@ -52,7 +52,12 @@ void UpdateCamera(Camera* camera, Vector3* tracking_points, unsigned int num_tra
     camera->location = location;
 }
 
-Matrix4 CameraGetWorldToProjection(Camera* camera)
+Matrix4 CameraGetProjection(Camera* camera)
+{
+    return camera->projection;
+}
+
+Matrix4 CameraGetWorldToView(Camera* camera)
 {
     Vector3 look_at = camera->location;
     look_at.setZ(0.0f);
@@ -61,5 +66,10 @@ Matrix4 CameraGetWorldToProjection(Camera* camera)
         Point3(look_at),
         camera_up_vector);
 
-    return camera->projection * world_to_view;
+    return world_to_view;
+}
+
+Matrix4 CameraGetWorldToProjection(Camera* camera)
+{
+    return camera->projection * CameraGetWorldToView(camera);
 }

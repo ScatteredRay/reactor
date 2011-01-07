@@ -136,7 +136,8 @@ const char* ShaderFileMap[][2] =
 {
     { "standard.vsh",  "constant_color.psh" },
     { "environment.vsh",  "environment.psh" },
-    { "character.vsh", "character.psh" }
+    { "character.vsh", "character.psh" },
+    { "alignedquad.vsh", "deferred_lighting.psh" }
 };
 
 const char* GetVShaderFilename(shader_id shader)

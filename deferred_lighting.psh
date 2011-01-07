@@ -1,0 +1,20 @@
+// Copyright (c) 2010, Nicholas "Indy" Ray. All rights reserved.
+// See the LICENSE file for usage, modification, and distribution terms.
+
+uniform sampler2D color_buffer;
+uniform sampler2D normal_buffer;
+uniform sampler2D ambient_buffer;
+uniform sampler2D specular_buffer;
+uniform sampler2D emissive_buffer;
+
+uniform vec3 directional_light;
+
+void main(void)
+{
+    float dot = abs(dot(texture2D(normal_buffer, gl_TexCoord[0].xy).xyz, directional_light));
+    gl_FragColor = texture2D(color_buffer, gl_TexCoord[0].xy);
+    //gl_FragColor = vec4(dot, dot, dot, dot);
+    //    gl_FragColor = texture2D(normal_buffer, gl_TexCoord[0].xy);
+    gl_FragColor = texture2D(specular_buffer, gl_TexCoord[0].xy);
+    //gl_FragColor = vec4(directional_light, 1.0);
+}

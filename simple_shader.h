@@ -10,7 +10,8 @@ enum shader_id
 {
     SHADER_CONSTANT_COLOR = 0,
     SHADER_ENVIRONMENT = 1,
-    SHADER_CHARACTER = 2
+    SHADER_CHARACTER = 2,
+    SHADER_DEFERRED_LIGHTING = 3
 };
 
 GLuint CreateShaderProgram(shader_id shader);

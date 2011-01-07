@@ -12,6 +12,7 @@
 
 #include "character.h"
 #include "camera.h"
+#include "environment.h"
 
 #include "editor_meshes.h"
 
@@ -50,8 +51,6 @@ struct ViewInfo
 
     Editor_Mesh* grid;
 
-    GLuint environment_shader;
-
     VertexDef collision_vert;
     obj_mesh* collision_mesh;
     GLuint collision_gl_mesh;
@@ -62,6 +61,9 @@ struct ViewInfo
     Character* character;
 
     Camera* camera;
+    DeferredRender* deferred;
+
+    Environment* environment;
 };
 
 ViewInfo* InitView()
@@ -79,8 +81,6 @@ ViewInfo* InitView()
     view->diffuse_color_uniform = glGetUniformLocation(view->basic_shader,
                                                        "diffuse_color");
 
-    view->environment_shader = CreateShaderProgram(SHADER_ENVIRONMENT);
-
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
@@ -88,6 +88,10 @@ ViewInfo* InitView()
     glEnableClientState(GL_COLOR_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
 
     view->boot_vert = boot_vert_def();
 
@@ -97,7 +101,7 @@ ViewInfo* InitView()
     view->bMouseDown = false;
 
     view->collision_vert = obj_vert_def();
-    view->collision_mesh = obj_load_mesh("data/world/core_world.obj");
+    view->collision_mesh = obj_load_mesh("data/world/collision.obj");
     view->collision_gl_mesh = CreateMesh(view->collision_mesh->vertex_count,
                                          sizeof(obj_vert),
                                          view->collision_mesh->verticies);
@@ -122,13 +126,19 @@ ViewInfo* InitView()
 
     InitCharacters();
     view->character = CreateCharacter(view->player_input[0]);
-    
+
+    view->deferred = InitDeferred();
+
+    view->environment = InitEnvironment(1024, 768);
 
     return view;
 }
 
 void FinishView(ViewInfo* view)
 {
+    DestroyEnvironment(view->environment);
+    DestroyDeferred(view->deferred);
+
     DestroyCharacter(view->character);
     FinishCharacters();
 
@@ -141,6 +151,9 @@ void FinishView(ViewInfo* view)
     CleanupEditor();
 
     DestroyVertexDef(view->boot_vert);
+    DestroyVertexDef(view->collision_vert);
+
+    DestroyProgramAndAttachedShaders(view->basic_shader);
 
     DestroyPlayerInputs(view->player_input, Num_Players);
     finalize_sdl_system();
@@ -151,6 +164,7 @@ void FinishView(ViewInfo* view)
 void ResizeView(ViewInfo* view, int width, int height)
 {
     SetCameraProjection(view->camera, width, height);
+    ResizeRenderBuffers(view->environment, width, height);
 }
 
 void UpdateView(ViewInfo* view)
@@ -165,19 +179,35 @@ void UpdateView(ViewInfo* view)
 
     UpdateCamera(view->camera, &char_location, 1);
 
+    Matrix4 modelview = CameraGetWorldToView(view->camera);
+    Matrix4 projection = CameraGetProjection(view->camera);
+    Matrix4 identity = Matrix4::identity();
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf((float*)&modelview);
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf((float*)&projection);
+
+    RenderEnvironment(view->environment);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    Matrix4 view_projection = CameraGetWorldToProjection(view->camera);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf((float*)&identity);
     glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf((float*)&view_projection);
+    glLoadMatrixf((float*)&identity);
+    RenderDeferred(view->deferred, view->environment);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf((float*)&modelview);
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf((float*)&projection);
 
     glUseProgram(view->basic_shader);
 
     glUniform4f(view->diffuse_color_uniform,
                 0.25f, 0.0f, 0.0f, 1.0f);
     DrawEditorMesh(view->grid);
-
-    glUseProgram(view->environment_shader);
 
     //glUniform4f(view->diffuse_color_uniform,
     //            160.0f / 255.0f, 0.0f, 1.0f, 1.0f);
@@ -187,8 +217,6 @@ void UpdateView(ViewInfo* view)
 
     glDrawArrays(GL_TRIANGLES, 0,
                  view->collision_mesh->vertex_count);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     RenderCharacter(view->character);
 }

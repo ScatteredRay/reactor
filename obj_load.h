@@ -1,6 +1,9 @@
 #ifndef _OBJ_LOAD_H_
 #define _OBJ_LOAD_H_
 
+#include "simple_vectors.h"
+#include "simple_mesh.h"
+
 struct obj_vert
 {
     vector3 location;

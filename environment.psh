@@ -1,9 +1,19 @@
 // Copyright (c) 2010, Nicholas "Indy" Ray. All rights reserved.
 // See the LICENSE file for usage, modification, and distribution terms.
 
+varying vec4 position;
 varying vec4 color;
+varying vec4 normal;
+
+varying vec3 vambient;
+varying vec4 vspecular;
+varying vec4 vemissive;
 
 void main(void)
 {
-    gl_FragColor = color;
+    gl_FragData[0] = color;
+    gl_FragData[1] = vec4(normal.rgb, -position.z);
+    gl_FragData[2] = vec4(vambient, 0.0);
+    gl_FragData[3] = vspecular;
+    gl_FragData[4] = vemissive;
 }

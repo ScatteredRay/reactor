@@ -194,7 +194,6 @@ void populate_face(char** c, obj_vert* vert, vector3* positions, vector2* uvs, v
     vert->uv = uvs[uv];
     vert->normal = normals[normal];
     vert->diffuse = params.diffuse;
-    //printf("diffuse: %f %f %f\n", vert->diffuse.x, vert->diffuse.y, vert->diffuse.z);
     vert->ambient = params.ambient;
     vert->specular.x = params.specular.x;
     vert->specular.y = params.specular.y;
