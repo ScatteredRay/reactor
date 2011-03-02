@@ -92,6 +92,7 @@ ViewInfo* InitView()
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
 
     view->boot_vert = boot_vert_def();
 

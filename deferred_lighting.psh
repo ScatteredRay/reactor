@@ -15,6 +15,6 @@ void main(void)
     gl_FragColor = texture2D(color_buffer, gl_TexCoord[0].xy);
     //gl_FragColor = vec4(dot, dot, dot, dot);
     //    gl_FragColor = texture2D(normal_buffer, gl_TexCoord[0].xy);
-    gl_FragColor = texture2D(specular_buffer, gl_TexCoord[0].xy);
+    //gl_FragColor = texture2D(emissive_buffer, gl_TexCoord[0].xy);
     //gl_FragColor = vec4(directional_light, 1.0);
 }

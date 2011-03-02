@@ -95,9 +95,13 @@ Environment* InitEnvironment(unsigned int width, unsigned int height)
 
     e->environment_shader = CreateShaderProgram(SHADER_ENVIRONMENT);
 
-    // glBindAttribLocation(e->environment_shader, 0, "ambient");
-    // glBindAttribLocation(e->environment_shader, 1, "specular");
-    // glBindAttribLocation(e->environment_shader, 2, "emissive");
+    // Remember glEnableVertexAttribArray
+    glBindAttribLocation(e->environment_shader, 1, "ambient");
+    glBindAttribLocation(e->environment_shader, 2, "specular");
+    glBindAttribLocation(e->environment_shader, 3, "emissive");
+
+    // Needs to be called to actually set the attib locations.
+    glLinkProgram(e->environment_shader);
 
     e->environment_vert = obj_vert_def();
     e->environment_mesh = obj_load_mesh("data/world/core_world.obj");
