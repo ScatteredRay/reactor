@@ -12,7 +12,7 @@ varying vec4 vemissive;
 void main(void)
 {
     gl_FragData[0] = color;
-    gl_FragData[1] = vec4(normal.rgb, -position.z);
+    gl_FragData[1] = vec4(normal.rgb, position.z / position.w);
     gl_FragData[2] = vec4(vambient, 0.0);
     gl_FragData[3] = vspecular;
     gl_FragData[4] = vemissive;

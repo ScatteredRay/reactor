@@ -54,7 +54,7 @@ struct ViewInfo
     VertexDef collision_vert;
     obj_mesh* collision_mesh;
     GLuint collision_gl_mesh;
-    
+
     bool bMouseDown;
 
     PlayerInput* player_input[Num_Players];
@@ -197,7 +197,7 @@ void UpdateView(ViewInfo* view)
     glLoadMatrixf((float*)&identity);
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf((float*)&identity);
-    RenderDeferred(view->deferred, view->environment);
+    RenderDeferred(view->deferred, view->environment, &projection);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf((float*)&modelview);

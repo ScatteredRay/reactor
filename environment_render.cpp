@@ -197,6 +197,8 @@ struct DeferredRender
     GLuint emissive_buffer_uniform;
 
     GLuint directional_light_uniform;
+
+    GLuint inv_projection_uniform;
 };
 
 DeferredRender* InitDeferred()
@@ -211,6 +213,7 @@ DeferredRender* InitDeferred()
     r->specular_buffer_uniform = glGetUniformLocation(r->deferred_lighting_shader, "specular_buffer");
     r->emissive_buffer_uniform = glGetUniformLocation(r->deferred_lighting_shader, "emissive_buffer");
     r->directional_light_uniform = glGetUniformLocation(r->deferred_lighting_shader, "directional_light");
+    r->inv_projection_uniform = glGetUniformLocation(r->deferred_lighting_shader, "inv_projection");
     return r;
 }
 
@@ -221,7 +224,7 @@ void DestroyDeferred(DeferredRender* r)
     DestroyQuad();
 }
 
-void RenderDeferred(DeferredRender* r, Environment* e)
+void RenderDeferred(DeferredRender* r, Environment* e, const Matrix4 * projection)
 {
     glUseProgram(r->deferred_lighting_shader);
 
@@ -247,12 +250,19 @@ void RenderDeferred(DeferredRender* r, Environment* e)
     glActiveTexture(GL_TEXTURE0 + 4);
     glBindTexture(GL_TEXTURE_2D, e->framebuffer_textures[4]);
 
-    Vector3 light_dir(-1.0f, -1.0f, 1.0f);
+    Vector3 light_dir(-1.0f, 1.0f, 1.0f);
 
     glUniform3f(r->directional_light_uniform,
                 light_dir.getX(),
                 light_dir.getY(),
                 light_dir.getZ());
+
+    Matrix4 invprojection = inverse(*projection);
+
+    glUniformMatrix4fv(r->inv_projection_uniform,
+                       1,
+                       false,
+                       (float*)&invprojection);
     
     RenderUnitQuad();
 
