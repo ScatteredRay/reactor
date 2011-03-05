@@ -17,7 +17,10 @@ void main(void)
 {
     gl_Position = position = gl_ModelViewProjectionMatrix * gl_Vertex;
     color = gl_Color;
-    normal = gl_ProjectionMatrix * vec4(gl_Normal, 1.0);
+    // This should be in view space, since we don't do any rotations,
+    // it is in such a space already, if we need to start rotating things
+    // we will have to deal with this.
+    normal = vec4(gl_Normal, 1.0);
 
     vambient = ambient;
     vspecular = specular;

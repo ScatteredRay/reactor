@@ -250,7 +250,7 @@ void RenderDeferred(DeferredRender* r, Environment* e, const Matrix4 * projectio
     glActiveTexture(GL_TEXTURE0 + 4);
     glBindTexture(GL_TEXTURE_2D, e->framebuffer_textures[4]);
 
-    Vector3 light_dir(-1.0f, 1.0f, 1.0f);
+    Vector3 light_dir(1.0f, 1.0f, -0.2f);
 
     glUniform3f(r->directional_light_uniform,
                 light_dir.getX(),

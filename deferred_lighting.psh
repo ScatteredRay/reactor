@@ -29,14 +29,16 @@ void main(void)
 
     vec3 diffuse = texture2D(color_buffer, gl_TexCoord[0].xy).xyz;
     // This math is BAD!
-    vec3 normal = normalize(vec3(texture2D(normal_buffer, gl_TexCoord[0].xy).xy, 1.0));
+    vec4 normaltex = texture2D(normal_buffer, gl_TexCoord[0].xy);
+    vec3 normal = normalize(vec3(normaltex.xy, -normaltex.z));
+    //normal *= -1.0;
     vec3 light = normalize(directional_light);
     vec3 location =
         normalize(
             unproject(
                 vec4(
                     gl_TexCoord[0].xy,
-                    texture2D(normal_buffer, gl_TexCoord[0].xy).w,
+                    normaltex.w,
                     1.0)).xyz);
 
     float alpha =
@@ -70,8 +72,10 @@ void main(void)
     float B = (1.0 - abs(gamma)) * C3 * tan((alpha + beta) / 2.0);
 
     vec3 color = diffuse * max(0.0, dot(normal, light)) * (C1 + A + B);
-    float C = texture2D(normal_buffer, gl_TexCoord[0].xy).w;
+    //color = vec3(normaltex.r/2.0 + 0.5,
+    //             normaltex.g/2.0 + 0.5,
+    //             normaltex.b/2.0 + 0.5);
+    //float C = normaltex.b/2.0 + 0.5;
     //color = vec3(C, C, C);
-    //color = normal;
     gl_FragColor = vec4(color, 1.0);
 }
