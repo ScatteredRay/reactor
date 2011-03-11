@@ -11,6 +11,8 @@ Camera* InitCamera(int screen_width, int screen_height);
 void DestroyCamera(Camera* camera);
 void UpdateCamera(Camera* camera, Vector3* tracking_points, unsigned int num_tracking_points);
 
+
+Vector3 CameraGetLocation(Camera* camera);
 Matrix4 CameraGetProjection(Camera* camera);
 Matrix4 CameraGetWorldToView(Camera* camera);
 Matrix4 CameraGetWorldToProjection(Camera* camera);

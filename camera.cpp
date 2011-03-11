@@ -52,6 +52,11 @@ void UpdateCamera(Camera* camera, Vector3* tracking_points, unsigned int num_tra
     camera->location = location;
 }
 
+Vector3 CameraGetLocation(Camera* camera)
+{
+    return camera->location;
+}
+
 Matrix4 CameraGetProjection(Camera* camera)
 {
     return camera->projection;

@@ -8,9 +8,9 @@ uniform sampler2D specular_buffer;
 uniform sampler2D emissive_buffer;
 
 uniform vec3 directional_light;
+uniform vec3 camera_location;
 uniform mat4 inv_projection;
 
-float roughness = 0.1;
 float PI = 3.14159265;
 
 vec4 unproject(vec4 x)
@@ -18,39 +18,18 @@ vec4 unproject(vec4 x)
     return x * inv_projection;
 }
 
-void main(void)
+vec3 oren_nayer(vec3 normal, vec3 light, vec3 view, vec3 diffuse, float roughness)
 {
-    //float dot = abs(dot(texture2D(normal_buffer, gl_TexCoord[0].xy).xyz, directional_light));
-    //gl_FragColor = texture2D(color_buffer, gl_TexCoord[0].xy);
-    //gl_FragColor = vec4(dot, dot, dot, dot);
-    //gl_FragColor = texture2D(normal_buffer, gl_TexCoord[0].xy);
-    //gl_FragColor = texture2D(emissive_buffer, gl_TexCoord[0].xy);
-    //gl_FragColor = vec4(directional_light, 1.0);
-
-    vec3 diffuse = texture2D(color_buffer, gl_TexCoord[0].xy).xyz;
-    // This math is BAD!
-    vec4 normaltex = texture2D(normal_buffer, gl_TexCoord[0].xy);
-    vec3 normal = normalize(vec3(normaltex.xy, -normaltex.z));
-    //normal *= -1.0;
-    vec3 light = normalize(directional_light);
-    vec3 location =
-        normalize(
-            unproject(
-                vec4(
-                    gl_TexCoord[0].xy,
-                    normaltex.w,
-                    1.0)).xyz);
-
     float alpha =
-        max(acos(dot(location, normal)),
+        max(acos(dot(view, normal)),
             acos(dot(light, normal)));
 
     float beta =
-        min(acos(dot(location, normal)),
+        min(acos(dot(view, normal)),
             acos(dot(light, normal)));
 
     float gamma =
-        dot(location - normal * dot(location, normal),
+        dot(view - normal * dot(view, normal),
             light - normal * dot(light, normal));
 
     float roughness_sq = roughness * roughness;
@@ -72,10 +51,71 @@ void main(void)
     float B = (1.0 - abs(gamma)) * C3 * tan((alpha + beta) / 2.0);
 
     vec3 color = diffuse * max(0.0, dot(normal, light)) * (C1 + A + B);
+
+    return color;
+}
+
+vec3 phong(vec3 normal, vec3 light, vec3 view, vec3 diffuse, vec3 specular, float specular_exponent)
+{
+    vec3 reflect = normalize( 2.0 * normal * dot(normal, light) - light );
+
+    vec3 specular_component =
+        specular *
+        pow(
+            max(
+                dot(reflect, view),
+                0.0),
+            specular_exponent);
+
+    vec3 diffuse_component =
+        diffuse *
+        max(0.0,
+            dot(normal, light));
+
+    vec3 color = diffuse_component * specular_component;
+    return color;
+}
+
+void main(void)
+{
+    //float dot = abs(dot(texture2D(normal_buffer, gl_TexCoord[0].xy).xyz, directional_light));
+    //gl_FragColor = texture2D(color_buffer, gl_TexCoord[0].xy);
+    //gl_FragColor = vec4(dot, dot, dot, dot);
+    //gl_FragColor = texture2D(normal_buffer, gl_TexCoord[0].xy);
+    //gl_FragColor = texture2D(emissive_buffer, gl_TexCoord[0].xy);
+    //gl_FragColor = vec4(directional_light, 1.0);
+
+    vec3 diffuse = texture2D(color_buffer, gl_TexCoord[0].xy).xyz;
+    vec4 specular = texture2D(specular_buffer, gl_TexCoord[0].xy);
+    // This math is BAD!
+    vec4 normaltex = texture2D(normal_buffer, gl_TexCoord[0].xy);
+    vec3 normal = normalize(vec3(normaltex.xy, normaltex.z));
+    vec3 light = normalize(directional_light);
+    vec3 location =
+        unproject(
+            vec4(
+                gl_TexCoord[0].xy * 2.0 - 1.0,
+                -normaltex.w,
+                1.0)).xyz;
+
+    vec3 view = normalize(camera_location - location);
+
+    float roughness = 0.1;
+
+    //if(gl_TexCoord[0].x > 0.5)
+    //    roughness = 1.0;
+
+    vec3 color;
+
+    if(gl_TexCoord[0].x > 0.5)
+        color = oren_nayer(normal, light, view, diffuse, roughness);
+    else
+        color = phong(normal, light, view, diffuse, specular.xyz, 0.0);
+
     //color = vec3(normaltex.r/2.0 + 0.5,
     //             normaltex.g/2.0 + 0.5,
     //             normaltex.b/2.0 + 0.5);
-    //float C = normaltex.b/2.0 + 0.5;
+    //float C = normaltex.w;
     //color = vec3(C, C, C);
     gl_FragColor = vec4(color, 1.0);
 }

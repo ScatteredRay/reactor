@@ -3,6 +3,7 @@
 #include "simple_shader.h"
 #include "simple_mesh.h"
 #include "vectormath.h"
+#include "camera.h"
 
 #include <gl.h>
 #include <glext.h>
@@ -197,6 +198,7 @@ struct DeferredRender
     GLuint emissive_buffer_uniform;
 
     GLuint directional_light_uniform;
+    GLuint camera_location_uniform;
 
     GLuint inv_projection_uniform;
 };
@@ -213,6 +215,7 @@ DeferredRender* InitDeferred()
     r->specular_buffer_uniform = glGetUniformLocation(r->deferred_lighting_shader, "specular_buffer");
     r->emissive_buffer_uniform = glGetUniformLocation(r->deferred_lighting_shader, "emissive_buffer");
     r->directional_light_uniform = glGetUniformLocation(r->deferred_lighting_shader, "directional_light");
+    r->camera_location_uniform = glGetUniformLocation(r->deferred_lighting_shader, "camera_location");
     r->inv_projection_uniform = glGetUniformLocation(r->deferred_lighting_shader, "inv_projection");
     return r;
 }
@@ -224,7 +227,7 @@ void DestroyDeferred(DeferredRender* r)
     DestroyQuad();
 }
 
-void RenderDeferred(DeferredRender* r, Environment* e, const Matrix4 * projection)
+void RenderDeferred(DeferredRender* r, Environment* e, Camera* camera)
 {
     glUseProgram(r->deferred_lighting_shader);
 
@@ -250,14 +253,21 @@ void RenderDeferred(DeferredRender* r, Environment* e, const Matrix4 * projectio
     glActiveTexture(GL_TEXTURE0 + 4);
     glBindTexture(GL_TEXTURE_2D, e->framebuffer_textures[4]);
 
-    Vector3 light_dir(1.0f, 1.0f, -0.2f);
+    Vector3 light_dir(0.5f, 0.1f, 1.0f);
 
     glUniform3f(r->directional_light_uniform,
                 light_dir.getX(),
                 light_dir.getY(),
                 light_dir.getZ());
 
-    Matrix4 invprojection = inverse(*projection);
+    Vector3 camera_location = CameraGetLocation(camera);
+
+    glUniform3f(r->camera_location_uniform,
+                camera_location.getX(),
+                camera_location.getY(),
+                camera_location.getZ());
+
+    Matrix4 invprojection = inverse(CameraGetProjection(camera));
 
     glUniformMatrix4fv(r->inv_projection_uniform,
                        1,

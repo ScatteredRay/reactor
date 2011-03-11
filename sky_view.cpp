@@ -197,7 +197,7 @@ void UpdateView(ViewInfo* view)
     glLoadMatrixf((float*)&identity);
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf((float*)&identity);
-    RenderDeferred(view->deferred, view->environment, &projection);
+    RenderDeferred(view->deferred, view->environment, view->camera);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf((float*)&modelview);
