@@ -81,6 +81,19 @@ ViewInfo* InitView()
     view->diffuse_color_uniform = glGetUniformLocation(view->basic_shader,
                                                        "diffuse_color");
 
+    // Print out hardware info.
+    GLint maxbuffers;
+    glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxbuffers);
+    printf("Max supported draw buffers: %d\n", maxbuffers);
+
+    GLint maxattribs;
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxattribs);
+    printf("Max supported vertex attributes: %d\n", maxattribs);
+
+    GLint maxvertex;
+    glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &maxvertex);
+    printf("Max supported element vertices: %d\n", maxvertex);
+
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 

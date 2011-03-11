@@ -85,12 +85,7 @@ Environment* InitEnvironment(unsigned int width, unsigned int height)
 {
     GLint maxbuffers;
     glGetIntegerv(GL_MAX_DRAW_BUFFERS, &maxbuffers);
-    printf("Max supported draw buffers: %d\n", maxbuffers);
     assert(maxbuffers >= (int)ENV_NUM_FRAMEBUFFERS);
-
-    GLint maxattribs;
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxattribs);
-    printf("Max supported vertex attributes: %d\n", maxattribs);
 
     Environment* e = new Environment();
 
