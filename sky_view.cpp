@@ -254,7 +254,14 @@ void ReceiveKeyInput(InputHandler* input, int code, KeyStatus status)
     }
 }
 
-void MouseDown(ViewInfo* view)
+void MouseDown(ViewInfo* view, int x, int y, MouseButtons butons)
 {
     view->bMouseDown = true;
 }
+
+void MouseUp(ViewInfo* view, int x, int y, MouseButtons butons)
+{
+    view->bMouseDown = false;
+}
+
+void MouseMove(ViewInfo* view, int x, int y, MouseButtons butons) {}

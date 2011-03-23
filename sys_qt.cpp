@@ -2,6 +2,7 @@
 // See the LICENSE file for usage, modification, and distribution terms.
 #include <QtGui/QApplication>
 #include <QTimer>
+#include <QMouseEvent>
 #include <assert.h>
 #include "glwindow_qt.h"
 
@@ -43,10 +44,32 @@ void GLProxy::paintGL()
 
 // Input
 
+::MouseButtons ConvertQtButtons(Qt::MouseButtons buttons)
+{
+    ::MouseButtons ret = No_Button;
+    if(buttons & Qt::LeftButton)
+        ret = (::MouseButtons)(ret | Left_Button);
+    if(buttons & Qt::RightButton)
+        ret = (MouseButtons)(ret | Right_Button);
+    if(buttons & Qt::MidButton)
+        ret = (MouseButtons)(ret | Mid_Button);
+
+    return ret;
+}
+
 void GLProxy::mousePressEvent(QMouseEvent* e)
 {
-    void MouseDown(ViewInfo* view);
-    MouseDown(view);
+    MouseDown(view, e->x(), e->y(), ConvertQtButtons(e->buttons()));
+}
+
+void GLProxy::mouseReleaseEvent(QMouseEvent* e)
+{
+    MouseUp(view, e->x(), e->y(), ConvertQtButtons(e->buttons()));
+}
+
+void GLProxy::mouseMoveEvent(QMouseEvent* e)
+{
+    MouseMove(view, e->x(), e->y(), ConvertQtButtons(e->buttons()));
 }
 
 GLWindow::GLWindow(QWidget* parent) : QMainWindow(parent)

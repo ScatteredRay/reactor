@@ -16,13 +16,25 @@ void ResizeView(ViewInfo*, int width, int height);
 void UpdateView(ViewInfo*);
 
 struct InputHandler;
+
 enum KeyStatus
 {
     Key_Down,
     Key_Up
 };
 
+enum MouseButtons
+{
+    No_Button = 0,
+    Left_Button = 1 << 0,
+    Right_Button = 1 << 1,
+    Mid_Button = 1 << 2
+};
+
 InputHandler* GetInputHandler(ViewInfo*);
 void ReceiveKeyInput(InputHandler*, int code, KeyStatus status);
+void MouseDown(ViewInfo* view, int x, int y, MouseButtons butons);
+void MouseUp(ViewInfo* view, int x, int y, MouseButtons butons);
+void MouseMove(ViewInfo* view, int x, int y, MouseButtons butons);
 
 #endif //_VIEW_DECL_H_
