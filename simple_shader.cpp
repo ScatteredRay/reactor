@@ -3,8 +3,8 @@
 #include "simple_shader.h"
 #include "reporting.h"
 #include <assert.h>
-#include <gl.h>
 #include <cstdio>
+#include "gl_all.h"
 
 char* ReadShaderSourceFromFile(const char* filename)
 {

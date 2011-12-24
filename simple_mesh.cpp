@@ -3,7 +3,7 @@
 
 #include "simple_mesh.h"
 #include <assert.h>
-#include <gl.h>
+#include "gl_all.h"
 
 GLuint CreateMesh(unsigned int num_verticies, size_t vertex_size, const void* data)
 {

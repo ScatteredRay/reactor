@@ -17,7 +17,7 @@
 #include "editor_meshes.h"
 
 #include <assert.h>
-#include <gl.h>
+#include "gl_all.h"
 
 struct boot_vert
 {
