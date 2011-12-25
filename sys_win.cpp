@@ -6,6 +6,7 @@
 #include "gl_all.h"
 
 HINSTANCE WinSys_hInstance;
+ViewInfo* WinSys_View;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -15,6 +16,7 @@ int InitWindowAndLoop(int argc, char** argv)
     WNDCLASSEX ClassStruct;
     memset(&ClassStruct, 0, sizeof(ClassStruct));
     ClassStruct.cbSize = sizeof(ClassStruct);
+    ClassStruct.style = CS_OWNDC;
     ClassStruct.lpfnWndProc = WndProc;
     ClassStruct.hInstance = WinSys_hInstance;
     ClassStruct.lpszClassName = ClassName;
@@ -33,6 +35,34 @@ int InitWindowAndLoop(int argc, char** argv)
 
     ShowWindow(hWnd, SW_SHOW);
 
+    HDC dc = GetDC(hWnd);
+
+	PIXELFORMATDESCRIPTOR pfd;
+	memset(&pfd, 0, sizeof(pfd));
+	pfd.nSize = sizeof(pfd);
+	pfd.nVersion = 1;
+	pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+	pfd.iPixelType = PFD_TYPE_RGBA;
+	pfd.cColorBits = 32;
+	pfd.cDepthBits = 32;
+	pfd.iLayerType = PFD_MAIN_PLANE;
+ 
+	int pixel_format = ChoosePixelFormat(dc, &pfd);
+    if(pixel_format == 0)
+        return 1;
+ 
+	if(!SetPixelFormat(dc, pixel_format, &pfd))
+        return 1;
+
+    HGLRC glRc = wglCreateContext(dc);
+    wglMakeCurrent(dc, glRc);
+
+    void InitGLExt();
+    InitGLExt();
+
+    WinSys_View = InitView();
+    ResizeView(WinSys_View, 0, 0);
+
     // This message loop is meant to consume all system resources, needs
     // to be changed for apps that are meant to idle, I.E. editors.
     bool continue_loop = true;
@@ -47,16 +77,14 @@ int InitWindowAndLoop(int argc, char** argv)
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+        UpdateView(WinSys_View);
+        SwapBuffers(dc);
     }
 
-    return 0;
-    void InitGLExt();
-    InitGLExt();
+    FinishView(WinSys_View);
+    wglMakeCurrent(NULL, NULL);
+    wglDeleteContext(glRc);
 
-    ViewInfo* view = InitView();
-    ResizeView(view, 0, 0);
-    UpdateView(view);
-    FinishView(view);
     return 0;
 }
 
@@ -64,6 +92,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch(msg)
     {
+    case WM_SIZE:
+        ResizeView(WinSys_View, LOWORD(lParam), HIWORD(lParam));
+        break;
     case WM_CLOSE:
         DestroyWindow(hWnd);
         break;

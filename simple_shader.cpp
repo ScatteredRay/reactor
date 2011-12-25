@@ -19,8 +19,9 @@ char* ReadShaderSourceFromFile(const char* filename)
 
     char* ret = (char*)malloc(len+1);
     size_t readc = fread(ret, 1, len, file);
-    assert(readc == len);
-    ret[len] = '\0';
+    // This seems to come out smaller on Win32.
+    assert(readc <= len);
+    ret[readc] = '\0';
 
     fclose(file);
     
