@@ -79,6 +79,7 @@
     <ClInclude Include="simple_mesh.h" />
     <ClInclude Include="simple_shader.h" />
     <ClInclude Include="simple_vectors.h" />
+    <ClInclude Include="system.h" />
     <ClInclude Include="view_decl.h" />
   </ItemGroup>
   <ItemGroup>

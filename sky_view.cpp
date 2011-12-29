@@ -235,6 +235,25 @@ void UpdateView(ViewInfo* view)
     RenderCharacter(view->character);
 }
 
+InputHandler* GetInputHandler(ViewInfo* view)
+{
+    return (InputHandler*)view;
+}
+
+void ReceiveKeyInput(InputHandler* input, int code, KeyStatus status)
+{
+    ViewInfo* view = (ViewInfo*)input;
+    if(code == GetKeyCodeFromAscii('W'))
+    {
+        if(status == Key_Down)
+        {
+        }
+        else if(status == Key_Up)
+        {
+        }
+    }
+}
+
 void MouseDown(ViewInfo* view)
 {
     view->bMouseDown = true;

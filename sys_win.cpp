@@ -8,6 +8,19 @@
 HINSTANCE WinSys_hInstance;
 ViewInfo* WinSys_View;
 
+int GetKeyCodeFromAscii(char key)
+{
+    // Windows Key Codes are the same for Ascii numbers and upper case.
+
+    if((key >= '0' && key <= '9') ||
+       (key >= 'A' && key <= 'Z'))
+        return (int)key;
+    if(key >= 'a' && key <= 'z')
+        return (int)(key - 'a' + 'A');
+
+    return -1;
+}
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int InitWindowAndLoop(int argc, char** argv)
@@ -100,6 +113,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
+        break;
+    case WM_KEYDOWN:
+        // (lParam bit 30) == 1 means the key was already down.
+        if((lParam & (1 << 30)) == 0)
+            ReceiveKeyInput(GetInputHandler(WinSys_View),
+                            wParam,
+                            Key_Down);
+        break;
+    case WM_KEYUP:
+        ReceiveKeyInput(GetInputHandler(WinSys_View),
+                        wParam,
+                        Key_Up);
         break;
     default:
         return DefWindowProc(hWnd, msg, wParam, lParam);

@@ -15,4 +15,14 @@ void FinishView(ViewInfo*);
 void ResizeView(ViewInfo*, int width, int height);
 void UpdateView(ViewInfo*);
 
+struct InputHandler;
+enum KeyStatus
+{
+    Key_Down,
+    Key_Up
+};
+
+InputHandler* GetInputHandler(ViewInfo*);
+void ReceiveKeyInput(InputHandler*, int code, KeyStatus status);
+
 #endif //_VIEW_DECL_H_
