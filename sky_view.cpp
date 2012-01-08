@@ -13,6 +13,7 @@
 #include "character.h"
 #include "camera.h"
 #include "environment.h"
+#include "system.h"
 
 #include "editor_meshes.h"
 

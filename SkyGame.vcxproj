@@ -10,6 +10,43 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="camera.h" />
+    <ClInclude Include="character.h" />
+    <ClInclude Include="core_systems.h" />
+    <ClInclude Include="editor_meshes.h" />
+    <ClInclude Include="environment.h" />
+    <ClInclude Include="file.h" />
+    <ClInclude Include="glext.h" />
+    <ClInclude Include="gl_all.h" />
+    <ClInclude Include="input.h" />
+    <ClInclude Include="obj_load.h" />
+    <ClInclude Include="reporting.h" />
+    <ClInclude Include="simple_mesh.h" />
+    <ClInclude Include="simple_shader.h" />
+    <ClInclude Include="simple_texture.h" />
+    <ClInclude Include="simple_vectors.h" />
+    <ClInclude Include="system.h" />
+    <ClInclude Include="vectormath.h" />
+    <ClInclude Include="view_decl.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="character.cpp" />
+    <ClCompile Include="core_systems.cpp" />
+    <ClCompile Include="editor_meshes.cpp" />
+    <ClCompile Include="environment_render.cpp" />
+    <ClCompile Include="file.cpp" />
+    <ClCompile Include="input.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="obj_load.cpp" />
+    <ClCompile Include="reporting.cpp" />
+    <ClCompile Include="simple_mesh.cpp" />
+    <ClCompile Include="simple_shader.cpp" />
+    <ClCompile Include="simple_texture.cpp" />
+    <ClCompile Include="sky_view.cpp" />
+    <ClCompile Include="sys_win.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{068E0E90-97F2-4F96-ADBC-3ECD32FD878C}</ProjectGuid>
     <RootNamespace>BootEd</RootNamespace>
@@ -63,28 +100,6 @@
       <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="boot_view.cpp" />
-    <ClCompile Include="editor_meshes.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="reporting.cpp" />
-    <ClCompile Include="simple_mesh.cpp" />
-    <ClCompile Include="simple_shader.cpp" />
-    <ClCompile Include="sys_win.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="editor_meshes.h" />
-    <ClInclude Include="gl_all.h" />
-    <ClInclude Include="reporting.h" />
-    <ClInclude Include="simple_mesh.h" />
-    <ClInclude Include="simple_shader.h" />
-    <ClInclude Include="simple_vectors.h" />
-    <ClInclude Include="system.h" />
-    <ClInclude Include="view_decl.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="glext_loader.inc" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -1,5 +1,10 @@
 #include <stdio.h>
+#ifdef _WIN32
+#include <malloc.h>
+//#define alloca _alloca
+#else
 #include <alloca.h>
+#endif
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
