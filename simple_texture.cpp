@@ -3,7 +3,7 @@
 #include <assert.h>
 #include "file.h"
 
-#include "gl.h"
+#include "gl_all.h"
 
 #pragma pack(push, 1)
 struct bmp_header

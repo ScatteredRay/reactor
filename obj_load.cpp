@@ -431,7 +431,7 @@ bool load_ssh(const char* shname, material_params* params)
     return true;
 }
 
-#include <gl.h>
+#include "gl_all.h"
 
 VertexDef obj_vert_def()
 {

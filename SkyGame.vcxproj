@@ -47,6 +47,9 @@
     <ClCompile Include="sky_view.cpp" />
     <ClCompile Include="sys_win.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="glext_loader.inc" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{068E0E90-97F2-4F96-ADBC-3ECD32FD878C}</ProjectGuid>
     <RootNamespace>BootEd</RootNamespace>

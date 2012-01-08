@@ -1,5 +1,5 @@
-#include <character.h>
-#include <gl.h>
+#include "character.h"
+#include "gl_all.h"
 #include "vectormath.h"
 
 #include "simple_mesh.h"

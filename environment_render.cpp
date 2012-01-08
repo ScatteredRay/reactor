@@ -5,8 +5,7 @@
 #include "vectormath.h"
 #include "camera.h"
 
-#include <gl.h>
-#include <glext.h>
+#include "gl_all.h"
 #include <stdio.h>
 #include <assert.h>
 

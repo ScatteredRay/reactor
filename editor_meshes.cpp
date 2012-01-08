@@ -4,7 +4,7 @@
 #include "simple_mesh.h"
 #include "simple_vectors.h"
 
-#include <gl.h>
+#include "gl_all.h"
 #include <assert.h>
 
 struct Editor_Mesh
