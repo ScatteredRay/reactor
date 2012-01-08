@@ -71,7 +71,9 @@ ViewInfo* InitView()
 {
     ViewInfo* view = new ViewInfo();
 
+#ifndef _WIN32
     init_sdl_system();
+#endif
 
     int num_inputs = InitPlayerInputs(view->player_input, Num_Players);
     
@@ -171,7 +173,9 @@ void FinishView(ViewInfo* view)
     DestroyProgramAndAttachedShaders(view->basic_shader);
 
     DestroyPlayerInputs(view->player_input, Num_Players);
+#ifndef _WIN32
     finalize_sdl_system();
+#endif
 
     delete view;
 }

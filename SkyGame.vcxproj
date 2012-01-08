@@ -13,7 +13,6 @@
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="character.h" />
-    <ClInclude Include="core_systems.h" />
     <ClInclude Include="editor_meshes.h" />
     <ClInclude Include="environment.h" />
     <ClInclude Include="file.h" />
@@ -33,11 +32,10 @@
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="character.cpp" />
-    <ClCompile Include="core_systems.cpp" />
     <ClCompile Include="editor_meshes.cpp" />
     <ClCompile Include="environment_render.cpp" />
     <ClCompile Include="file.cpp" />
-    <ClCompile Include="input.cpp" />
+    <ClCompile Include="input_simple.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="obj_load.cpp" />
     <ClCompile Include="reporting.cpp" />
