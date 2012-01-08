@@ -44,6 +44,18 @@ void GLProxy::paintGL()
 
 // Input
 
+int GetKeyCodeFromAscii(char key)
+{
+    if(key >= '0' && key <= '9')
+        return (int)(key - '0' + Qt::Key_0);
+    if(key >= 'A' && key <= 'Z')
+        return (int)(key - 'A' + Qt::Key_A);
+    if(key >= 'a' && key <= 'z')
+        return (int)(key - 'a' + Qt::Key_A);
+
+    return -1;
+}
+
 ::MouseButtons ConvertQtButtons(Qt::MouseButtons buttons)
 {
     ::MouseButtons ret = No_Button;
@@ -59,17 +71,27 @@ void GLProxy::paintGL()
 
 void GLProxy::mousePressEvent(QMouseEvent* e)
 {
-    MouseDown(view, e->x(), e->y(), ConvertQtButtons(e->buttons()));
+    InputMouseEvent(GetInputHandler(view), e->x(), e->y(), ConvertQtButtons(e->buttons()), Mouse_Down);
 }
 
 void GLProxy::mouseReleaseEvent(QMouseEvent* e)
 {
-    MouseUp(view, e->x(), e->y(), ConvertQtButtons(e->buttons()));
+    InputMouseEvent(GetInputHandler(view), e->x(), e->y(), ConvertQtButtons(e->buttons()), Mouse_Up);
 }
 
 void GLProxy::mouseMoveEvent(QMouseEvent* e)
 {
-    MouseMove(view, e->x(), e->y(), ConvertQtButtons(e->buttons()));
+    InputMouseEvent(GetInputHandler(view), e->x(), e->y(), ConvertQtButtons(e->buttons()), Mouse_Move);
+}
+
+void keyPressEvent(QKeyEvent* e)
+{
+    InputReceiveKey(GetInputHandler(view), e->key(), Key_Down);
+}
+
+void keyReleaseEvent(QKeyEvent* e)
+{
+    InputReceiveKey(GetInputHandler(view), e->key(), Key_Up);
 }
 
 GLWindow::GLWindow(QWidget* parent) : QMainWindow(parent)

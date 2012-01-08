@@ -23,7 +23,14 @@ enum KeyStatus
     Key_Up
 };
 
-enum MouseButtons
+enum MouseStatus
+{
+    Mouse_Down,
+    Mouse_Up,
+    Mouse_Move
+};
+
+enum MouseButton
 {
     No_Button = 0,
     Left_Button = 1 << 0,
@@ -32,9 +39,7 @@ enum MouseButtons
 };
 
 InputHandler* GetInputHandler(ViewInfo*);
-void ReceiveKeyInput(InputHandler*, int code, KeyStatus status);
-void MouseDown(ViewInfo* view, int x, int y, MouseButtons butons);
-void MouseUp(ViewInfo* view, int x, int y, MouseButtons butons);
-void MouseMove(ViewInfo* view, int x, int y, MouseButtons butons);
+void InputReceiveKey(InputHandler*, int code, KeyStatus status);
+void InputMouseEvent(InputHandler*, int x, int y, MouseButton button, MouseStatus status);
 
 #endif //_VIEW_DECL_H_

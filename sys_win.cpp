@@ -103,6 +103,8 @@ int InitWindowAndLoop(int argc, char** argv)
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+    MouseStatus status;
+    MouseButton button = No_Button;
     switch(msg)
     {
     case WM_SIZE:
@@ -117,14 +119,41 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     case WM_KEYDOWN:
         // (lParam bit 30) == 1 means the key was already down.
         if((lParam & (1 << 30)) == 0)
-            ReceiveKeyInput(GetInputHandler(WinSys_View),
+            InputReceiveKey (GetInputHandler(WinSys_View),
                             wParam,
                             Key_Down);
         break;
     case WM_KEYUP:
-        ReceiveKeyInput(GetInputHandler(WinSys_View),
+        InputReceiveKey(GetInputHandler(WinSys_View),
                         wParam,
                         Key_Up);
+        break;
+    case WM_MOUSEMOVE:
+        status = Mouse_Move;
+        goto mouseevent;
+    case WM_LBUTTONDOWN:
+    case WM_RBUTTONDOWN:
+    case WM_MBUTTONDOWN:
+        status = Mouse_Down;
+        goto mouseevent;
+    case WM_LBUTTONUP:
+    case WM_RBUTTONUP:
+    case WM_MBUTTONUP:
+        status = Mouse_Up;
+        goto mouseevent;
+mouseevent:
+        if(wParam & MK_LBUTTON)
+            button = (MouseButton)(button | Left_Button);
+        else if(wParam & MK_RBUTTON)
+            button = (MouseButton)(button | Right_Button);
+        else if(wParam & MK_MBUTTON)
+            button = (MouseButton)(button | Mid_Button);
+
+        InputMouseEvent(GetInputHandler(WinSys_View),
+                        LOWORD(lParam),
+                        HIWORD(lParam),
+                        button,
+                        status);
         break;
     default:
         return DefWindowProc(hWnd, msg, wParam, lParam);

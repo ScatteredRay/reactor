@@ -240,7 +240,7 @@ InputHandler* GetInputHandler(ViewInfo* view)
     return (InputHandler*)view;
 }
 
-void ReceiveKeyInput(InputHandler* input, int code, KeyStatus status)
+void InputReceiveKey(InputHandler* input, int code, KeyStatus status)
 {
     ViewInfo* view = (ViewInfo*)input;
     if(code == GetKeyCodeFromAscii('W'))
@@ -254,14 +254,11 @@ void ReceiveKeyInput(InputHandler* input, int code, KeyStatus status)
     }
 }
 
-void MouseDown(ViewInfo* view, int x, int y, MouseButtons butons)
+void InputMouseEvent(InputHandler* input, int x, int y, MouseButton button, MouseStatus status)
 {
-    view->bMouseDown = true;
+    ViewInfo* view = (ViewInfo*)input;
+    if(status == Mouse_Down)
+        view->bMouseDown = true;
+    else if(status == Mouse_Up)
+        view->bMouseDown = false;
 }
-
-void MouseUp(ViewInfo* view, int x, int y, MouseButtons butons)
-{
-    view->bMouseDown = false;
-}
-
-void MouseMove(ViewInfo* view, int x, int y, MouseButtons butons) {}
