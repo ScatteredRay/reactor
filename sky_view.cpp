@@ -76,7 +76,7 @@ ViewInfo* InitView()
 #endif
 
     int num_inputs = InitPlayerInputs(view->player_input, Num_Players);
-    
+
     assert(num_inputs >= 1);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -163,7 +163,7 @@ void FinishView(ViewInfo* view)
 
     DestroyMesh(view->collision_gl_mesh);
     delete view->collision_mesh;
-    
+
     DestroyMesh(view->grid);
     CleanupEditor();
 

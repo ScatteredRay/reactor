@@ -7,6 +7,8 @@
 
 HINSTANCE WinSys_hInstance;
 ViewInfo* WinSys_View;
+int WinSys_Width = 0;
+int WinSys_Height = 0;
 
 int GetKeyCodeFromAscii(char key)
 {
@@ -50,21 +52,21 @@ int InitWindowAndLoop(int argc, char** argv)
 
     HDC dc = GetDC(hWnd);
 
-	PIXELFORMATDESCRIPTOR pfd;
-	memset(&pfd, 0, sizeof(pfd));
-	pfd.nSize = sizeof(pfd);
-	pfd.nVersion = 1;
-	pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
-	pfd.iPixelType = PFD_TYPE_RGBA;
-	pfd.cColorBits = 32;
-	pfd.cDepthBits = 32;
-	pfd.iLayerType = PFD_MAIN_PLANE;
- 
-	int pixel_format = ChoosePixelFormat(dc, &pfd);
+    PIXELFORMATDESCRIPTOR pfd;
+    memset(&pfd, 0, sizeof(pfd));
+    pfd.nSize = sizeof(pfd);
+    pfd.nVersion = 1;
+    pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+    pfd.iPixelType = PFD_TYPE_RGBA;
+    pfd.cColorBits = 32;
+    pfd.cDepthBits = 32;
+    pfd.iLayerType = PFD_MAIN_PLANE;
+
+    int pixel_format = ChoosePixelFormat(dc, &pfd);
     if(pixel_format == 0)
         return 1;
- 
-	if(!SetPixelFormat(dc, pixel_format, &pfd))
+
+    if(!SetPixelFormat(dc, pixel_format, &pfd))
         return 1;
 
     HGLRC glRc = wglCreateContext(dc);
@@ -74,7 +76,7 @@ int InitWindowAndLoop(int argc, char** argv)
     InitGLExt();
 
     WinSys_View = InitView();
-    ResizeView(WinSys_View, 0, 0);
+    ResizeView(WinSys_View, WinSys_Width, WinSys_Height);
 
     // This message loop is meant to consume all system resources, needs
     // to be changed for apps that are meant to idle, I.E. editors.
@@ -108,7 +110,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     switch(msg)
     {
     case WM_SIZE:
-        ResizeView(WinSys_View, LOWORD(lParam), HIWORD(lParam));
+        WinSys_Width = LOWORD(lParam);
+        WinSys_Height = HIWORD(lParam);
+        if(WinSys_View) {
+            ResizeView(WinSys_View, WinSys_Width, WinSys_Height);
+        }
         break;
     case WM_CLOSE:
         DestroyWindow(hWnd);
