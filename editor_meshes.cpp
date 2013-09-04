@@ -95,4 +95,5 @@ void DrawEditorMesh(Editor_Mesh* mesh)
     ApplyVertexDef(editor_vertex_def);
 
     glDrawArrays(mesh->gl_primitive_type, 0, mesh->gl_index_count);
+    ClearVertexDef(editor_vertex_def);
 }

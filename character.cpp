@@ -109,6 +109,8 @@ void RenderCharacter(Character* character)
     glBindTexture(GL_TEXTURE_2D, character_texture);
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
+
+    ClearVertexDef(character_vert_def);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 

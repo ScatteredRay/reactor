@@ -100,16 +100,6 @@ ViewInfo* InitView()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glEnableVertexAttribArray(3);
-
     view->boot_vert = boot_vert_def();
 
     InitEditor();
@@ -236,6 +226,8 @@ void UpdateView(ViewInfo* view)
 
     glDrawArrays(GL_TRIANGLES, 0,
                  view->collision_mesh->vertex_count);
+
+    ClearVertexDef(view->collision_vert);
 
     RenderCharacter(view->character);
 }

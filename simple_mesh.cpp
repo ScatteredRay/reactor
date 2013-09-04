@@ -62,24 +62,28 @@ void ApplyVertexDef(VertexDef Def)
         switch(A->attr)
         {
         case VERTEX_POSITION_ATTR:
+            glEnableClientState(GL_VERTEX_ARRAY);
             glVertexPointer(A->num_elements,
                             A->type,
                             Def->stride,
                             (void*)A->offset);
             break;
         case VERTEX_NORMAL_ATTR:
+            glEnableClientState(GL_NORMAL_ARRAY);
             assert(A->num_elements >= 3);
             glNormalPointer(A->type,
                             Def->stride,
                             (void*)A->offset);
             break;
         case VERTEX_COLOR_ATTR:
+            glEnableClientState(GL_COLOR_ARRAY);
             glColorPointer(A->num_elements,
                            A->type,
                            Def->stride,
                            (void*)A->offset);
             break;
         case VERTEX_UV_ATTR:
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
             glTexCoordPointer(A->num_elements,
                               A->type,
                               Def->stride,
@@ -89,25 +93,76 @@ void ApplyVertexDef(VertexDef Def)
         case VERTEX_OTHER_ATTR_1:
         case VERTEX_OTHER_ATTR_2:
         case VERTEX_OTHER_ATTR_3:
-            assert(A->attr-VERTEX_OTHER_ATTR_0 < 4);
-            glVertexAttribPointer(A->attr-VERTEX_OTHER_ATTR_0 + 1,
-                                  A->num_elements,
-                                  A->type,
-                                  false,
-                                  Def->stride,
-                                  (void*)A->offset);
+            {
+                int idx = A->attr - VERTEX_OTHER_ATTR_0 + 1;
+                assert(idx < 4);
+                glEnableVertexAttribArray(idx);
+                glVertexAttribPointer(idx,
+                                      A->num_elements,
+                                      A->type,
+                                      false,
+                                      Def->stride,
+                                      (void*)A->offset);
+            }
             break;
         case VERTEX_NORMALIZED_OTHER_ATTR_0:
         case VERTEX_NORMALIZED_OTHER_ATTR_1:
         case VERTEX_NORMALIZED_OTHER_ATTR_2:
         case VERTEX_NORMALIZED_OTHER_ATTR_3:
-            assert(A->attr-VERTEX_NORMALIZED_OTHER_ATTR_0 < 4);
-            glVertexAttribPointer(A->attr-VERTEX_NORMALIZED_OTHER_ATTR_0 + 1,
-                                  A->num_elements,
-                                  A->type,
-                                  true,
-                                  Def->stride,
-                                  (void*)A->offset);
+            {
+                int idx = A->attr - VERTEX_NORMALIZED_OTHER_ATTR_0 + 1;
+                assert(idx < 4);
+                glEnableVertexAttribArray(idx);
+                glVertexAttribPointer(idx,
+                                      A->num_elements,
+                                      A->type,
+                                      true,
+                                      Def->stride,
+                                      (void*)A->offset);
+            }
+            break;
+        }
+    }
+}
+
+void ClearVertexDef(VertexDef Def)
+{
+    for(unsigned int i=0; i<Def->num_attributes; i++)
+    {
+        VertexAttribute* A = &Def->attributes[i];
+        switch(A->attr)
+        {
+        case VERTEX_POSITION_ATTR:
+            glDisableClientState(GL_VERTEX_ARRAY);
+            break;
+        case VERTEX_NORMAL_ATTR:
+            glDisableClientState(GL_NORMAL_ARRAY);
+            break;
+        case VERTEX_COLOR_ATTR:
+            glDisableClientState(GL_COLOR_ARRAY);
+            break;
+        case VERTEX_UV_ATTR:
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            break;
+        case VERTEX_OTHER_ATTR_0:
+        case VERTEX_OTHER_ATTR_1:
+        case VERTEX_OTHER_ATTR_2:
+        case VERTEX_OTHER_ATTR_3:
+            {
+                int idx = A->attr - VERTEX_OTHER_ATTR_0 + 1;
+                assert(idx < 4);
+                glDisableVertexAttribArray(idx);
+            }
+            break;
+        case VERTEX_NORMALIZED_OTHER_ATTR_0:
+        case VERTEX_NORMALIZED_OTHER_ATTR_1:
+        case VERTEX_NORMALIZED_OTHER_ATTR_2:
+        case VERTEX_NORMALIZED_OTHER_ATTR_3:
+            {
+                int idx = A->attr - VERTEX_NORMALIZED_OTHER_ATTR_0 + 1;
+                assert(idx < 4);
+                glDisableVertexAttribArray(idx);
+            }
             break;
         }
     }

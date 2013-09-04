@@ -91,9 +91,9 @@ Environment* InitEnvironment(unsigned int width, unsigned int height)
     e->environment_shader = CreateShaderProgram(SHADER_ENVIRONMENT);
 
     // Remember glEnableVertexAttribArray
-    glBindAttribLocation(e->environment_shader, 1, "ambient");
-    glBindAttribLocation(e->environment_shader, 2, "specular");
-    glBindAttribLocation(e->environment_shader, 3, "emissive");
+    glBindAttribLocation(e->environment_shader, 0, "ambient");
+    glBindAttribLocation(e->environment_shader, 1, "specular");
+    glBindAttribLocation(e->environment_shader, 2, "emissive");
 
     // Needs to be called to actually set the attib locations.
     glLinkProgram(e->environment_shader);
@@ -131,6 +131,8 @@ void RenderEnvironment(Environment* e)
     ApplyVertexDef(e->environment_vert);
     
     glDrawArrays(GL_TRIANGLES, 0, e->environment_mesh->vertex_count);
+
+    ClearVertexDef(e->environment_vert);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -180,6 +182,7 @@ void RenderUnitQuad()
     glBindBuffer(GL_ARRAY_BUFFER, gQuad);
     ApplyVertexDef(gQuadVerts);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+    ClearVertexDef(gQuadVerts);
 }
 
 struct DeferredRender
