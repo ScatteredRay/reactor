@@ -80,6 +80,8 @@ ViewInfo* InitView()
     assert(num_inputs >= 1);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     view->basic_shader = CreateShaderProgram(SHADER_CONSTANT_COLOR);
     view->diffuse_color_uniform = glGetUniformLocation(view->basic_shader,
                                                        "diffuse_color");
