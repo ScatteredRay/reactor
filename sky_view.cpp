@@ -107,7 +107,7 @@ ViewInfo* InitView()
 
     view->bMouseDown = false;
 
-    view->collision_vert = obj_vert_def();
+    view->collision_vert = obj_vert_def_depr();
     view->collision_mesh = obj_load_mesh("data/world/collision.obj");
     view->collision_gl_mesh = CreateMesh(view->collision_mesh->vertex_count,
                                          sizeof(obj_vert),

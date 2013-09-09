@@ -16,12 +16,12 @@ enum Vertex_Attributes
     VERTEX_COLOR_ATTR,
     VERTEX_UV_ATTR,
     VERTEX_OTHER_ATTR,
-    VERTEX_OTHER_ATTR_0 = VERTEX_OTHER_ATTR,
+    VERTEX_OTHER_ATTR_0 = VERTEX_OTHER_ATTR + 1,
     VERTEX_OTHER_ATTR_1,
     VERTEX_OTHER_ATTR_2,
     VERTEX_OTHER_ATTR_3,
     VERTEX_NORMALIZED_OTHER_ATTR,
-    VERTEX_NORMALIZED_OTHER_ATTR_0 = VERTEX_NORMALIZED_OTHER_ATTR,
+    VERTEX_NORMALIZED_OTHER_ATTR_0 = VERTEX_NORMALIZED_OTHER_ATTR + 1,
     VERTEX_NORMALIZED_OTHER_ATTR_1,
     VERTEX_NORMALIZED_OTHER_ATTR_2,
     VERTEX_NORMALIZED_OTHER_ATTR_3
@@ -33,9 +33,11 @@ void DestroyMesh(GLuint buffer);
 struct VertexAttribute
 {
     Vertex_Attributes attr;
+    unsigned int idx;
     size_t offset;
     GLenum type;
     unsigned int num_elements;
+    char* attr_name;
 };
 
 struct Vertex_Def
@@ -53,9 +55,11 @@ VertexAttribute* AddVertexAttribute(VertexDef Def,
                                     Vertex_Attributes attr_type,
                                     size_t offset,
                                     unsigned int num_elements,
-                                    GLenum data_type);
+                                    GLenum data_type,
+                                    const char* attr_name = 0);
 void ApplyVertexDef(VertexDef Def);
 void ClearVertexDef(VertexDef Def);
 void DestroyVertexDef(VertexDef Def);
+void VertexDefBindToShader(VertexDef Def, GLuint shader);
 
 #endif //_SIMPLE_MESH_H_

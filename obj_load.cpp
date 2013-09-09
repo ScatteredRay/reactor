@@ -438,6 +438,23 @@ VertexDef obj_vert_def()
     obj_vert* proxy = 0;
     VertexDef VD = CreateVertexDef(sizeof(obj_vert), 7);
     int i = 0;
+    AddVertexAttribute(VD, i++, VERTEX_OTHER_ATTR, (size_t)&proxy->location, 3, GL_FLOAT, "in_vertex");
+    AddVertexAttribute(VD, i++, VERTEX_OTHER_ATTR, (size_t)&proxy->normal, 3, GL_FLOAT, "in_normal");
+    AddVertexAttribute(VD, i++, VERTEX_OTHER_ATTR, (size_t)&proxy->uv, 2, GL_FLOAT, "in_uv");
+    AddVertexAttribute(VD, i++, VERTEX_OTHER_ATTR, (size_t)&proxy->diffuse, 3, GL_FLOAT, "in_color");
+    AddVertexAttribute(VD, i++, VERTEX_OTHER_ATTR, (size_t)&proxy->ambient, 3, GL_FLOAT, "in_ambient");
+    AddVertexAttribute(VD, i++, VERTEX_OTHER_ATTR, (size_t)&proxy->specular, 4, GL_FLOAT, "in_specular");
+    AddVertexAttribute(VD, i++, VERTEX_OTHER_ATTR, (size_t)&proxy->emissive, 4, GL_FLOAT, "in_emissive");
+
+    return VD;
+}
+
+// Depricated.
+VertexDef obj_vert_def_depr()
+{
+    obj_vert* proxy = 0;
+    VertexDef VD = CreateVertexDef(sizeof(obj_vert), 7);
+    int i = 0;
     AddVertexAttribute(VD, i++, VERTEX_POSITION_ATTR, (size_t)&proxy->location, 3, GL_FLOAT);
     AddVertexAttribute(VD, i++, VERTEX_NORMAL_ATTR, (size_t)&proxy->normal, 3, GL_FLOAT);
     AddVertexAttribute(VD, i++, VERTEX_UV_ATTR, (size_t)&proxy->uv, 2, GL_FLOAT);

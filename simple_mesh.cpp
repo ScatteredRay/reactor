@@ -32,6 +32,10 @@ VertexDef CreateVertexDef(size_t size, unsigned int attrs)
 
 void DestroyVertexDef(VertexDef Def)
 {
+    for(int i = 0; i< Def->num_attributes; i++)
+    {
+        delete[] Def->attributes[i].attr_name;
+    }
     delete[] Def->attributes;
     delete Def;
 }
@@ -41,15 +45,26 @@ VertexAttribute* AddVertexAttribute(VertexDef Def,
                                     Vertex_Attributes attr_type,
                                     size_t offset,
                                     unsigned int num_elements,
-                                    GLenum data_type)
+                                    GLenum data_type,
+                                    const char* attr_name)
 {
     assert(idx <= Def->num_attributes);
     VertexAttribute* A = &Def->attributes[idx];
 
     A->attr = attr_type;
+    A->idx = idx;
     A->offset = offset;
     A->type = data_type;
     A->num_elements = num_elements;
+    if(attr_name)
+    {
+        A->attr_name = new char[strlen(attr_name) + 1];
+        strcpy(A->attr_name, attr_name);
+    }
+    else
+    {
+        A->attr_name = 0;
+    }
 
     return A;
 }
@@ -89,13 +104,18 @@ void ApplyVertexDef(VertexDef Def)
                               Def->stride,
                               (void*)A->offset);
             break;
+        case VERTEX_OTHER_ATTR:
         case VERTEX_OTHER_ATTR_0:
         case VERTEX_OTHER_ATTR_1:
         case VERTEX_OTHER_ATTR_2:
         case VERTEX_OTHER_ATTR_3:
             {
-                int idx = A->attr - VERTEX_OTHER_ATTR_0 + 1;
-                assert(idx < 4);
+                int idx = A->idx;
+                if(A->attr > VERTEX_OTHER_ATTR)
+                {
+                    idx = A->attr - VERTEX_OTHER_ATTR_0 + 1;
+                    assert(idx < 4);
+                }
                 glEnableVertexAttribArray(idx);
                 glVertexAttribPointer(idx,
                                       A->num_elements,
@@ -105,13 +125,18 @@ void ApplyVertexDef(VertexDef Def)
                                       (void*)A->offset);
             }
             break;
+        case VERTEX_NORMALIZED_OTHER_ATTR:
         case VERTEX_NORMALIZED_OTHER_ATTR_0:
         case VERTEX_NORMALIZED_OTHER_ATTR_1:
         case VERTEX_NORMALIZED_OTHER_ATTR_2:
         case VERTEX_NORMALIZED_OTHER_ATTR_3:
             {
-                int idx = A->attr - VERTEX_NORMALIZED_OTHER_ATTR_0 + 1;
-                assert(idx < 4);
+                int idx = A->idx;
+                if(A->attr > VERTEX_NORMALIZED_OTHER_ATTR)
+                {
+                    idx = A->attr - VERTEX_NORMALIZED_OTHER_ATTR_0 + 1;
+                    assert(idx < 4);
+                }
                 glEnableVertexAttribArray(idx);
                 glVertexAttribPointer(idx,
                                       A->num_elements,
@@ -144,26 +169,63 @@ void ClearVertexDef(VertexDef Def)
         case VERTEX_UV_ATTR:
             glDisableClientState(GL_TEXTURE_COORD_ARRAY);
             break;
+        case VERTEX_OTHER_ATTR:
         case VERTEX_OTHER_ATTR_0:
         case VERTEX_OTHER_ATTR_1:
         case VERTEX_OTHER_ATTR_2:
         case VERTEX_OTHER_ATTR_3:
             {
-                int idx = A->attr - VERTEX_OTHER_ATTR_0 + 1;
-                assert(idx < 4);
+                int idx = A->idx;
+                if(A->attr > VERTEX_OTHER_ATTR)
+                {
+                    idx = A->attr - VERTEX_OTHER_ATTR_0 + 1;
+                    assert(idx < 4);
+                }
                 glDisableVertexAttribArray(idx);
             }
             break;
+        case VERTEX_NORMALIZED_OTHER_ATTR:
         case VERTEX_NORMALIZED_OTHER_ATTR_0:
         case VERTEX_NORMALIZED_OTHER_ATTR_1:
         case VERTEX_NORMALIZED_OTHER_ATTR_2:
         case VERTEX_NORMALIZED_OTHER_ATTR_3:
             {
-                int idx = A->attr - VERTEX_NORMALIZED_OTHER_ATTR_0 + 1;
-                assert(idx < 4);
+                int idx = A->idx;
+                if(A->attr > VERTEX_NORMALIZED_OTHER_ATTR)
+                {
+                    idx = A->attr - VERTEX_NORMALIZED_OTHER_ATTR_0 + 1;
+                    assert(idx < 4);
+                }
                 glDisableVertexAttribArray(idx);
             }
             break;
         }
     }
+}
+
+void VertexDefBindToShader(VertexDef Def, GLuint shader)
+{
+    for(unsigned int i=0; i<Def->num_attributes; i++)
+    {
+        VertexAttribute* A = &Def->attributes[i];
+        switch(A->attr)
+        {
+        case VERTEX_OTHER_ATTR:
+        case VERTEX_OTHER_ATTR_0:
+        case VERTEX_OTHER_ATTR_1:
+        case VERTEX_OTHER_ATTR_2:
+        case VERTEX_OTHER_ATTR_3:
+        case VERTEX_NORMALIZED_OTHER_ATTR:
+        case VERTEX_NORMALIZED_OTHER_ATTR_0:
+        case VERTEX_NORMALIZED_OTHER_ATTR_1:
+        case VERTEX_NORMALIZED_OTHER_ATTR_2:
+        case VERTEX_NORMALIZED_OTHER_ATTR_3:
+            if(A->attr_name)
+                glBindAttribLocation(shader, A->idx, A->attr_name);
+            break;
+        default:
+            break;
+        }
+    }
+    glLinkProgram(shader);
 }

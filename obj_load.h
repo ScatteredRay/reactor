@@ -27,6 +27,7 @@ struct material_params
 };
 
 VertexDef obj_vert_def();
+VertexDef obj_vert_def_depr();
 
 struct obj_mesh
 {

@@ -9,20 +9,23 @@ varying vec3 vambient;
 varying vec4 vspecular;
 varying vec4 vemissive;
 
-attribute vec3 ambient;
-attribute vec4 specular;
-attribute vec4 emissive;
+attribute vec4 in_vertex;
+attribute vec4 in_color;
+attribute vec3 in_normal;
+attribute vec3 in_ambient;
+attribute vec4 in_specular;
+attribute vec4 in_emissive;
 
 void main(void)
 {
-    gl_Position = position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    color = gl_Color;
+    gl_Position = position = gl_ModelViewProjectionMatrix * in_vertex;
+    color = in_color;
     // This should be in view space, since we don't do any rotations,
     // it is in such a space already, if we need to start rotating things
     // we will have to deal with this.
-    normal = vec4(gl_Normal, 1.0);
+    normal = vec4(in_normal, 1.0);
 
-    vambient = ambient;
-    vspecular = specular;
-    vemissive = emissive;
+    vambient = in_ambient;
+    vspecular = in_specular;
+    vemissive = in_emissive;
 }
