@@ -42,7 +42,7 @@
     <ClCompile Include="simple_mesh.cpp" />
     <ClCompile Include="simple_shader.cpp" />
     <ClCompile Include="simple_texture.cpp" />
-    <ClCompile Include="sky_view.cpp" />
+    <ClCompile Include="reactor_view.cpp" />
     <ClCompile Include="sys_win.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -51,6 +51,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{068E0E90-97F2-4F96-ADBC-3ECD32FD878C}</ProjectGuid>
     <RootNamespace>BootEd</RootNamespace>
+    <ProjectName>Reactor</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

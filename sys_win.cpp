@@ -28,7 +28,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int InitWindowAndLoop(int argc, char** argv)
 {
-    char* ClassName = "BOOTEDWIN";
+    char* ClassName = "REACTORGAMEWIN";
     WNDCLASSEX ClassStruct;
     memset(&ClassStruct, 0, sizeof(ClassStruct));
     ClassStruct.cbSize = sizeof(ClassStruct);
@@ -38,7 +38,7 @@ int InitWindowAndLoop(int argc, char** argv)
     ClassStruct.lpszClassName = ClassName;
     RegisterClassEx(&ClassStruct);
     HWND hWnd = CreateWindow(ClassName,
-                             "BootEd Window.",
+                             "Reactor.",
                              WS_TILEDWINDOW,
                              CW_USEDEFAULT,
                              CW_USEDEFAULT,

@@ -1,7 +1,7 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SkyGame", "SkyGame.vcxproj", "{068E0E90-97F2-4F96-ADBC-3ECD32FD878C}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Reactor", "Reactor.vcxproj", "{068E0E90-97F2-4F96-ADBC-3ECD32FD878C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
