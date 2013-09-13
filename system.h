@@ -3,6 +3,10 @@
 #ifndef _SYSTEM_H_
 #define _SYSTEM_H_
 
+#ifdef _WIN32
+#include "sys_win.h"
+#endif // WIN32
+
 // Converts Ascii to the system keycodes.
 int GetKeyCodeFromAscii(char key);
 

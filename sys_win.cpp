@@ -4,6 +4,7 @@
 
 #include "view_decl.h"
 #include "gl_all.h"
+#include "input.h"
 
 HINSTANCE WinSys_hInstance;
 ViewInfo* WinSys_View;

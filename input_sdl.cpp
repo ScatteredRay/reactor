@@ -143,3 +143,14 @@ float GetAxisState(PlayerInput* Input, AxisInputs Axis)
 		return 0.0f;
 	return Input->AxisValues[Axis];
 }
+
+InputHandler* InitInputHandler()
+{
+    return null;
+}
+
+void DestroyInputHandler(InputHandler* input) {}
+
+void InputReceiveKey(InputHandler* input, int code, KeyStatus status) {}
+
+void InputMouseEvent(InputHandler* input, int x, int y, MouseButton button, MouseStatus status) {}

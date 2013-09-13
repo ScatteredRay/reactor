@@ -35,7 +35,7 @@
     <ClCompile Include="editor_meshes.cpp" />
     <ClCompile Include="environment_render.cpp" />
     <ClCompile Include="file.cpp" />
-    <ClCompile Include="input_simple.cpp" />
+    <ClCompile Include="input_win.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="obj_load.cpp" />
     <ClCompile Include="reporting.cpp" />

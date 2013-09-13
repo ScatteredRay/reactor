@@ -56,8 +56,7 @@ struct ViewInfo
     obj_mesh* collision_mesh;
     GLuint collision_gl_mesh;
 
-    bool bMouseDown;
-
+    InputHandler* input_handler;
     PlayerInput* player_input[Num_Players];
     Character* character;
 
@@ -74,6 +73,8 @@ ViewInfo* InitView()
 #ifndef _WIN32
     init_sdl_system();
 #endif
+
+    view->input_handler = InitInputHandler();
 
     int num_inputs = InitPlayerInputs(view->player_input, Num_Players);
 
@@ -106,8 +107,6 @@ ViewInfo* InitView()
 
     InitEditor();
     view->grid = CreateGridMesh(21, 1);
-
-    view->bMouseDown = false;
 
     view->collision_vert = obj_vert_def_depr();
     view->collision_mesh = obj_load_mesh("data/world/collision.obj");
@@ -165,6 +164,8 @@ void FinishView(ViewInfo* view)
     DestroyProgramAndAttachedShaders(view->basic_shader);
 
     DestroyPlayerInputs(view->player_input, Num_Players);
+
+    DestroyInputHandler(view->input_handler);
 #ifndef _WIN32
     finalize_sdl_system();
 #endif
@@ -182,7 +183,7 @@ void UpdateView(ViewInfo* view)
 {
     for(int i=0; i<Num_Players; i++)
         if(view->player_input[i])
-            UpdateInput(view->player_input[i]);
+            UpdateInput(view->player_input[i], view->input_handler);
 
     UpdateCharacter(view->character, 0.02f);
 
@@ -236,28 +237,5 @@ void UpdateView(ViewInfo* view)
 
 InputHandler* GetInputHandler(ViewInfo* view)
 {
-    return (InputHandler*)view;
-}
-
-void InputReceiveKey(InputHandler* input, int code, KeyStatus status)
-{
-    ViewInfo* view = (ViewInfo*)input;
-    if(code == GetKeyCodeFromAscii('W'))
-    {
-        if(status == Key_Down)
-        {
-        }
-        else if(status == Key_Up)
-        {
-        }
-    }
-}
-
-void InputMouseEvent(InputHandler* input, int x, int y, MouseButton button, MouseStatus status)
-{
-    ViewInfo* view = (ViewInfo*)input;
-    if(status == Mouse_Down)
-        view->bMouseDown = true;
-    else if(status == Mouse_Up)
-        view->bMouseDown = false;
+    return view->input_handler;
 }
