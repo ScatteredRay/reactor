@@ -5,4 +5,8 @@
 
 const unsigned int MAX_KEYCODES = 255;
 
+#if _MSC_VER
+#define snprintf _snprintf
+#endif
+
 #endif// _SYS_WIN_H_

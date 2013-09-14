@@ -61,7 +61,6 @@ struct ViewInfo
     Character* character;
 
     Camera* camera;
-    DeferredRender* deferred;
 
     Environment* environment;
 };
@@ -100,8 +99,11 @@ ViewInfo* InitView()
     glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, &maxvertex);
     printf("Max supported element vertices: %d\n", maxvertex);
 
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    //glEnable(GL_DEPTH_TEST);
+    //glDepthFunc(GL_LESS);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     view->boot_vert = boot_vert_def();
 
@@ -135,8 +137,6 @@ ViewInfo* InitView()
     InitCharacters();
     view->character = CreateCharacter(view->player_input[0]);
 
-    view->deferred = InitDeferred();
-
     view->environment = InitEnvironment(1024, 768);
 
     return view;
@@ -145,7 +145,6 @@ ViewInfo* InitView()
 void FinishView(ViewInfo* view)
 {
     DestroyEnvironment(view->environment);
-    DestroyDeferred(view->deferred);
 
     DestroyCharacter(view->character);
     FinishCharacters();
@@ -176,7 +175,6 @@ void FinishView(ViewInfo* view)
 void ResizeView(ViewInfo* view, int width, int height)
 {
     SetCameraProjection(view->camera, width, height);
-    ResizeRenderBuffers(view->environment, width, height);
 }
 
 void UpdateView(ViewInfo* view)
@@ -200,15 +198,9 @@ void UpdateView(ViewInfo* view)
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf((float*)&projection);
 
-    RenderEnvironment(view->environment);
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf((float*)&identity);
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf((float*)&identity);
-    RenderDeferred(view->deferred, view->environment, view->camera);
+    RenderEnvironment(view->environment);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf((float*)&modelview);
