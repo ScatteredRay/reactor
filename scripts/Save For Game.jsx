@@ -19,7 +19,7 @@ function saveLayerAs(doc, layer, path) {
         }
     }
 
-    alert("Saving as " + path);
+    createAlphaFromTransparency();
 
     var file = new File(path);
 
@@ -31,6 +31,52 @@ function saveLayerAs(doc, layer, path) {
     opts.rleCompression = false;
 
     doc.saveAs(file, opts, true, Extension.LOWERCASE);
+
+    clearAlpha(doc);
+}
+
+function createAlphaFromTransparency() {
+    var idMk = charIDToTypeID( "Mk  " );
+        var desc3 = new ActionDescriptor();
+        var idNw = charIDToTypeID( "Nw  " );
+        var idChnl = charIDToTypeID( "Chnl" );
+        desc3.putClass( idNw, idChnl );
+        var idUsng = charIDToTypeID( "Usng" );
+            var desc4 = new ActionDescriptor();
+            var idT = charIDToTypeID( "T   " );
+                var ref2 = new ActionReference();
+                var idChnl = charIDToTypeID( "Chnl" );
+                var idChnl = charIDToTypeID( "Chnl" );
+                var idTrsp = charIDToTypeID( "Trsp" );
+                ref2.putEnumerated( idChnl, idChnl, idTrsp );
+                var idLyr = charIDToTypeID( "Lyr " );
+                var idOrdn = charIDToTypeID( "Ordn" );
+                var idMrgd = charIDToTypeID( "Mrgd" );
+                ref2.putEnumerated( idLyr, idOrdn, idMrgd );
+            desc4.putReference( idT, ref2 );
+            var idSrctwo = charIDToTypeID( "Src2" );
+                var ref3 = new ActionReference();
+                var idChnl = charIDToTypeID( "Chnl" );
+                var idChnl = charIDToTypeID( "Chnl" );
+                var idTrsp = charIDToTypeID( "Trsp" );
+                ref3.putEnumerated( idChnl, idChnl, idTrsp );
+                var idLyr = charIDToTypeID( "Lyr " );
+                var idOrdn = charIDToTypeID( "Ordn" );
+                var idMrgd = charIDToTypeID( "Mrgd" );
+                ref3.putEnumerated( idLyr, idOrdn, idMrgd );
+            desc4.putReference( idSrctwo, ref3 );
+        var idClcl = charIDToTypeID( "Clcl" );
+        desc3.putObject( idUsng, idClcl, desc4 );
+    executeAction( idMk, desc3, DialogModes.NO );
+}
+
+function clearAlpha(doc) {
+    for(var i=0; i<doc.channels.length; i++) {
+        if(doc.channels[i].name == "Alpha 1") {
+            doc.channels[i].remove()
+            i--;
+        }
+    }
 }
 
 function main() {
