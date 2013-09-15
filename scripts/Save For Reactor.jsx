@@ -8,7 +8,7 @@ function display(str) {
     }
 }
 
-function saveLayerAs(doc, layer, path) {
+function hideAllBut(doc, layer) {
     var layers = doc.layers;
     for(var i=0; i<layers.length; i++) {
         if(layer === layers[i]) {
@@ -18,10 +18,15 @@ function saveLayerAs(doc, layer, path) {
             layers[i].visible = false;
         }
     }
+}
+
+function saveLayerAs(doc, layer, path) {
+    hideAllBut(doc, layer);
 
     createAlphaFromTransparency();
 
     var saturate = saturateTransparency(doc, layer);
+    hideAllBut(doc, saturate);
 
     var file = new File(path);
 
@@ -84,26 +89,23 @@ function clearAlpha(doc) {
 }
 
 function saturateTransparency(doc, layer) {
-    var duplicateTimes = 256; // In theory 255 times should be perfect, we could perhaps get by with less.
+    var duplicateTimes = 8; // Since each time doubles the last 8 should cover all 256 colors in 8-bit channels.
 
-    var res = [];
+    layer = layer.duplicate(layer, ElementPlacement.PLACEBEFORE);
+    if(layer.typename == "LayerSet") {
+        layer = layer.merge();
+    }
 
     for(var i=0; i< duplicateTimes; i++) {
-        layer = layer.duplicate(doc, ElementPlacement.INSIDE);
-        if(layer.typename == "LayerSet") {
-            layer = layer.merge();
-        }
-        res.push(layer);
+        layer = layer.duplicate(layer, ElementPlacement.PLACEBEFORE);
+        layer = layer.merge()
     }
-    return res;
+    return layer;
 }
 
-function cleanupSaturate(res) {
+function cleanupSaturate(l) {
 
-    while(res.length > 0) {
-        var l = res.pop();
-        l.remove();
-    }
+    l.remove();
 }
 
 function main() {
