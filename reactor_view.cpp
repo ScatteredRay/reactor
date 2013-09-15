@@ -108,7 +108,7 @@ ViewInfo* InitView()
     view->boot_vert = boot_vert_def();
 
     InitEditor();
-    view->grid = CreateGridMesh(21, 1);
+    view->grid = CreateGridMesh(21, 10);
 
     view->collision_vert = obj_vert_def_depr();
     view->collision_mesh = obj_load_mesh("data/world/collision.obj");
@@ -193,14 +193,7 @@ void UpdateView(ViewInfo* view)
     Matrix4 projection = CameraGetProjection(view->camera);
     Matrix4 identity = Matrix4::identity();
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf((float*)&modelview);
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf((float*)&projection);
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    RenderEnvironment(view->environment);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf((float*)&modelview);
@@ -216,13 +209,25 @@ void UpdateView(ViewInfo* view)
     //glUniform4f(view->diffuse_color_uniform,
     //            160.0f / 255.0f, 0.0f, 1.0f, 1.0f);
 
-    glBindBuffer(GL_ARRAY_BUFFER, view->collision_gl_mesh);
-    ApplyVertexDef(view->collision_vert);
+    //glBindBuffer(GL_ARRAY_BUFFER, view->collision_gl_mesh);
+    //ApplyVertexDef(view->collision_vert);
 
-    glDrawArrays(GL_TRIANGLES, 0,
-                 view->collision_mesh->vertex_count);
+    //glDrawArrays(GL_TRIANGLES, 0,
+    //             view->collision_mesh->vertex_count);
 
-    ClearVertexDef(view->collision_vert);
+    //ClearVertexDef(view->collision_vert);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf((float*)&modelview);
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf((float*)&projection);
+
+    RenderEnvironment(view->environment);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf((float*)&modelview);
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf((float*)&projection);
 
     RenderCharacter(view->character);
 }
