@@ -21,6 +21,8 @@ function saveLayerAs(doc, layer, path) {
 
     createAlphaFromTransparency();
 
+    var saturate = saturateTransparency(doc, layer);
+
     var file = new File(path);
 
     var opts = new BMPSaveOptions();
@@ -31,6 +33,8 @@ function saveLayerAs(doc, layer, path) {
     opts.rleCompression = false;
 
     doc.saveAs(file, opts, true, Extension.LOWERCASE);
+
+    cleanupSaturate(saturate);
 
     clearAlpha(doc);
 }
@@ -79,6 +83,29 @@ function clearAlpha(doc) {
     }
 }
 
+function saturateTransparency(doc, layer) {
+    var duplicateTimes = 256; // In theory 255 times should be perfect, we could perhaps get by with less.
+
+    var res = [];
+
+    for(var i=0; i< duplicateTimes; i++) {
+        layer = layer.duplicate(doc, ElementPlacement.INSIDE);
+        if(layer.typename == "LayerSet") {
+            layer = layer.merge();
+        }
+        res.push(layer);
+    }
+    return res;
+}
+
+function cleanupSaturate(res) {
+
+    while(res.length > 0) {
+        var l = res.pop();
+        l.remove();
+    }
+}
+
 function main() {
     if(app.documents.length <= 0) {
         display("Must have document open.");
@@ -87,6 +114,8 @@ function main() {
 
     var orig = app.activeDocument;
     var doc = orig.duplicate();
+    // I don't think this is needed.
+    app.activeDocument = doc;
 
     var savePath;
 
@@ -107,6 +136,7 @@ function main() {
         }
     }
 
+    app.activeDocument = orig;
     doc.close(SaveOptions.DONOTSAVECHANGES);
 }
 
