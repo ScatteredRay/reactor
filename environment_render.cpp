@@ -69,9 +69,15 @@ void RenderEnvLayer(EnvLayer* layer, Environment* e, Camera* camera)
     camera_location[1] = tmp[1];
     camera_location[2] = tmp[2];
     camera_location.setZ(0.0f);
+
+    float aspect = layer->aspect/camera_aspect;
+
+    Vector3 bg_offset((aspect - 1.0f), 0.0, 0.0);
+
     Matrix4 local_to_world =
-        Matrix4::scale(Vector3(layer->aspect/camera_aspect, 1, 1)) *
-        Matrix4::translation(camera_location * parallax_factor);
+        Matrix4::translation(bg_offset + camera_location * parallax_factor) *
+        Matrix4::scale(Vector3(aspect, 1, 1));
+
     glUniformMatrix4fv(e->local_to_world_mat_uniform, 1, false, (float*)&local_to_world);
     glUniform1i(e->environment_tex_uniform, 0);
     glActiveTexture(GL_TEXTURE0 + 0);
