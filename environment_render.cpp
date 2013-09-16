@@ -21,6 +21,7 @@ void RenderUnitQuad();
 
 struct EnvLayer
 {
+    float parallax;
     float aspect;
     GLuint layer_texture;
 };
@@ -34,9 +35,12 @@ struct Environment
     EnvLayer** Layers;
 };
 
-EnvLayer* InitEnvLayer(const char* texture_path)
+EnvLayer* InitEnvLayer(const char* texture_path, float parallax)
 {
     EnvLayer* layer = new EnvLayer();
+
+    layer->parallax = parallax;
+
     bitmap* img = load_bmp(texture_path);
     layer->aspect = (float)bitmap_width(img) / (float)bitmap_height(img);
     layer->layer_texture = CreateTexture(img);
@@ -54,6 +58,8 @@ void DestroyEnvLayer(EnvLayer* layer)
 void RenderEnvLayer(EnvLayer* layer, Environment* e, Camera* camera)
 {
     // This is all a bit of a mess, Maybe we just put everything in world space?
+    float parallax_factor = 1.0f - layer->parallax;
+    parallax_factor *= parallax_factor;
     float camera_aspect = CameraGetAspectRatio(camera);
     Vector3 camera_location = CameraGetLocation(camera);
     Matrix4 world_to_proj = CameraGetWorldToProjection(camera);
@@ -65,7 +71,7 @@ void RenderEnvLayer(EnvLayer* layer, Environment* e, Camera* camera)
     camera_location.setZ(0.0f);
     Matrix4 local_to_world =
         Matrix4::scale(Vector3(layer->aspect/camera_aspect, 1, 1)) *
-        Matrix4::translation(camera_location);
+        Matrix4::translation(camera_location * parallax_factor);
     glUniformMatrix4fv(e->local_to_world_mat_uniform, 1, false, (float*)&local_to_world);
     glUniform1i(e->environment_tex_uniform, 0);
     glActiveTexture(GL_TEXTURE0 + 0);
@@ -94,7 +100,10 @@ Environment* InitEnvironment(unsigned int width, unsigned int height)
     {
         char path[255];
         snprintf(path, sizeof(path), "data/world/%i.bmp", i+1);
-        e->Layers[i] = InitEnvLayer(path);
+
+        float parallax = (float)i / (float)(e->NumLayers - 1);
+
+        e->Layers[i] = InitEnvLayer(path, parallax);
     }
 
     return e;
