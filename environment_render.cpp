@@ -94,9 +94,9 @@ Environment* InitEnvironment(unsigned int width, unsigned int height)
     VertexDefBindToShader(gQuadVerts, e->environment_shader);
 
     // Init layers
-    e->NumLayers = 5;
+    e->NumLayers = 6;
     e->Layers = new EnvLayer*[e->NumLayers];
-    for(unsigned int i = 0; i < e->NumLayers; i++)
+    for(unsigned int i = 0; i < 5; i++)
     {
         char path[255];
         snprintf(path, sizeof(path), "data/world/%i.bmp", i+1);
@@ -105,6 +105,8 @@ Environment* InitEnvironment(unsigned int width, unsigned int height)
 
         e->Layers[i] = InitEnvLayer(path, parallax);
     }
+
+    e->Layers[5] = InitEnvLayer("data/world/BG.bmp", 1.0f);
 
     return e;
 }

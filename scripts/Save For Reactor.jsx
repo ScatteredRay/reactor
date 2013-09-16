@@ -136,6 +136,9 @@ function main() {
             // Numeric floating layer.
             saveLayerAs(doc, layers[i], savePath + layerN + ".bmp"); 
         }
+        if(layers[i].name === "BG") {
+            saveLayerAs(doc, layers[i], savePath + "BG.bmp");
+        }
     }
 
     app.activeDocument = orig;
