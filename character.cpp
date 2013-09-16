@@ -56,7 +56,7 @@ void InitCharacters()
     character_sampler_uniform = glGetUniformLocation(character_shader, "sprite_tex");
     character_local_to_world_uniform = glGetUniformLocation(character_shader, "local_to_world");
 
-    character_texture = CreateTextureFromBMP("data/PFX_test_001.bmp");
+    character_texture = CreateTextureFromBMP("data/char.bmp");
 }
 
 void FinishCharacters()
