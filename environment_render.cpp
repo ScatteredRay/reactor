@@ -20,6 +20,7 @@ void RenderUnitQuad();
 
 struct EnvLayer
 {
+    float aspect;
     GLuint layer_texture;
 };
 
@@ -27,6 +28,7 @@ struct Environment
 {
     GLuint environment_shader;
     GLuint environment_tex_uniform;
+    GLuint local_to_world_mat_uniform;
     unsigned int NumLayers;
     EnvLayer** Layers;
 };
@@ -34,7 +36,10 @@ struct Environment
 EnvLayer* InitEnvLayer(const char* texture_path)
 {
     EnvLayer* layer = new EnvLayer();
-    layer->layer_texture = CreateTextureFromBMP(texture_path);
+    bitmap* img = load_bmp(texture_path);
+    layer->aspect = (float)bitmap_width(img) / (float)bitmap_height(img);
+    layer->layer_texture = CreateTexture(img);
+    destroy_bitmap(img);
 
     return layer;
 }
@@ -47,6 +52,8 @@ void DestroyEnvLayer(EnvLayer* layer)
 
 void RenderEnvLayer(EnvLayer* layer, Environment* e)
 {
+    Matrix4 local_to_world = Matrix4::scale(Vector3(layer->aspect, 1, 1));
+    glUniformMatrix4fv(e->local_to_world_mat_uniform, 1, false, (float*)&local_to_world);
     glUniform1i(e->environment_tex_uniform, 0);
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, layer->layer_texture);
@@ -63,6 +70,7 @@ Environment* InitEnvironment(unsigned int width, unsigned int height)
     e->environment_shader = CreateShaderProgram(SHADER_ENVIRONMENT);
 
     e->environment_tex_uniform = glGetUniformLocation(e->environment_shader, "environment_tex");
+    e->local_to_world_mat_uniform = glGetUniformLocation(e->environment_shader, "local_to_world");
 
     VertexDefBindToShader(gQuadVerts, e->environment_shader);
 

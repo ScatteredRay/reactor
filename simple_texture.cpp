@@ -84,6 +84,16 @@ void destroy_bitmap(bitmap* img)
     delete img;
 }
 
+unsigned int bitmap_width(bitmap* bmp)
+{
+    return bmp->width;
+}
+
+unsigned int bitmap_height(bitmap* bmp)
+{
+    return bmp->height;
+}
+
 GLuint CreateTexture(bitmap* img)
 {
     GLuint tex;

@@ -5,6 +5,9 @@ struct bitmap;
 
 bitmap* load_bmp(const char* filename);
 void destroy_bitmap(bitmap* img);
+unsigned int bitmap_width(bitmap* bmp);
+unsigned int bitmap_height(bitmap* bmp);
+
 GLuint CreateTexture(bitmap* img);
 GLuint CreateTextureFromBMP(const char* filename);
 void DestroyTexture(GLuint tex);
