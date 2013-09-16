@@ -1,2 +1,5 @@
+* Texture blend modes.
+* Atmospheric Scattering.
 * Texture reloading
 * Scene config (json) - and PSD exporting.
+* Better handle bad data.
