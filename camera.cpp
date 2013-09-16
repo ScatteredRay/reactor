@@ -11,12 +11,13 @@ struct Camera
 {
     Vector3 location;
     Matrix4 projection;
+    float aspect;
 };
 
 void SetCameraProjection(Camera* camera, float screen_width, float screen_height)
 {
-    float aspect = screen_width/screen_height;
-    camera->projection = Matrix4::perspective(fovx*screen_height/screen_width, aspect, zNear, zFar);
+    camera->aspect = screen_width/screen_height;
+    camera->projection = Matrix4::perspective(fovx*screen_height/screen_width, camera->aspect, zNear, zFar);
 }
 
 Camera* InitCamera(int screen_width, int screen_height)
@@ -24,6 +25,7 @@ Camera* InitCamera(int screen_width, int screen_height)
     Camera* camera = new Camera();
 
     camera->location = camera_start_location;
+    camera->aspect = 1.0;
 
     SetCameraProjection(camera, (float)screen_width, (float)screen_height);
 
@@ -60,6 +62,11 @@ Vector3 CameraGetLocation(Camera* camera)
 Matrix4 CameraGetProjection(Camera* camera)
 {
     return camera->projection;
+}
+
+float CameraGetAspectRatio(Camera* camera)
+{
+    return camera->aspect;
 }
 
 Matrix4 CameraGetWorldToView(Camera* camera)

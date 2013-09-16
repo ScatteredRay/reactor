@@ -222,7 +222,7 @@ void UpdateView(ViewInfo* view)
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf((float*)&projection);
 
-    RenderEnvironment(view->environment);
+    RenderEnvironment(view->environment, view->camera);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf((float*)&modelview);

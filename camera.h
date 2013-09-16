@@ -16,5 +16,6 @@ Vector3 CameraGetLocation(Camera* camera);
 Matrix4 CameraGetProjection(Camera* camera);
 Matrix4 CameraGetWorldToView(Camera* camera);
 Matrix4 CameraGetWorldToProjection(Camera* camera);
+float CameraGetAspectRatio(Camera* camera);
 
 #endif //_CAMERA_H_

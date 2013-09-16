@@ -50,9 +50,10 @@ void DestroyEnvLayer(EnvLayer* layer)
     delete layer;
 }
 
-void RenderEnvLayer(EnvLayer* layer, Environment* e)
+void RenderEnvLayer(EnvLayer* layer, Environment* e, Camera* camera)
 {
-    Matrix4 local_to_world = Matrix4::scale(Vector3(layer->aspect, 1, 1));
+    float camera_aspect = CameraGetAspectRatio(camera);
+    Matrix4 local_to_world = Matrix4::scale(Vector3(layer->aspect/camera_aspect, 1, 1));
     glUniformMatrix4fv(e->local_to_world_mat_uniform, 1, false, (float*)&local_to_world);
     glUniform1i(e->environment_tex_uniform, 0);
     glActiveTexture(GL_TEXTURE0 + 0);
@@ -101,7 +102,7 @@ void DestroyEnvironment(Environment* e)
     DestroyQuad();
 }
 
-void RenderEnvironment(Environment* e)
+void RenderEnvironment(Environment* e, Camera* camera)
 {
     glUseProgram(e->environment_shader);
 
@@ -114,7 +115,7 @@ void RenderEnvironment(Environment* e)
 
     for(unsigned int i = e->NumLayers; i > 0; i--)
     {
-        RenderEnvLayer(e->Layers[i-1], e);
+        RenderEnvLayer(e->Layers[i-1], e, camera);
     }
 }
 
