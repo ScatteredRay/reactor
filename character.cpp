@@ -83,8 +83,10 @@ float SmoothInput(float x)
 
 void UpdateCharacter(Character* character, float DeltaTime)
 {
+    float player_speed = 0.1f;
+
     character->location
-        += DeltaTime *
+        += player_speed * DeltaTime *
         Vector3(SmoothInput(GetAxisState(character->input, Input_Move_X)),
                 SmoothInput(GetAxisState(character->input, Input_Move_Y)),
                 0.0f);

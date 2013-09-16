@@ -4,6 +4,7 @@
 #include "simple_texture.h"
 #include "vectormath.h"
 #include "camera.h"
+#include "reporting.h"
 
 #include "gl_all.h"
 #include <stdio.h>
@@ -52,8 +53,19 @@ void DestroyEnvLayer(EnvLayer* layer)
 
 void RenderEnvLayer(EnvLayer* layer, Environment* e, Camera* camera)
 {
+    // This is all a bit of a mess, Maybe we just put everything in world space?
     float camera_aspect = CameraGetAspectRatio(camera);
-    Matrix4 local_to_world = Matrix4::scale(Vector3(layer->aspect/camera_aspect, 1, 1));
+    Vector3 camera_location = CameraGetLocation(camera);
+    Matrix4 world_to_proj = CameraGetWorldToProjection(camera);
+    Vector4 tmp = world_to_proj * camera_location;
+    tmp /= tmp.getW();
+    camera_location[0] = tmp[0];
+    camera_location[1] = tmp[1];
+    camera_location[2] = tmp[2];
+    camera_location.setZ(0.0f);
+    Matrix4 local_to_world =
+        Matrix4::scale(Vector3(layer->aspect/camera_aspect, 1, 1)) *
+        Matrix4::translation(camera_location);
     glUniformMatrix4fv(e->local_to_world_mat_uniform, 1, false, (float*)&local_to_world);
     glUniform1i(e->environment_tex_uniform, 0);
     glActiveTexture(GL_TEXTURE0 + 0);
