@@ -7,7 +7,7 @@ uniform sampler2D depth_buffer;
 void main(void)
 {
 
-    vec3 diffuse = texture2D(color_buffer, gl_TexCoord[0].xy).xyz;
+    vec4 diffuse = texture2D(color_buffer, gl_TexCoord[0].xy);
     float depth = texture2D(depth_buffer, gl_TexCoord[0].xy).x;
-    gl_FragColor = vec4(diffuse, 1.0);
+    gl_FragColor = vec4(diffuse.rgb, 1.0);
 }

@@ -245,7 +245,7 @@ void UpdateView(ViewInfo* view)
     RenderCharacter(view->character);
 
     UnbindRenderTarget(view->scene_target);
-
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     RenderDeferred(view->deferred, view->scene_target);
 }
 

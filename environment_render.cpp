@@ -26,15 +26,19 @@ struct EnvLayer
     float parallax;
     float aspect;
     GLuint layer_texture;
+
+    Vector4 color_mask;
 };
 
 struct Environment
 {
     GLuint environment_shader;
     GLuint environment_tex_uniform;
+    GLuint color_mask_uniform;
     GLuint local_to_world_mat_uniform;
     unsigned int NumLayers;
     EnvLayer** Layers;
+    EnvLayer* bg_layer;
 };
 
 EnvLayer* InitEnvLayer(const char* texture_path, float parallax)
@@ -42,6 +46,8 @@ EnvLayer* InitEnvLayer(const char* texture_path, float parallax)
     EnvLayer* layer = new EnvLayer();
 
     layer->parallax = parallax;
+
+    layer->color_mask = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 
     bitmap* img = load_bmp(texture_path);
     layer->aspect = (float)bitmap_width(img) / (float)bitmap_height(img);
@@ -82,6 +88,7 @@ void RenderEnvLayer(EnvLayer* layer, Environment* e, Camera* camera)
 
     glUniformMatrix4fv(e->local_to_world_mat_uniform, 1, false, (float*)&local_to_world);
     glUniform1i(e->environment_tex_uniform, 0);
+    glUniform4f(e->color_mask_uniform, layer->color_mask.getX(), layer->color_mask.getY(), layer->color_mask.getZ(), layer->color_mask.getW());
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, layer->layer_texture);
 
@@ -97,14 +104,15 @@ Environment* InitEnvironment(unsigned int width, unsigned int height)
     e->environment_shader = CreateShaderProgram(SHADER_ENVIRONMENT);
 
     e->environment_tex_uniform = glGetUniformLocation(e->environment_shader, "environment_tex");
+    e->color_mask_uniform = glGetUniformLocation(e->environment_shader, "color_mask");
     e->local_to_world_mat_uniform = glGetUniformLocation(e->environment_shader, "local_to_world");
 
     VertexDefBindToShader(gQuadVerts, e->environment_shader);
 
     // Init layers
-    e->NumLayers = 6;
+    e->NumLayers = 5;
     e->Layers = new EnvLayer*[e->NumLayers];
-    for(unsigned int i = 0; i < 5; i++)
+    for(unsigned int i = 0; i < e->NumLayers; i++)
     {
         char path[255];
         snprintf(path, sizeof(path), "data/world/%i.bmp", i+1);
@@ -114,13 +122,17 @@ Environment* InitEnvironment(unsigned int width, unsigned int height)
         e->Layers[i] = InitEnvLayer(path, parallax);
     }
 
-    e->Layers[5] = InitEnvLayer("data/world/BG.bmp", 1.0f);
+    e->bg_layer = InitEnvLayer("data/world/BG.bmp", 1.0f);
+
+    e->bg_layer->color_mask = Vector4(1.0f, 1.0f, 1.0f, 0.0f);
 
     return e;
 }
 
 void DestroyEnvironment(Environment* e)
 {
+
+    DestroyEnvLayer(e->bg_layer);
 
     for(unsigned int i = 0; i < e->NumLayers; i++)
     {
@@ -143,6 +155,12 @@ void RenderEnvironment(Environment* e, Camera* camera)
     glLoadMatrixf((float*)&identity);
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf((float*)&identity);
+
+
+    glBlendFunc(GL_ONE, GL_ZERO);
+    RenderEnvLayer(e->bg_layer, e, camera);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     for(unsigned int i = e->NumLayers; i > 0; i--)
     {
