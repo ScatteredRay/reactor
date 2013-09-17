@@ -13,6 +13,7 @@
 #include "character.h"
 #include "camera.h"
 #include "environment.h"
+#include "deferred.h"
 #include "system.h"
 
 #include "editor_meshes.h"
@@ -63,6 +64,9 @@ struct ViewInfo
     Camera* camera;
 
     Environment* environment;
+
+    RenderTarget* scene_target;
+    DeferredRender* deferred;
 };
 
 ViewInfo* InitView()
@@ -139,11 +143,17 @@ ViewInfo* InitView()
 
     view->environment = InitEnvironment(1024, 768);
 
+    view->scene_target = InitRenderTarget(1024, 768);
+    view->deferred = InitDeferred();
+
     return view;
 }
 
 void FinishView(ViewInfo* view)
 {
+    DestroyDeferred(view->deferred);
+    DestroyRenderTarget(view->scene_target);
+
     DestroyEnvironment(view->environment);
 
     DestroyCharacter(view->character);
@@ -175,6 +185,7 @@ void FinishView(ViewInfo* view)
 void ResizeView(ViewInfo* view, int width, int height)
 {
     SetCameraProjection(view->camera, width, height);
+    ResizeRenderTarget(view->scene_target, width, height);
 }
 
 void UpdateView(ViewInfo* view)
@@ -192,6 +203,8 @@ void UpdateView(ViewInfo* view)
     Matrix4 modelview = CameraGetWorldToView(view->camera);
     Matrix4 projection = CameraGetProjection(view->camera);
     Matrix4 identity = Matrix4::identity();
+
+    BindRenderTarget(view->scene_target);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -230,6 +243,10 @@ void UpdateView(ViewInfo* view)
     glLoadMatrixf((float*)&projection);
 
     RenderCharacter(view->character);
+
+    UnbindRenderTarget(view->scene_target);
+
+    RenderDeferred(view->deferred, view->scene_target);
 }
 
 InputHandler* GetInputHandler(ViewInfo* view)

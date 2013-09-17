@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="character.h" />
+    <ClInclude Include="deferred.h" />
     <ClInclude Include="editor_meshes.h" />
     <ClInclude Include="environment.h" />
     <ClInclude Include="file.h" />
@@ -32,6 +33,7 @@
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="character.cpp" />
+    <ClCompile Include="deferred.cpp" />
     <ClCompile Include="editor_meshes.cpp" />
     <ClCompile Include="environment_render.cpp" />
     <ClCompile Include="file.cpp" />

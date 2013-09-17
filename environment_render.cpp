@@ -15,6 +15,8 @@
 GLuint gQuad;
 VertexDef gQuadVerts;
 
+
+// Move this somewhere common.
 void InitQuad();
 void DestroyQuad();
 void RenderUnitQuad();

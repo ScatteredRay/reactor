@@ -1,0 +1,13 @@
+// Copyright (c) 2010, Nicholas "Indy" Ray. All rights reserved.
+// See the LICENSE file for usage, modification, and distribution terms.
+
+uniform sampler2D color_buffer;
+uniform sampler2D depth_buffer;
+
+void main(void)
+{
+
+    vec3 diffuse = texture2D(color_buffer, gl_TexCoord[0].xy).xyz;
+    float depth = texture2D(depth_buffer, gl_TexCoord[0].xy).x;
+    gl_FragColor = vec4(diffuse, 1.0);
+}
