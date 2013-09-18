@@ -22,11 +22,15 @@ void main(void)
     float exposure = 0.9;
     float decay = 0.9;
 
+    // Ambient light in the air, this is wehre far objects get scattering color without direct sun.
+    // Not ideal since it still takes the angle vs the sun into account.
+    float base_light = 0.2;
+
 
     // scattering
 
     float extinction = 0.01;
-    float angular_term = 0.2;
+    float angular_term = 0.4;
 
     float rayleigh = 0.2;
     float mie = 0.3;
@@ -55,6 +59,8 @@ void main(void)
       // Perhaps we should use a model that has a decay?
       occlusion += sample.a / num_samples;
     }
+
+    occlusion = base_light + occlusion * (1.0 - base_light);
 
     // Occlusion being zero would imply no light, very much a night sky, this is likely not desired in a shadowed environment.
 
