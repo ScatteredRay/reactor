@@ -4,26 +4,63 @@
 uniform sampler2D color_buffer;
 uniform sampler2D depth_buffer;
 
+// Most of the scattering computations are based off of the GDC 02 [HoffmanPreetham] slides.
+
 void main(void)
 {
+
+    float pi = 3.1415926535897932384626433832795;
+    float e = 2.7182818284590452353602874713526;
+
     vec2 light_source = vec2(0.5, 0.5);
+    vec3 sun_radiance = vec3(1.0, 1.0, 1.0);
+    float fov = pi/2;
+
+    // oclusion sampling
     float num_samples = 20.0;
     float weight = 0.1;
     float exposure = 0.9;
     float decay = 0.9;
 
+
+    // scattering
+
+    float extinction = 0.01;
+    float angular_term = 0.2;
+
+    float rayleigh = 0.2;
+    float mie = 0.3;
+    float mie_g = 0.5; // Mie Eccentricity?
+
+    float media_depth = 30; // Based off of depth.
+    // This wrongly assumes a square view. And also assumes that the TexCoords go from {0, 0} to {1, 1}
+    vec2 delta = light_source - gl_TexCoord[0].xy;
+    float sun_angle = length(delta) * fov;
+
+    float rayleigh_scattering = (3/(16*pi))*(1 + pow(cos(sun_angle), 2));
+    float mie_scattering = pow(1 - mie_g, 2)/(4*pi*pow(1 + pow(mie_g, 2) - 2 * mie_g * cos(sun_angle), 3/2));
+    float angular_scattering = angular_term * rayleigh * rayleigh_scattering + mie * mie_scattering;
+
     vec4 diffuse = texture2D(color_buffer, gl_TexCoord[0].xy);
     float depth = texture2D(depth_buffer, gl_TexCoord[0].xy).x;
 
-    vec2 delta = light_source - gl_TexCoord[0].xy;
-
     vec2 step = delta/num_samples;
+
+    float occlusion = 0.0;
 
     for(float i=0.0; i<num_samples; i++)
     {
       vec4 sample = texture2D(color_buffer, gl_TexCoord[0].xy + step * i);
-      diffuse.rgb += sample.rgb * (1.0 - sample.a) * weight * pow(decay, i);
+      //diffuse.rgb += sample.rgb * (1.0 - sample.a) * weight * pow(decay, i);
+      // Perhaps we should use a model that has a decay?
+      occlusion += sample.a / num_samples;
     }
 
-    gl_FragColor = vec4(diffuse.rgb * exposure, 1.0);
+    // Occlusion being zero would imply no light, very much a night sky, this is likely not desired in a shadowed environment.
+
+    // L0 is diffuse?
+    float u = pow(e, -extinction * media_depth);
+    vec3 color = diffuse.rgb * u + (1.0/extinction) * sun_radiance * (1.0 - occlusion) * angular_scattering * (1.0 - u);
+
+    gl_FragColor = vec4(color * exposure, 1.0);
 }
