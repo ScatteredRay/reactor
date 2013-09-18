@@ -83,7 +83,7 @@ float SmoothInput(float x)
 
 void UpdateCharacter(Character* character, float DeltaTime)
 {
-    float player_speed = 0.1f;
+    float player_speed = 0.3f;
 
     character->location
         += player_speed * DeltaTime *

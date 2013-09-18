@@ -6,8 +6,24 @@ uniform sampler2D depth_buffer;
 
 void main(void)
 {
+    vec2 light_source = vec2(0.5, 0.5);
+    float num_samples = 20.0;
+    float weight = 0.1;
+    float exposure = 0.9;
+    float decay = 0.9;
 
     vec4 diffuse = texture2D(color_buffer, gl_TexCoord[0].xy);
     float depth = texture2D(depth_buffer, gl_TexCoord[0].xy).x;
-    gl_FragColor = vec4(diffuse.rgb, 1.0);
+
+    vec2 delta = light_source - gl_TexCoord[0].xy;
+
+    vec2 step = delta/num_samples;
+
+    for(float i=0.0; i<num_samples; i++)
+    {
+      vec4 sample = texture2D(color_buffer, gl_TexCoord[0].xy + step * i);
+      diffuse.rgb += sample.rgb * (1.0 - sample.a) * weight * pow(decay, i);
+    }
+
+    gl_FragColor = vec4(diffuse.rgb * exposure, 1.0);
 }
