@@ -23,7 +23,7 @@ function hideAllBut(doc, layer) {
 function saveLayerAs(doc, layer, path) {
     hideAllBut(doc, layer);
 
-    createAlphaFromTransparency();
+    createAlphaFromTransparency(doc);
 
     var saturate = saturateTransparency(doc, layer);
     hideAllBut(doc, saturate);
@@ -44,7 +44,7 @@ function saveLayerAs(doc, layer, path) {
     clearAlpha(doc);
 }
 
-function createAlphaFromTransparency() {
+function createAlphaFromTransparency(doc) {
     var idMk = charIDToTypeID( "Mk  " );
         var desc3 = new ActionDescriptor();
         var idNw = charIDToTypeID( "Nw  " );
@@ -128,6 +128,9 @@ function main() {
         display("File must have a path, save the file first.");
         return 'cancel'
     }
+
+    // To fix weird selection problem.
+    var dummy = doc.artLayers.add();
 
     var layers = doc.layers;
     for(var i=0; i<layers.length; i++) {

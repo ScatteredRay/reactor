@@ -1,5 +1,6 @@
 * Texture blend modes.
 * Atmospheric Scattering.
+  I think we can get a quality improvement by doing every sample but the first into a reduxed resolution buffer, this will smooth out rays farther away.
 * Texture reloading
 * Scene config (json) - and PSD exporting.
 * Better handle bad data.
