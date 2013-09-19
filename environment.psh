@@ -3,9 +3,11 @@
 
 uniform sampler2D environment_tex;
 uniform vec4 color_mask;
+uniform float depth;
 
 void main(void)
 {
     vec4 color = texture2D(environment_tex, gl_TexCoord[0].xy);
-    gl_FragColor = color_mask * color.rgba;
+    gl_FragData[0] = color_mask * color.rgba;
+    gl_FragData[1] = vec4(depth, depth, depth, color.a); // Transpariencies will work a bit weird with this.
 }

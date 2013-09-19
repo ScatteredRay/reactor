@@ -35,6 +35,7 @@ struct Environment
     GLuint environment_shader;
     GLuint environment_tex_uniform;
     GLuint color_mask_uniform;
+    GLuint depth_uniform;
     GLuint local_to_world_mat_uniform;
     unsigned int NumLayers;
     EnvLayer** Layers;
@@ -89,6 +90,7 @@ void RenderEnvLayer(EnvLayer* layer, Environment* e, Camera* camera)
     glUniformMatrix4fv(e->local_to_world_mat_uniform, 1, false, (float*)&local_to_world);
     glUniform1i(e->environment_tex_uniform, 0);
     glUniform4f(e->color_mask_uniform, layer->color_mask.getX(), layer->color_mask.getY(), layer->color_mask.getZ(), layer->color_mask.getW());
+    glUniform1f(e->depth_uniform, layer->parallax);
     glActiveTexture(GL_TEXTURE0 + 0);
     glBindTexture(GL_TEXTURE_2D, layer->layer_texture);
 
@@ -105,6 +107,7 @@ Environment* InitEnvironment(unsigned int width, unsigned int height)
 
     e->environment_tex_uniform = glGetUniformLocation(e->environment_shader, "environment_tex");
     e->color_mask_uniform = glGetUniformLocation(e->environment_shader, "color_mask");
+    e->depth_uniform = glGetUniformLocation(e->environment_shader, "depth");
     e->local_to_world_mat_uniform = glGetUniformLocation(e->environment_shader, "local_to_world");
 
     VertexDefBindToShader(gQuadVerts, e->environment_shader);
