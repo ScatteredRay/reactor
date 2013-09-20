@@ -12,8 +12,8 @@ void main(void)
     float pi = 3.1415926535897932384626433832795;
     float e = 2.7182818284590452353602874713526;
 
-    vec2 light_source = vec2(0.25, 0.35);
-    vec3 sun_radiance = vec3(1.0, 1.0, 1.0);
+    vec2 light_source = vec2(0.3, 0.6);
+    vec3 sun_radiance = vec3(1, .4, .0);
     float fov = pi/2;
 
     // oclusion sampling
@@ -30,10 +30,10 @@ void main(void)
     // scattering
 
     float extinction = 0.01;
-    float angular_term = 0.4;
+    float angular_term = 0.2;
 
     float rayleigh = 0.2;
-    float mie = 0.3;
+    float mie = 0.55;
     float mie_g = 0.5; // Mie Eccentricity?
 
     // Rayleigh, proportional to the (wavelength) ^ -4
