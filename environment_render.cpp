@@ -3,6 +3,7 @@
 #include "simple_shader.h"
 #include "simple_texture.h"
 #include "vectormath.h"
+#include "collections.h"
 #include "camera.h"
 #include "reporting.h"
 
@@ -37,8 +38,7 @@ struct Environment
     GLuint color_mask_uniform;
     GLuint depth_uniform;
     GLuint local_to_world_mat_uniform;
-    unsigned int NumLayers;
-    EnvLayer** Layers;
+    StaticArray<EnvLayer*> Layers;
     EnvLayer* bg_layer;
 };
 
@@ -113,14 +113,13 @@ Environment* InitEnvironment(unsigned int width, unsigned int height)
     VertexDefBindToShader(gQuadVerts, e->environment_shader);
 
     // Init layers
-    e->NumLayers = 5;
-    e->Layers = new EnvLayer*[e->NumLayers];
-    for(unsigned int i = 0; i < e->NumLayers; i++)
+    e->Layers.reinit(5);
+    for(unsigned int i = 0; i < e->Layers.size(); i++)
     {
         char path[255];
         snprintf(path, sizeof(path), "data/world/%i.bmp", i+1);
 
-        float parallax = (float)i / (float)(e->NumLayers - 1);
+        float parallax = (float)i / (float)(e->Layers.size() - 1);
 
         e->Layers[i] = InitEnvLayer(path, parallax);
     }
@@ -137,11 +136,11 @@ void DestroyEnvironment(Environment* e)
 
     DestroyEnvLayer(e->bg_layer);
 
-    for(unsigned int i = 0; i < e->NumLayers; i++)
+    for(unsigned int i = 0; i < e->Layers.size(); i++)
     {
         DestroyEnvLayer(e->Layers[i]);
     }
-    delete[] e->Layers;
+    e->Layers.clear();
 
     DestroyProgramAndAttachedShaders(e->environment_shader);
     delete e;
@@ -165,7 +164,7 @@ void RenderEnvironment(Environment* e, Camera* camera)
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    for(unsigned int i = e->NumLayers; i > 0; i--)
+    for(unsigned int i = e->Layers.size(); i > 0; i--)
     {
         RenderEnvLayer(e->Layers[i-1], e, camera);
     }

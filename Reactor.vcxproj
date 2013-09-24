@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClInclude Include="camera.h" />
     <ClInclude Include="character.h" />
+    <ClInclude Include="collections.h" />
     <ClInclude Include="deferred.h" />
     <ClInclude Include="editor_meshes.h" />
     <ClInclude Include="environment.h" />
