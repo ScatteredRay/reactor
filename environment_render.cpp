@@ -39,7 +39,6 @@ struct Environment
     GLuint depth_uniform;
     GLuint local_to_world_mat_uniform;
     StaticArray<EnvLayer*> Layers;
-    EnvLayer* bg_layer;
 };
 
 EnvLayer* InitEnvLayer(const char* texture_path, float parallax)
@@ -113,28 +112,27 @@ Environment* InitEnvironment(unsigned int width, unsigned int height)
     VertexDefBindToShader(gQuadVerts, e->environment_shader);
 
     // Init layers
-    e->Layers.reinit(5);
-    for(unsigned int i = 0; i < e->Layers.size(); i++)
+    unsigned int num_layers = 6;
+    e->Layers.reinit(num_layers);
+    for(unsigned int i = 0; i < num_layers-1; i++)
     {
         char path[255];
         snprintf(path, sizeof(path), "data/world/%i.bmp", i+1);
 
-        float parallax = (float)i / (float)(e->Layers.size() - 1);
+        float parallax = (float)i / (float)(num_layers - 1);
 
         e->Layers[i] = InitEnvLayer(path, parallax);
     }
 
-    e->bg_layer = InitEnvLayer("data/world/BG.bmp", 1.0f);
+    e->Layers[num_layers-1] = InitEnvLayer("data/world/BG.bmp", 1.0f);
 
-    e->bg_layer->color_mask = Vector4(1.0f, 1.0f, 1.0f, 0.0f);
+    e->Layers[num_layers-1]->color_mask = Vector4(1.0f, 1.0f, 1.0f, 0.0f);
 
     return e;
 }
 
 void DestroyEnvironment(Environment* e)
 {
-
-    DestroyEnvLayer(e->bg_layer);
 
     for(unsigned int i = 0; i < e->Layers.size(); i++)
     {
@@ -160,13 +158,14 @@ void RenderEnvironment(Environment* e, Camera* camera)
 
 
     glBlendFunc(GL_ONE, GL_ZERO);
-    RenderEnvLayer(e->bg_layer, e, camera);
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    for(unsigned int i = e->Layers.size(); i > 0; i--)
+    unsigned int num_layers = e->Layers.size();
+    for(unsigned int i = num_layers; i > 0; i--)
     {
         RenderEnvLayer(e->Layers[i-1], e, camera);
+        if(i == num_layers)
+        {
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        }
     }
 }
 
