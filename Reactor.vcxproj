@@ -22,6 +22,8 @@
     <ClInclude Include="gl_all.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="obj_load.h" />
+    <ClInclude Include="persist.h" />
+    <ClInclude Include="reflect.h" />
     <ClInclude Include="reporting.h" />
     <ClInclude Include="simple_mesh.h" />
     <ClInclude Include="simple_shader.h" />

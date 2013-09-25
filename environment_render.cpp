@@ -6,6 +6,7 @@
 #include "collections.h"
 #include "camera.h"
 #include "reporting.h"
+#include "persist.h"
 
 #include "gl_all.h"
 #include <stdio.h>
@@ -31,6 +32,18 @@ struct EnvLayer
     Vector4 color_mask;
 };
 
+template <>
+class Reflect_Type<EnvLayer>
+{
+    static void metadata(Reflect& reflect)
+    {
+        reflect.count(3);
+        reflect(&EnvLayer::parallax, "Depth");
+        reflect(&EnvLayer::layer_texture, "Texture");
+        reflect(&EnvLayer::color_mask, "ColorMask");
+    }
+};
+
 struct Environment
 {
     GLuint environment_shader;
@@ -39,6 +52,16 @@ struct Environment
     GLuint depth_uniform;
     GLuint local_to_world_mat_uniform;
     StaticArray<EnvLayer*> Layers;
+};
+
+template <>
+struct Reflect_Type<Environment>
+{
+    static void metadata(Reflect& reflect)
+    {
+        reflect.count(1);
+        reflect(&Environment::Layers, "Layers");
+    }
 };
 
 EnvLayer* InitEnvLayer(const char* texture_path, float parallax)
@@ -100,7 +123,7 @@ Environment* InitEnvironment(unsigned int width, unsigned int height)
 {
     InitQuad();
 
-    Environment* e = new Environment();
+    Environment* e = persist_from_config<Environment>("data/world/world.json");
 
     e->environment_shader = CreateShaderProgram(SHADER_ENVIRONMENT);
 
