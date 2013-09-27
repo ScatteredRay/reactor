@@ -4,7 +4,24 @@
 #define _REFLECT_H_
 
 #include "reporting.h"
+
 #include <functional>
+#include <type_traits>
+
+enum BasicType
+{
+    Type_Unknown,
+    Type_Integer,
+    Type_Float,
+    Type_Enum,
+    Type_Bool,
+    Type_Pointer,
+    Type_Struct,
+    Type_String
+};
+
+template <typename T>
+struct Base_Reflect_Type;
 
 template <typename T>
 struct Reflect_Type
@@ -21,6 +38,7 @@ class Reflect
 {
     size_t offset;
     size_t size;
+    BasicType type;
 
     char* name;
 
@@ -39,6 +57,7 @@ public:
     {
         offset = 0;
         size = 0;
+        type = Type_Unknown;
         name = NULL;
         type_name = NULL;
         num_properties = 0;
@@ -57,6 +76,11 @@ public:
     {
         num_properties = count;
         properties = new Reflect[count];
+    }
+
+    void base_data(BasicType ty)
+    {
+        type = ty;
     }
 
     template <typename FieldT, typename StructureT>
@@ -78,6 +102,7 @@ public:
         offset = get_offset(prop);
         size = sizeof(FieldT);
 
+        Base_Reflect_Type<FieldT>::metadata(*this);
         Reflect_Type<FieldT>::metadata(*this);
 
         return *this;
@@ -122,5 +147,42 @@ Reflect* get_reflection()
 
     return reflect;
 }
+
+// This is used to gather base reflection info for all types, and is not meant to be overridden per-class.
+template <typename T>
+struct Base_Reflect_Type
+{
+    static void metadata(class Reflect& reflect)
+    {
+        if(std::is_integral<T>::value)
+            reflect.base_data(Type_Integer);
+        else if(std::is_floating_point<T>::value)
+            reflect.base_data(Type_Float);
+        else if(std::is_pointer<T>::value)
+            reflect.base_data(Type_Pointer);
+        else if(std::is_enum<T>::value)
+            reflect.base_data(Type_Enum);
+        else if(std::is_class<T>::value)
+            reflect.base_data(Type_Struct);
+    }
+};
+
+template <>
+struct Base_Reflect_Type<bool>
+{
+    static void metadata(class Reflect& reflect)
+    {
+        reflect.base_data(Type_Bool);
+    }
+};
+
+template <>
+struct Base_Reflect_Type<char *>
+{
+    static void metadata(class Reflect& reflect)
+    {
+        reflect.base_data(Type_String);
+    }
+};
 
 #endif //_REFLECT_H_
