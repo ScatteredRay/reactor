@@ -5,9 +5,10 @@
 
 #ifdef _WIN32
 #include "sys_win.h"
-#endif // WIN32
+#endif // _WIN32
 
 // Converts Ascii to the system keycodes.
 int GetKeyCodeFromAscii(char key);
+void put_debug_string(const char* str);
 
 #endif //_SYSTEM_H_

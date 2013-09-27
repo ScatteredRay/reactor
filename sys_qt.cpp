@@ -8,6 +8,8 @@
 
 #include "view_decl.h"
 
+void put_debug_string(const char* str) {}
+
 int InitWindowAndLoop(int argc, char** argv)
 {
     QApplication a(argc, argv);

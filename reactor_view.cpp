@@ -9,6 +9,7 @@
 #include "obj_load.h"
 #include "input.h"
 #include "core_systems.h"
+#include "reporting.h"
 
 #include "character.h"
 #include "camera.h"

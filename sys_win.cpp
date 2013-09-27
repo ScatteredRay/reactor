@@ -6,6 +6,13 @@
 #include "gl_all.h"
 #include "input.h"
 
+#include <windows.h>
+
+void put_debug_string(const char* str)
+{
+    OutputDebugStringA(str);
+}
+
 HINSTANCE WinSys_hInstance;
 ViewInfo* WinSys_View;
 int WinSys_Width = 0;

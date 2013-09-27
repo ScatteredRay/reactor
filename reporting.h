@@ -10,4 +10,5 @@ enum log_level
 };
 
 void log(log_level, const char*);
+void logf(log_level, const char*, ...);
 void log_own_buffer(log_level l, char* b);
