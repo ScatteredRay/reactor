@@ -24,6 +24,8 @@ class Reflect
 
     char* name;
 
+    const char* type_name;
+
     unsigned int num_properties;
     Reflect* properties;
 
@@ -38,6 +40,7 @@ public:
         offset = 0;
         size = 0;
         name = NULL;
+        type_name = NULL;
         num_properties = 0;
         properties = NULL;
         unpersist = NULL;
@@ -69,6 +72,9 @@ public:
         name = new char[buf_len];
         strncpy(name, prop_name, buf_len);
 
+        // This should return a static string, so we shouldn't have to worry about cleaning it up.
+        type_name = typeid(FieldT).name();
+
         offset = get_offset(prop);
         size = sizeof(FieldT);
 
@@ -97,7 +103,7 @@ public:
             spacing[i] = ' ';
         }
 
-        logf(LOG_INFO, "%s'%s' @ %i(%i)\n", spacing, name, offset, size);
+        logf(LOG_INFO, "%s'%s'(%s) @ %i(%i)\n", spacing, name, type_name, offset, size);
 
         delete[] spacing;
 
