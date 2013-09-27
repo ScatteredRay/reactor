@@ -11,6 +11,7 @@ enum BasicType
     Type_Enum,
     Type_Bool,
     Type_Pointer,
+    Type_StaticArray,
     Type_Struct,
     Type_String
 };
@@ -27,6 +28,8 @@ struct Reflect_Type
 typedef Reflect& (*unpersist_t)(void* ths, void* val);
 
 // Not using Array to keep circular dependiencies out.
+// TODO: Seperate this into a metadata class, and a reflection builder class
+// I'd like it if the metadata class could be template free.
 class Reflect
 {
     size_t offset;
@@ -36,6 +39,9 @@ class Reflect
     char* name;
 
     const char* type_name;
+
+    // Array type
+    unsigned int array_elems; // Static arrays.
 
     unsigned int num_properties;
     Reflect* properties;
@@ -60,7 +66,8 @@ public:
     Reflect();
     ~Reflect();
 
-    void base_data(BasicType ty);
+    Reflect& base_data(BasicType ty);
+    Reflect& static_array(unsigned int elems);
 
     template <typename FieldT, typename StructureT>
     Reflect& init(FieldT StructureT::* prop, const char* prop_name);

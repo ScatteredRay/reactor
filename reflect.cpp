@@ -24,6 +24,7 @@ Reflect::Reflect()
     type = Type_Unknown;
     name = NULL;
     type_name = NULL;
+    array_elems = 0;
     num_properties = 0;
     properties = NULL;
     unpersist = NULL;
@@ -37,11 +38,20 @@ Reflect::~Reflect()
     delete[] properties;
 }
 
-void Reflect::base_data(BasicType ty)
+Reflect& Reflect::base_data(BasicType ty)
 {
     if(counting)
-        return;
+        return *this;
     type = ty;
+    return *this;
+}
+
+Reflect&Reflect::static_array(unsigned int elems)
+{
+    if(counting)
+        return *this;
+    array_elems = elems;
+    return *this;
 }
 
 void Reflect::print(unsigned int depth)

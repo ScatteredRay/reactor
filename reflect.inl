@@ -58,6 +58,30 @@ Reflect* get_reflection()
     return reflect;
 }
 
+template <typename T, size_t i>
+struct count_array
+{
+    static unsigned int elems_impl()
+    {
+        return count_array<T, i - 1>::elems_impl() * std::extent<T, i - 1>::value;
+    }
+};
+
+template <typename T>
+struct count_array<T, 0>
+{
+    static unsigned int elems_impl()
+    {
+        return 1;
+    }
+};
+
+template <typename T>
+unsigned int count_array_elems()
+{
+    return count_array<T, std::rank<T>::value>::elems_impl();
+}
+
 // This is used to gather base reflection info for all types, and is not meant to be overridden per-class.
 template <typename T>
 struct Base_Reflect_Type
@@ -70,6 +94,13 @@ struct Base_Reflect_Type
             reflect.base_data(Type_Float);
         else if(std::is_pointer<T>::value)
             reflect.base_data(Type_Pointer);
+        else if(std::is_array<T>::value)
+        {
+            // We may want to actually save this data off, but this should be fine for now.
+            int elems = count_array_elems<T>();
+            reflect.base_data(Type_StaticArray);
+            reflect.static_array(elems);
+        }
         else if(std::is_enum<T>::value)
             reflect.base_data(Type_Enum);
         else if(std::is_class<T>::value)
