@@ -3,6 +3,7 @@
 #ifndef _REFLECT_H_
 #define _REFLECT_H_
 
+#include "reporting.h"
 #include <functional>
 
 template <typename T>
@@ -70,7 +71,7 @@ public:
 
         offset = get_offset(prop);
         size = sizeof(FieldT);
-        
+
         Reflect_Type<FieldT>::metadata(*this);
 
         return *this;
@@ -87,7 +88,24 @@ public:
         return reflect;
     }
 
-    
+    void print(unsigned int depth = 0)
+    {
+        char* spacing = new char[depth + 1];
+        spacing[depth] = '\0';
+        for(unsigned int i=0; i<depth; i++)
+        {
+            spacing[i] = ' ';
+        }
+
+        logf(LOG_INFO, "%s%s @ %i(%i)\n", spacing, name, offset, size);
+
+        delete[] spacing;
+
+        for(unsigned int i=0; i<num_properties; i++)
+        {
+            properties[i].print(depth + 1);
+        }
+    }
 };
 
 template<typename T>

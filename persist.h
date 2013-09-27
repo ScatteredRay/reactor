@@ -9,6 +9,7 @@ template<typename T>
 T* persist_from_config(const char* path)
 {
     Reflect* reflect = get_reflection<T>();
+    reflect->print();
 
     // TEMP
     return new T();
