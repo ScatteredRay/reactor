@@ -33,7 +33,7 @@ struct EnvLayer
 };
 
 template <>
-class Reflect_Type<EnvLayer>
+struct Reflect_Type<EnvLayer>
 {
     static void metadata(Reflect& reflect)
     {

@@ -65,7 +65,7 @@ public:
     template <typename FieldT, typename StructureT>
     Reflect& init(FieldT StructureT::* prop, const char* prop_name)
     {
-        size_t buf_len = sizeof(prop_name) + 1;
+        size_t buf_len = strlen(prop_name) + 1;
         name = new char[buf_len];
         strncpy(name, prop_name, buf_len);
 
@@ -97,7 +97,7 @@ public:
             spacing[i] = ' ';
         }
 
-        logf(LOG_INFO, "%s%s @ %i(%i)\n", spacing, name, offset, size);
+        logf(LOG_INFO, "%s'%s' @ %i(%i)\n", spacing, name, offset, size);
 
         delete[] spacing;
 
