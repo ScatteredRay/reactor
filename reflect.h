@@ -3,11 +3,6 @@
 #ifndef _REFLECT_H_
 #define _REFLECT_H_
 
-#include "reporting.h"
-
-#include <functional>
-#include <type_traits>
-
 enum BasicType
 {
     Type_Unknown,
@@ -26,9 +21,7 @@ struct Base_Reflect_Type;
 template <typename T>
 struct Reflect_Type
 {
-    static void metadata(class Reflect& reflect)
-    {
-    }
+    static void metadata(class Reflect& reflect) {}
 };
 
 typedef Reflect& (*unpersist_t)(void* ths, void* val);
@@ -55,157 +48,32 @@ class Reflect
     bool counting;
 
 private:
-    void count(unsigned int count)
-    {
-        num_properties = count;
-        properties = new Reflect[count];
-    }
+    void count(unsigned int count);
 
     // This is a little messy, perhaps we should just use dynamic arrays?
-    void finish_count()
-    {
-        count(counter);
-        counter = 0;
-        counting = false;
-    }
+    void finish_count();
 
     template <typename FieldT, typename StructureT>
-    size_t get_offset(FieldT StructureT::* prop)
-    {
-        return (size_t) (int*) &(((StructureT*)NULL)->*prop);
-    }
+        size_t get_offset(FieldT StructureT::* prop);
 
 public:
-    Reflect()
-    {
-        offset = 0;
-        size = 0;
-        type = Type_Unknown;
-        name = NULL;
-        type_name = NULL;
-        num_properties = 0;
-        properties = NULL;
-        unpersist = NULL;
-        counter = 0;
-        counting = true;
-    }
+    Reflect();
+    ~Reflect();
 
-    ~Reflect()
-    {
-        delete[] name;
-        delete[] properties;
-    }
-
-    void base_data(BasicType ty)
-    {
-        if(counting)
-            return;
-        type = ty;
-    }
+    void base_data(BasicType ty);
 
     template <typename FieldT, typename StructureT>
-    Reflect& init(FieldT StructureT::* prop, const char* prop_name)
-    {
-
-        Reflect_Type<FieldT>::metadata(*this);
-        finish_count();
-
-        size_t buf_len = strlen(prop_name) + 1;
-        name = new char[buf_len];
-        strncpy(name, prop_name, buf_len);
-
-        // This should return a static string, so we shouldn't have to worry about cleaning it up.
-        type_name = typeid(FieldT).name();
-
-        offset = get_offset(prop);
-        size = sizeof(FieldT);
-
-        Base_Reflect_Type<FieldT>::metadata(*this);
-        Reflect_Type<FieldT>::metadata(*this);
-
-        return *this;
-    }
+    Reflect& init(FieldT StructureT::* prop, const char* prop_name);
 
     template <typename FieldT, typename StructureT>
-    Reflect& operator()(FieldT StructureT::* prop, const char* prop_name)
-    {
-        if(counting)
-        {
-            counter++;
-            return *this;
-        }
-        assert(counter < num_properties);
-        Reflect& reflect = properties[counter++];
+    Reflect& operator()(FieldT StructureT::* prop, const char* prop_name);
 
-        reflect.init(prop, prop_name);
-
-        return reflect;
-    }
-
-    void print(unsigned int depth = 0)
-    {
-        char* spacing = new char[depth + 1];
-        spacing[depth] = '\0';
-        for(unsigned int i=0; i<depth; i++)
-        {
-            spacing[i] = ' ';
-        }
-
-        logf(LOG_INFO, "%s'%s'(%s) @ %i(%i)\n", spacing, name, type_name, offset, size);
-
-        delete[] spacing;
-
-        for(unsigned int i=0; i<num_properties; i++)
-        {
-            properties[i].print(depth + 1);
-        }
-    }
+    void print(unsigned int depth = 0);
 };
 
 template<typename T>
-Reflect* get_reflection()
-{
-    Reflect* reflect = new Reflect();
-    reflect->init((T T::*)NULL, "");
+Reflect* get_reflection();
 
-    return reflect;
-}
-
-// This is used to gather base reflection info for all types, and is not meant to be overridden per-class.
-template <typename T>
-struct Base_Reflect_Type
-{
-    static void metadata(class Reflect& reflect)
-    {
-        if(std::is_integral<T>::value)
-            reflect.base_data(Type_Integer);
-        else if(std::is_floating_point<T>::value)
-            reflect.base_data(Type_Float);
-        else if(std::is_pointer<T>::value)
-            reflect.base_data(Type_Pointer);
-        else if(std::is_enum<T>::value)
-            reflect.base_data(Type_Enum);
-        else if(std::is_class<T>::value)
-            reflect.base_data(Type_Struct);
-    }
-};
-
-template <>
-struct Base_Reflect_Type<bool>
-{
-    static void metadata(class Reflect& reflect)
-    {
-        reflect.base_data(Type_Bool);
-    }
-};
-
-template <>
-struct Base_Reflect_Type<char *>
-{
-    static void metadata(class Reflect& reflect)
-    {
-        reflect.base_data(Type_String);
-    }
-};
+#include "reflect.inl"
 
 #endif //_REFLECT_H_
