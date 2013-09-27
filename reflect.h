@@ -51,6 +51,29 @@ class Reflect
 
     // Temporary state.
     unsigned int counter;
+    // Don't do anything while counting.
+    bool counting;
+
+private:
+    void count(unsigned int count)
+    {
+        num_properties = count;
+        properties = new Reflect[count];
+    }
+
+    // This is a little messy, perhaps we should just use dynamic arrays?
+    void finish_count()
+    {
+        count(counter);
+        counter = 0;
+        counting = false;
+    }
+
+    template <typename FieldT, typename StructureT>
+    size_t get_offset(FieldT StructureT::* prop)
+    {
+        return (size_t) (int*) &(((StructureT*)NULL)->*prop);
+    }
 
 public:
     Reflect()
@@ -64,6 +87,7 @@ public:
         properties = NULL;
         unpersist = NULL;
         counter = 0;
+        counting = true;
     }
 
     ~Reflect()
@@ -72,26 +96,20 @@ public:
         delete[] properties;
     }
 
-    void count(unsigned int count)
-    {
-        num_properties = count;
-        properties = new Reflect[count];
-    }
-
     void base_data(BasicType ty)
     {
+        if(counting)
+            return;
         type = ty;
-    }
-
-    template <typename FieldT, typename StructureT>
-    size_t get_offset(FieldT StructureT::* prop)
-    {
-        return (size_t) (int*) &(((StructureT*)NULL)->*prop);
     }
 
     template <typename FieldT, typename StructureT>
     Reflect& init(FieldT StructureT::* prop, const char* prop_name)
     {
+
+        Reflect_Type<FieldT>::metadata(*this);
+        finish_count();
+
         size_t buf_len = strlen(prop_name) + 1;
         name = new char[buf_len];
         strncpy(name, prop_name, buf_len);
@@ -111,6 +129,11 @@ public:
     template <typename FieldT, typename StructureT>
     Reflect& operator()(FieldT StructureT::* prop, const char* prop_name)
     {
+        if(counting)
+        {
+            counter++;
+            return *this;
+        }
         assert(counter < num_properties);
         Reflect& reflect = properties[counter++];
 

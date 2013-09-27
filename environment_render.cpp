@@ -37,7 +37,6 @@ struct Reflect_Type<EnvLayer>
 {
     static void metadata(Reflect& reflect)
     {
-        reflect.count(3);
         reflect(&EnvLayer::parallax, "Depth");
         reflect(&EnvLayer::layer_texture, "Texture");
         reflect(&EnvLayer::color_mask, "ColorMask");
@@ -59,7 +58,6 @@ struct Reflect_Type<Environment>
 {
     static void metadata(Reflect& reflect)
     {
-        reflect.count(1);
         reflect(&Environment::Layers, "Layers");
     }
 };

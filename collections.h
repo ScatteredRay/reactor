@@ -60,7 +60,6 @@ public:
 /*template <typename T>
 void Reflect_Type<StaticArray<T>>(Reflect& reflect)
 {
-    reflect.properties(1);
     reflect(&length, "Length").unpersist(
         [] (void* ar, void* len) {
             ((StaticArray*)ar)->reinit(*(unsigned int*)len);
