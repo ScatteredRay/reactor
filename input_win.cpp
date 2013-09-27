@@ -108,8 +108,8 @@ void UpdateInput(PlayerInput* Input, InputHandler* handler)
             assert(mapping->axis_other_key_code < MAX_KEYCODES);
             assert(mapping->input_map < Input_Max_Axis);
             Input->AxisValues[mapping->input_map] =
-                ((handler->key_map[mapping->key_code] == Key_Down) ? 1.0 : 0.0) -
-                ((handler->key_map[mapping->axis_other_key_code] == Key_Down) ? 1.0 : 0.0);
+                ((handler->key_map[mapping->key_code] == Key_Down) ? 1.0f : 0.0f) -
+                ((handler->key_map[mapping->axis_other_key_code] == Key_Down) ? 1.0f : 0.0f);
             break;
         case Input_Type_Button:
             assert(mapping->key_code < MAX_KEYCODES);

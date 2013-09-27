@@ -32,7 +32,7 @@ VertexDef CreateVertexDef(size_t size, unsigned int attrs)
 
 void DestroyVertexDef(VertexDef Def)
 {
-    for(int i = 0; i< Def->num_attributes; i++)
+    for(unsigned int i = 0; i< Def->num_attributes; i++)
     {
         delete[] Def->attributes[i].attr_name;
     }

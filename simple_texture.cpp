@@ -61,7 +61,7 @@ bitmap* load_bmp(const char* filename)
 
     int* data = (int*)(buffer + bmp->data_offset);
 
-    for(int i=0; i<bmp->width*bmp->height; i++)
+    for(unsigned int i=0; i<bmp->width*bmp->height; i++)
     {
         int tmp = (data[i]  << 8) & 0xFFFFFF00;
         tmp |= (data[i] >> 24) & 0x000000FF;
