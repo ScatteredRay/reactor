@@ -8,7 +8,7 @@
 
 struct ViewInfo;
 
-ViewInfo* InitView();
+ViewInfo* InitView(int width, int height);
 // Standard destruction function named because it's up to view to determine
 // if it actually destroys anything.
 void FinishView(ViewInfo*);

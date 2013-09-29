@@ -35,6 +35,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 int InitWindowAndLoop(int argc, char** argv)
 {
+
+    int height = 720;
+    int width = 1280;
+
     char* ClassName = "REACTORGAMEWIN";
     WNDCLASSEX ClassStruct;
     memset(&ClassStruct, 0, sizeof(ClassStruct));
@@ -49,8 +53,8 @@ int InitWindowAndLoop(int argc, char** argv)
                              WS_TILEDWINDOW,
                              CW_USEDEFAULT,
                              CW_USEDEFAULT,
-                             1024,
-                             768,
+                             width,
+                             height,
                              NULL,
                              NULL,
                              WinSys_hInstance,
@@ -83,7 +87,7 @@ int InitWindowAndLoop(int argc, char** argv)
     void InitGLExt();
     InitGLExt();
 
-    WinSys_View = InitView();
+    WinSys_View = InitView(width, height);
     ResizeView(WinSys_View, WinSys_Width, WinSys_Height);
 
     // This message loop is meant to consume all system resources, needs

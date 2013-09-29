@@ -31,7 +31,7 @@ GLProxy::~GLProxy()
 void GLProxy::initializeGL()
 {
     assert(!view); // Might have to clean up the view if this fires.
-    view = InitView();
+    view = InitView(1280, 720);
 }
 
 void GLProxy::resizeGL(int w, int h)

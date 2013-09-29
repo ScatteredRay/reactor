@@ -134,7 +134,7 @@ void RenderEnvLayer(EnvLayer* layer, Environment* e, Camera* camera)
     RenderUnitQuad();
 }
 
-Environment* InitEnvironment(unsigned int width, unsigned int height)
+Environment* InitEnvironment()
 {
     InitQuad();
 

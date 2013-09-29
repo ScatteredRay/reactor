@@ -3,9 +3,7 @@
 
 struct Environment;
 
-void ResizeRenderBuffers(Environment* e, unsigned int width, unsigned int height);
-
-Environment* InitEnvironment(unsigned int width, unsigned int height);
+Environment* InitEnvironment();
 void DestroyEnvironment(Environment* e);
 
 void RenderEnvironment(Environment* e, struct Camera* camera);

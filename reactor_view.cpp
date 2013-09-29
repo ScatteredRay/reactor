@@ -70,7 +70,7 @@ struct ViewInfo
     DeferredRender* deferred;
 };
 
-ViewInfo* InitView()
+ViewInfo* InitView(int width, int height)
 {
     ViewInfo* view = new ViewInfo();
 
@@ -137,14 +137,14 @@ ViewInfo* InitView()
                view->collision_mesh->faces[i].c);*/
 
 
-    view->camera = InitCamera(1024, 768);
+    view->camera = InitCamera(width, height);
 
     InitCharacters();
     view->character = CreateCharacter(view->player_input[0]);
 
-    view->environment = InitEnvironment(1024, 768);
+    view->environment = InitEnvironment();
 
-    view->scene_target = InitRenderTarget(1024, 768);
+    view->scene_target = InitRenderTarget(width, height);
     view->deferred = InitDeferred();
 
     return view;
