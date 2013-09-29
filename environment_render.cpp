@@ -26,6 +26,7 @@ void RenderUnitQuad();
 struct EnvLayer
 {
     float parallax;
+    float height;
     float aspect;
     GLuint layer_texture;
 
@@ -83,6 +84,8 @@ EnvLayer* InitEnvLayer(const char* texture_path, float parallax)
     layer->color_mask = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
 
     bitmap* img = load_bmp(texture_path);
+    // We're targeting a 1080p window height.
+    layer->height = (float)bitmap_height(img) / 1080.0f;
     layer->aspect = (float)bitmap_width(img) / (float)bitmap_height(img);
     layer->layer_texture = CreateTexture(img);
     destroy_bitmap(img);
@@ -111,13 +114,15 @@ void RenderEnvLayer(EnvLayer* layer, Environment* e, Camera* camera)
     camera_location[2] = tmp[2];
     camera_location.setZ(0.0f);
 
+    float height = layer->height;
+
     float aspect = layer->aspect/camera_aspect;
 
-    Vector3 bg_offset((aspect - 1.0f), 0.0, 0.0);
+    Vector3 bg_offset((aspect * height) - 1.0f, height - 1.0f, 0.0);
 
     Matrix4 local_to_world =
         Matrix4::translation(bg_offset + camera_location * parallax_factor) *
-        Matrix4::scale(Vector3(aspect, 1, 1));
+        Matrix4::scale(Vector3(aspect * height, height, 1));
 
     glUniformMatrix4fv(e->local_to_world_mat_uniform, 1, false, (float*)&local_to_world);
     glUniform1i(e->environment_tex_uniform, 0);
