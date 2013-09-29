@@ -10,7 +10,7 @@ template <typename DestT, typename SrcT>
 void set_basicvalue(Reflect* reflect, void* owner, void* field)
 {
     assert(sizeof(DestT) == reflect->get_size());
-    *((DestT*)(((int*)owner) + reflect->get_offset())) = (DestT)(*((SrcT*)field));
+    *((DestT*)(((char*)owner) + reflect->get_offset())) = (DestT)(*((SrcT*)field));
 }
 
 template <typename T>
@@ -99,11 +99,6 @@ unsigned int count_array_elems()
 }
 
 // This is used to gather base reflection info for all types, and is not meant to be overridden per-class.
-/*template <typename T, typename condition>
-struct Base_Reflect_Type
-{
-    static void metadata(class Reflect& reflect) {}
-    };*/
 
 template <typename T>
 struct Base_Reflect_Type<T, typename std::enable_if<std::is_integral<T>::value>::type>
@@ -163,7 +158,7 @@ struct Base_Reflect_Type<T, typename std::enable_if<std::is_class<T>::value>::ty
 };
 
 template <>
-struct Base_Reflect_Type<bool, std::true_type>
+struct Base_Reflect_Type<bool, typename std::enable_if<true>::type>
 {
     static void metadata(class Reflect& reflect)
     {
@@ -172,7 +167,7 @@ struct Base_Reflect_Type<bool, std::true_type>
 };
 
 template <>
-struct Base_Reflect_Type<char *, std::true_type>
+struct Base_Reflect_Type<char *, typename std::enable_if<true>::type>
 {
     static void metadata(class Reflect& reflect)
     {

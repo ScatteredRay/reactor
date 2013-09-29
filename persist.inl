@@ -21,10 +21,13 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
 
     std::stack<void*> objs;
 
+    void* ret;
+
     PersistJsonHandler(Reflect* r, const char* p)
     {
         root = reflect = r;
         path = p;
+        ret = NULL;
     }
 
     bool Check()
@@ -112,6 +115,8 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
 
         void* obj = reflect->construct_in(owner);
         objs.push(obj);
+        if(!ret)
+            ret = obj;
     }
 
     void EndObject(size_t memberCount)
@@ -119,6 +124,7 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
         if(!CheckType(Type_Struct))
             return;
 
+        assert(!objs.empty());
         objs.pop();
         Pop();
     }
@@ -134,49 +140,45 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
         if(!CheckType(Type_Bool))
             return;
 
+        reflect->set_bool(objs.top(), b);
+
         Pop();
     }
 
     void Int(int i)
     {
-        if(!CheckType(Type_Integer))
+        if(!Check())
             return;
 
-        reflect->set_int(objs.top(), i);
-
-        Pop();
+        switch(reflect->get_type())
+        {
+        case Type_Integer:
+            reflect->set_int(objs.top(), i);
+            Pop();
+        break;
+        case Type_Float:
+            reflect->set_float(objs.top(), (float)i);
+            Pop();
+        default:
+            CheckType(Type_Integer);
+            break;
+        }
     }
 
     void Uint(unsigned int i)
     {
-        if(!CheckType(Type_Integer))
-            return;
-
-        reflect->set_int(objs.top(), i);
-
-        Pop();
+        Int(i);
     }
-
 
     // TODO: Handle 64 bit ints.
     void Int64(long long int i)
     {
-        if(!CheckType(Type_Integer))
-            return;
-
-        reflect->set_int(objs.top(), (int)i);
-
-        Pop();
+        Int((int)i);
     }
 
     void Uint64(unsigned long long int i)
     {
-        if(!CheckType(Type_Integer))
-            return;
-
-        reflect->set_int(objs.top(), (int)i);
-
-        Pop();
+        Int((int)i);
     }
 
     void Double(double d)
@@ -197,6 +199,8 @@ T* persist_from_config(const char* path)
     reflect->heap_alloc();
     reflect->print();
 
+    T* ret = NULL;
+
 
     FILE* f = fopen(path, "r");
     assert(f);
@@ -207,9 +211,10 @@ T* persist_from_config(const char* path)
         PersistJsonHandler h(reflect, path);;
 
         r.Parse<0>(s, h);
+
+        ret = (T*)h.ret;
     }
     fclose(f);
 
-    // TEMP
-    return new T();
+    return ret;
 }
