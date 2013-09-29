@@ -11,52 +11,55 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="character.h" />
-    <ClInclude Include="collections.h" />
-    <ClInclude Include="deferred.h" />
-    <ClInclude Include="editor_meshes.h" />
-    <ClInclude Include="environment.h" />
-    <ClInclude Include="file.h" />
-    <ClInclude Include="glext.h" />
-    <ClInclude Include="gl_all.h" />
-    <ClInclude Include="input.h" />
-    <ClInclude Include="obj_load.h" />
-    <ClInclude Include="persist.h" />
-    <ClInclude Include="reflect.h" />
-    <ClInclude Include="reporting.h" />
-    <ClInclude Include="simple_mesh.h" />
-    <ClInclude Include="simple_shader.h" />
-    <ClInclude Include="simple_texture.h" />
-    <ClInclude Include="simple_vectors.h" />
-    <ClInclude Include="system.h" />
-    <ClInclude Include="vectormath.h" />
-    <ClInclude Include="view_decl.h" />
+    <ClInclude Include="source\camera.h" />
+    <ClInclude Include="source\character.h" />
+    <ClInclude Include="source\collections.h" />
+    <ClInclude Include="source\core_systems.h" />
+    <ClInclude Include="source\deferred.h" />
+    <ClInclude Include="source\editor_meshes.h" />
+    <ClInclude Include="source\environment.h" />
+    <ClInclude Include="source\file.h" />
+    <ClInclude Include="source\glext.h" />
+    <ClInclude Include="source\glwindow_qt.h" />
+    <ClInclude Include="source\gl_all.h" />
+    <ClInclude Include="source\input.h" />
+    <ClInclude Include="source\obj_load.h" />
+    <ClInclude Include="source\persist.h" />
+    <ClInclude Include="source\reflect.h" />
+    <ClInclude Include="source\reporting.h" />
+    <ClInclude Include="source\simple_mesh.h" />
+    <ClInclude Include="source\simple_shader.h" />
+    <ClInclude Include="source\simple_texture.h" />
+    <ClInclude Include="source\simple_vectors.h" />
+    <ClInclude Include="source\system.h" />
+    <ClInclude Include="source\sys_win.h" />
+    <ClInclude Include="source\vectormath.h" />
+    <ClInclude Include="source\view_decl.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="camera.cpp" />
-    <ClCompile Include="character.cpp" />
-    <ClCompile Include="deferred.cpp" />
-    <ClCompile Include="editor_meshes.cpp" />
-    <ClCompile Include="environment_render.cpp" />
-    <ClCompile Include="file.cpp" />
-    <ClCompile Include="input_win.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="obj_load.cpp" />
-    <ClCompile Include="persist.cpp" />
-    <ClCompile Include="persist_json.cpp" />
-    <ClCompile Include="reflect.cpp" />
-    <ClCompile Include="reporting.cpp" />
-    <ClCompile Include="simple_mesh.cpp" />
-    <ClCompile Include="simple_shader.cpp" />
-    <ClCompile Include="simple_texture.cpp" />
-    <ClCompile Include="reactor_view.cpp" />
-    <ClCompile Include="sys_win.cpp" />
+    <ClCompile Include="source\camera.cpp" />
+    <ClCompile Include="source\character.cpp" />
+    <ClCompile Include="source\deferred.cpp" />
+    <ClCompile Include="source\editor_meshes.cpp" />
+    <ClCompile Include="source\environment_render.cpp" />
+    <ClCompile Include="source\file.cpp" />
+    <ClCompile Include="source\input_win.cpp" />
+    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\obj_load.cpp" />
+    <ClCompile Include="source\persist.cpp" />
+    <ClCompile Include="source\persist_json.cpp" />
+    <ClCompile Include="source\reactor_view.cpp" />
+    <ClCompile Include="source\reflect.cpp" />
+    <ClCompile Include="source\reporting.cpp" />
+    <ClCompile Include="source\simple_mesh.cpp" />
+    <ClCompile Include="source\simple_shader.cpp" />
+    <ClCompile Include="source\simple_texture.cpp" />
+    <ClCompile Include="source\sys_win.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="glext_loader.inc" />
-    <None Include="persist.inl" />
-    <None Include="reflect.inl" />
+    <None Include="source\glext_loader.inc" />
+    <None Include="source\persist.inl" />
+    <None Include="source\reflect.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{068E0E90-97F2-4F96-ADBC-3ECD32FD878C}</ProjectGuid>
@@ -93,6 +96,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./source;./external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -107,6 +111,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./source;./external;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
