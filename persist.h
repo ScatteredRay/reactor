@@ -3,16 +3,9 @@
 #ifndef _PERSIST_H_
 #define _PERSIST_H_
 
-#include "reflect.h"
-
 template<typename T>
-T* persist_from_config(const char* path)
-{
-    Reflect* reflect = get_reflection<T>();
-    reflect->print();
+T* persist_from_config(const char* path);
 
-    // TEMP
-    return new T();
-}
+#include "persist.inl"
 
 #endif //_PERSIST_H_

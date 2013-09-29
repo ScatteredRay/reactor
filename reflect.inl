@@ -4,6 +4,22 @@
 #include <typeinfo>
 #include <type_traits>
 
+#include <assert.h>
+
+template <typename DestT, typename SrcT>
+void set_basicvalue(Reflect* reflect, void* owner, void* field)
+{
+    assert(sizeof(DestT) == reflect->get_size());
+    *((DestT*)(((int*)owner) + reflect->get_offset())) = (DestT)(*((SrcT*)field));
+}
+
+template <typename T>
+void* construct_obj(Reflect* reflect)
+{
+    T* o = new T();
+    return o;
+}
+
 template <typename FieldT, typename StructureT>
 size_t Reflect::get_offset(FieldT StructureT::* prop)
 {
@@ -43,7 +59,7 @@ Reflect& Reflect::operator()(FieldT StructureT::* prop, const char* prop_name)
     }
     assert(counter < num_properties);
     Reflect& reflect = properties[counter++];
-
+    reflect.parent = this;
     reflect.init(prop, prop_name);
 
     return reflect;
@@ -83,45 +99,83 @@ unsigned int count_array_elems()
 }
 
 // This is used to gather base reflection info for all types, and is not meant to be overridden per-class.
-template <typename T>
+/*template <typename T, typename condition>
 struct Base_Reflect_Type
 {
+    static void metadata(class Reflect& reflect) {}
+    };*/
+
+template <typename T>
+struct Base_Reflect_Type<T, typename std::enable_if<std::is_integral<T>::value>::type>
+{
     static void metadata(class Reflect& reflect)
     {
-        if(std::is_integral<T>::value)
-            reflect.base_data(Type_Integer);
-        else if(std::is_floating_point<T>::value)
-            reflect.base_data(Type_Float);
-        else if(std::is_pointer<T>::value)
-            reflect.base_data(Type_Pointer);
-        else if(std::is_array<T>::value)
-        {
-            // We may want to actually save this data off, but this should be fine for now.
-            int elems = count_array_elems<T>();
-            reflect.base_data(Type_StaticArray);
-            reflect.static_array(elems);
-        }
-        else if(std::is_enum<T>::value)
-            reflect.base_data(Type_Enum);
-        else if(std::is_class<T>::value)
-            reflect.base_data(Type_Struct);
+        reflect.base_data(Type_Integer, set_basicvalue<T, int>, construct_obj<T>);
+    }
+};
+
+template <typename T>
+struct Base_Reflect_Type<T, typename std::enable_if<std::is_floating_point<T>::value>::type>
+{
+    static void metadata(class Reflect& reflect)
+    {
+        reflect.base_data(Type_Float, set_basicvalue<T, float>, construct_obj<T>);
+    }
+};
+
+template <typename T>
+struct Base_Reflect_Type<T, typename std::enable_if<std::is_pointer<T>::value>::type>
+{
+    static void metadata(class Reflect& reflect)
+    {
+        reflect.base_data(Type_Pointer, set_basicvalue<T, void*>, construct_obj<T>);
+    }
+};
+
+template <typename T>
+struct Base_Reflect_Type<T, typename std::enable_if<std::is_array<T>::value>::type>
+{
+    static void metadata(class Reflect& reflect)
+    {
+        // We may want to actually save this data off, but this should be fine for now.
+        int elems = count_array_elems<T>();
+        reflect.base_data(Type_StaticArray, NULL, NULL);
+        reflect.static_array(elems);
+    }
+};
+
+template <typename T>
+struct Base_Reflect_Type<T, typename std::enable_if<std::is_enum<T>::value>::type>
+{
+    static void metadata(class Reflect& reflect)
+    {
+        reflect.base_data(Type_Enum, set_basicvalue<T, int>, construct_obj<T>);
+    }
+};
+
+template <typename T>
+struct Base_Reflect_Type<T, typename std::enable_if<std::is_class<T>::value>::type>
+{
+    static void metadata(class Reflect& reflect)
+    {
+        reflect.base_data(Type_Struct, NULL, construct_obj<T>);
     }
 };
 
 template <>
-struct Base_Reflect_Type<bool>
+struct Base_Reflect_Type<bool, std::true_type>
 {
     static void metadata(class Reflect& reflect)
     {
-        reflect.base_data(Type_Bool);
+        reflect.base_data(Type_Bool, set_basicvalue<bool, bool>, construct_obj<bool>);
     }
 };
 
 template <>
-struct Base_Reflect_Type<char *>
+struct Base_Reflect_Type<char *, std::true_type>
 {
     static void metadata(class Reflect& reflect)
     {
-        reflect.base_data(Type_String);
+        reflect.base_data(Type_String, set_basicvalue<char*, char*>, NULL);
     }
 };

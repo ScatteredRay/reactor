@@ -43,6 +43,7 @@
     <ClCompile Include="input_win.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="obj_load.cpp" />
+    <ClCompile Include="persist.cpp" />
     <ClCompile Include="reflect.cpp" />
     <ClCompile Include="reporting.cpp" />
     <ClCompile Include="simple_mesh.cpp" />
@@ -53,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="glext_loader.inc" />
+    <None Include="persist.inl" />
     <None Include="reflect.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -54,7 +54,7 @@ GLuint CreateShader(const char* filename, GLenum type)
         size_t read_len;
         glGetShaderInfoLog(shader, buf_len, (GLsizei*)&read_len, buffer);
         assert(buf_len == read_len + 1);
-        log(LOG_ERR, buffer);
+        log(LOG_ERROR, buffer);
         free(buffer);
         glDeleteShader(shader);
         return 0;
@@ -96,7 +96,8 @@ GLuint CreateShaderProgram(shader_id shader)
         glGetProgramInfoLog(shader, buf_len, (GLsizei*)&read_len, buffer);
         assert(buf_len == read_len + 1);
         buffer[buf_len] = '\0';
-        log_own_buffer(LOG_ERR, buffer);
+        log(LOG_ERROR, buffer);
+        free(buffer);
         goto error_program;
     }
 
