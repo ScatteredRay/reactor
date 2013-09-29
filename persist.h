@@ -4,7 +4,9 @@
 #define _PERSIST_H_
 
 template<typename T>
-T* persist_from_config(const char* path);
+T* persist_create_from_config(const char* path);
+
+void* persist_create_from_json_reflect(const char* path, class Reflect* reflect);
 
 #include "persist.inl"
 

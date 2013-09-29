@@ -44,6 +44,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="obj_load.cpp" />
     <ClCompile Include="persist.cpp" />
+    <ClCompile Include="persist_json.cpp" />
     <ClCompile Include="reflect.cpp" />
     <ClCompile Include="reporting.cpp" />
     <ClCompile Include="simple_mesh.cpp" />

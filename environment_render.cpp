@@ -140,7 +140,7 @@ Environment* InitEnvironment()
 {
     InitQuad();
 
-    Environment* e = persist_from_config<Environment>("data/world/world.json");
+    Environment* e = persist_create_from_config<Environment>("data/world/world.json");
 
     e->environment_shader = CreateShaderProgram(SHADER_ENVIRONMENT);
 
