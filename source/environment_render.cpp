@@ -52,13 +52,6 @@ struct Environment
     GLuint depth_uniform;
     GLuint local_to_world_mat_uniform;
     StaticArray<EnvLayer*> Layers;
-    int X;
-    float Y;
-    int* Z;
-    bool W;
-    enum {my_enum} F;
-    struct {} G;
-    int H[3][4];
 };
 
 template <>
@@ -67,13 +60,6 @@ struct Reflect_Type<Environment>
     static void metadata(Reflect& reflect)
     {
         //reflect(&Environment::Layers, "Layers");
-        reflect(&Environment::X, "X");
-        reflect(&Environment::Y, "Y");
-        //reflect(&Environment::Z, "Z");
-        reflect(&Environment::W, "W");
-        //reflect(&Environment::F, "F");
-        //reflect(&Environment::G, "G");
-        //reflect(&Environment::H, "H");
     }
 };
 

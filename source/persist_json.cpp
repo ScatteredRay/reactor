@@ -36,6 +36,7 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
             logf(LOG_ERROR,
                  "Error in %s: Received unexpected object after completion..\n",
                  path);
+            assert(false);
             return false;
         }
         return true;
@@ -52,10 +53,18 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
                  path,
                  basictype_to_name(reflect->get_type()),
                  basictype_to_name(type));
+            assert(false);
             return false;
         }
 
         return true;
+    }
+
+    void AddObj(void* obj)
+    {
+        objs.push(obj);
+        if(!ret)
+            ret = obj;
     }
 
     void Push(Reflect* r)
@@ -67,6 +76,10 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
     {
         Check();
         reflect = reflect->get_parent();
+        if(reflect && reflect->get_type() == Type_Pointer)
+        {
+            Pop();
+        }
     }
 
     void String(const Ch* str, size_t length, bool copy)
@@ -105,17 +118,35 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
 
     void StartObject()
     {
-        if(!CheckType(Type_Struct))
+        if(!Check())
             return;
 
-        void* owner = NULL;
-        if(!objs.empty())
-            owner = objs.top();
+        switch(reflect->get_type())
+        {
+        case Type_Struct:
+        {
+            void* owner = objs.top();
+            assert(owner);
+            AddObj(reflect->get_pointer(owner));
+        }
+            break;
+        case Type_Pointer:
+        {
+            void* owner = NULL;
+            if(!objs.empty())
+                owner = objs.top();
 
-        void* obj = reflect->construct_in(owner);
-        objs.push(obj);
-        if(!ret)
-            ret = obj;
+            void* obj = reflect->construct_in(owner);
+            AddObj(obj);
+
+            Push(reflect->get_subtype());
+            // Should check this earlier.
+            CheckType(Type_Struct);
+        }
+            break;
+        default:
+            CheckType(Type_Struct);
+        }
     }
 
     void EndObject(size_t memberCount)
@@ -154,10 +185,11 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
         case Type_Integer:
             reflect->set_int(objs.top(), i);
             Pop();
-        break;
+            break;
         case Type_Float:
             reflect->set_float(objs.top(), (float)i);
             Pop();
+            break;
         default:
             CheckType(Type_Integer);
             break;

@@ -118,15 +118,44 @@ BasicType Reflect::get_type()
     return type;
 }
 
+const char* Reflect::get_name()
+{
+    return name;
+}
+
 Reflect* Reflect::get_parent()
 {
     return parent;
 }
 
+Reflect* Reflect::get_subtype()
+{
+    // Pointers, arrays, and the like.
+    assert(type == Type_Pointer);
+    assert(num_properties == 1);
+    return &(properties[0]);
+}
+
+void* Reflect::get_pointer(void* owner)
+{
+    return ((char*)owner) + get_offset();
+}
+
+void* Reflect::construct()
+{
+    void* obj = construct_obj(this);
+    return obj;
+}
+
 void* Reflect::construct_in(void* owner)
 {
+    assert(type == Type_Pointer);
     assert(owner == NULL); // Still have to figure out pointers for this.
-    void* obj = construct_obj(this);
+    void* obj = get_subtype()->construct();
+    if(owner)
+    {
+        set_basicvalue(this, owner, &obj);
+    }
     return obj;
 }
 

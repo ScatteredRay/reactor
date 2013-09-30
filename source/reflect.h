@@ -78,8 +78,8 @@ private:
     // This is a little messy, perhaps we should just use dynamic arrays?
     void finish_count();
 
-    template <typename FieldT, typename StructureT>
-        size_t get_offset(FieldT StructureT::* prop);
+    template <typename FieldT>
+        size_t get_offset(FieldT* prop);
 
 public:
     Reflect();
@@ -92,8 +92,11 @@ public:
 
     Reflect& heap_alloc();
 
-    template <typename FieldT, typename StructureT>
-    Reflect& init(FieldT StructureT::* prop, const char* prop_name);
+    template <typename FieldT>
+    Reflect& init(FieldT* prop, const char* prop_name);
+
+    template <typename FieldT>
+    Reflect& reflect (FieldT* prop, const char* prop_name);
 
     template <typename FieldT, typename StructureT>
     Reflect& operator()(FieldT StructureT::* prop, const char* prop_name);
@@ -107,8 +110,15 @@ public:
     size_t get_offset();
     size_t get_size();
     BasicType get_type();
+    const char* get_name();
     Reflect* get_parent();
 
+    // This will return the base_type for pointers and similar objects.
+    Reflect* get_subtype();
+
+    void* get_pointer(void* owner);
+
+    void* construct();
     void* construct_in(void* owner);
     void set_int(void* owner, int i);
     void set_bool(void* owner, bool b);

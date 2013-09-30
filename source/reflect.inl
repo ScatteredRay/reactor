@@ -10,7 +10,7 @@ template <typename DestT, typename SrcT>
 void set_basicvalue(Reflect* reflect, void* owner, void* field)
 {
     assert(sizeof(DestT) == reflect->get_size());
-    *((DestT*)(((char*)owner) + reflect->get_offset())) = (DestT)(*((SrcT*)field));
+    *((DestT*)reflect->get_pointer(owner)) = (DestT)(*((SrcT*)field));
 }
 
 template <typename T>
@@ -20,16 +20,17 @@ void* construct_obj(Reflect* reflect)
     return o;
 }
 
-template <typename FieldT, typename StructureT>
-size_t Reflect::get_offset(FieldT StructureT::* prop)
+template <typename FieldT>
+size_t Reflect::get_offset(FieldT* prop)
 {
-    return (size_t) (int*) &(((StructureT*)NULL)->*prop);
+    return (size_t) (int*) prop;
 }
 
-template <typename FieldT, typename StructureT>
-Reflect& Reflect::init(FieldT StructureT::* prop, const char* prop_name)
+template <typename FieldT>
+Reflect& Reflect::init(FieldT* prop, const char* prop_name)
 {
 
+    Base_Reflect_Type<FieldT>::metadata(*this);
     Reflect_Type<FieldT>::metadata(*this);
     finish_count();
 
@@ -49,8 +50,8 @@ Reflect& Reflect::init(FieldT StructureT::* prop, const char* prop_name)
     return *this;
 }
 
-template <typename FieldT, typename StructureT>
-Reflect& Reflect::operator()(FieldT StructureT::* prop, const char* prop_name)
+template <typename FieldT>
+Reflect& Reflect::reflect(FieldT* prop, const char* prop_name)
 {
     if(counting)
     {
@@ -65,11 +66,17 @@ Reflect& Reflect::operator()(FieldT StructureT::* prop, const char* prop_name)
     return reflect;
 }
 
+template <typename FieldT, typename StructureT>
+Reflect& Reflect::operator()(FieldT StructureT::* prop, const char* prop_name)
+{
+    return reflect(&(((StructureT*)NULL)->*prop), prop_name);
+}
+
 template<typename T>
 Reflect* get_reflection()
 {
     Reflect* reflect = new Reflect();
-    reflect->init((T T::*)NULL, "");
+    reflect->init<T>(NULL, "");
 
     return reflect;
 }
@@ -124,6 +131,7 @@ struct Base_Reflect_Type<T, typename std::enable_if<std::is_pointer<T>::value>::
     static void metadata(class Reflect& reflect)
     {
         reflect.base_data(Type_Pointer, set_basicvalue<T, void*>, construct_obj<T>);
+        reflect.reflect<std::remove_pointer<T>::type>(NULL, reflect.get_name());
     }
 };
 

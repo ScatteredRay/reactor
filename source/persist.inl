@@ -7,7 +7,7 @@
 template<typename T>
 T* persist_create_from_config(const char* path)
 {
-    Reflect* reflect = get_reflection<T>();
+    Reflect* reflect = get_reflection<T*>();
     reflect->heap_alloc();
     reflect->print();
 
