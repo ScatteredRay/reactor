@@ -2,6 +2,8 @@
 // See the LICENSE file for usage, modification, and distribution terms.
 #include "simple_shader.h"
 #include "camera.h"
+#include "uniforms.h"
+#include "environment.h"
 
 #include "gl_all.h"
 #include <assert.h>
@@ -106,13 +108,16 @@ void UnbindRenderTarget(RenderTarget* t)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-DeferredRender* InitDeferred()
+DeferredRender* InitDeferred(Environment* env)
 {
     DeferredRender* r = new DeferredRender();
 
     r->postprocess_shader = CreateShaderProgram(SHADER_ATMOSPHERICS);
     r->color_buffer_uniform = glGetUniformLocation(r->postprocess_shader, "color_buffer");
     r->depth_buffer_uniform = glGetUniformLocation(r->postprocess_shader, "depth_buffer");
+
+    CaptureScatteringUniforms(env, r->postprocess_shader);
+
     return r;
 }
 
@@ -124,7 +129,7 @@ void DestroyDeferred(DeferredRender* r)
 
 void RenderUnitQuad();
 
-void RenderDeferred(DeferredRender* r, RenderTarget* t)
+void RenderDeferred(DeferredRender* r, RenderTarget* t, Environment* env)
 {
     glUseProgram(r->postprocess_shader);
 
@@ -137,6 +142,8 @@ void RenderDeferred(DeferredRender* r, RenderTarget* t)
     glUniform1i(r->depth_buffer_uniform, 1);
     glActiveTexture(GL_TEXTURE0 + 1);
     glBindTexture(GL_TEXTURE_2D, t->framebuffer_textures[1]);
+
+    GetScatteringUniforms(env)->bind();
 
     RenderUnitQuad();
 

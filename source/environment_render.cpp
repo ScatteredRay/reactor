@@ -2,6 +2,7 @@
 #include "obj_load.h"
 #include "simple_shader.h"
 #include "simple_texture.h"
+#include "uniforms.h"
 #include "vectormath.h"
 #include "collections.h"
 #include "camera.h"
@@ -59,6 +60,10 @@ struct Scattering
     float mie;
     float mie_eccentricity;
 
+    Uniforms uniforms;
+
+    static const unsigned int uniform_count = 12;
+
     Scattering() :
         light_source(0.0, 0.0, 0.0),
         sun_color(0.0, 0.0, 0.0),
@@ -71,8 +76,27 @@ struct Scattering
         angular(0.0),
         rayleigh(0.0),
         mie(0.0),
-        mie_eccentricity(0.0)
+        mie_eccentricity(0.0),
+        uniforms(uniform_count)
     {}
+
+    void capture_uniforms(GLuint shader)
+    {
+        int i = 0;
+        uniforms.add_uniform("light_source", &light_source, i++, shader);
+        uniforms.add_uniform("sun_color", &sun_color, i++, shader);
+        uniforms.add_uniform("sun_power", &sun_power, i++, shader);
+        uniforms.add_uniform("num_samples", &num_samples, i++, shader);
+        uniforms.add_uniform("weight", &weight, i++, shader);
+        uniforms.add_uniform("decay", &decay, i++, shader);
+        uniforms.add_uniform("extinction", &extinction, i++, shader);
+        uniforms.add_uniform("ambient", &ambient, i++, shader);
+        uniforms.add_uniform("angular", &angular, i++, shader);
+        uniforms.add_uniform("rayleigh", &rayleigh, i++, shader);
+        uniforms.add_uniform("mie", &mie, i++, shader);
+        uniforms.add_uniform("mie_eccentricity", &mie_eccentricity, i++, shader);
+        assert(i == uniform_count);
+    }
 };
 
 template <>
@@ -127,6 +151,16 @@ struct Reflect_Type<Environment>
         reflect(&Environment::scattering, "Scattering");
     }
 };
+
+Uniforms* GetScatteringUniforms(Environment* e)
+{
+    return &e->scattering.uniforms;
+}
+
+void CaptureScatteringUniforms(Environment* e, GLuint shader)
+{
+    e->scattering.capture_uniforms(shader);
+}
 
 EnvLayer* InitEnvLayer(const char* texture_path, float parallax)
 {

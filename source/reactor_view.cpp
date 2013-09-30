@@ -145,7 +145,7 @@ ViewInfo* InitView(int width, int height)
     view->environment = InitEnvironment();
 
     view->scene_target = InitRenderTarget(width, height);
-    view->deferred = InitDeferred();
+    view->deferred = InitDeferred(view->environment);
 
     return view;
 }
@@ -247,7 +247,7 @@ void UpdateView(ViewInfo* view)
 
     UnbindRenderTarget(view->scene_target);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    RenderDeferred(view->deferred, view->scene_target);
+    RenderDeferred(view->deferred, view->scene_target, view->environment);
 }
 
 InputHandler* GetInputHandler(ViewInfo* view)

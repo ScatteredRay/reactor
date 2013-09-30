@@ -4,37 +4,41 @@
 uniform sampler2D color_buffer;
 uniform sampler2D depth_buffer;
 
+uniform vec3 light_source;
+uniform vec3 sun_color;
+uniform float sun_power;
+
+// oclusion sampling
+uniform float num_samples;
+uniform float weight;
+uniform float decay;
+
+// Ambient light in the air, this is wehre far objects get scattering color without direct sun.
+// Not ideal since it still takes the angle vs the sun into account.
+uniform float ambient;
+
+uniform float extinction;
+uniform float angular;
+
+// scattering
+
+uniform float rayleigh;
+uniform float mie;
+uniform float mie_eccentricity;
+
 // Most of the scattering computations are based off of the GDC 02 [HoffmanPreetham] slides.
 
 void main(void)
 {
 
+    vec3 sun_radiance = sun_color * sun_power;
+
     float pi = 3.1415926535897932384626433832795;
     float e = 2.7182818284590452353602874713526;
 
-    vec2 light_source = vec2(0.3, 0.6);
-    vec3 sun_radiance = vec3(1, .4, .0);
     float fov = pi/2;
 
-    // oclusion sampling
-    float num_samples = 50.0;
-    float weight = 0.1;
     float exposure = 0.9; // Can we factor this into tonemapping?
-    float decay = 0.9;
-
-    // Ambient light in the air, this is wehre far objects get scattering color without direct sun.
-    // Not ideal since it still takes the angle vs the sun into account.
-    float base_light = 0.2;
-
-
-    // scattering
-
-    float extinction = 0.01;
-    float angular_term = 0.2;
-
-    float rayleigh = 0.2;
-    float mie = 0.55;
-    float mie_g = 0.5; // Mie Eccentricity?
 
     // Rayleigh, proportional to the (wavelength) ^ -4
     // {650nm, 510nm, 475nm} ^ -4
@@ -45,12 +49,12 @@ void main(void)
 
     float media_depth = 50; // Based off of depth.
     // This wrongly assumes a square view. And also assumes that the TexCoords go from {0, 0} to {1, 1}
-    vec2 delta = light_source - gl_TexCoord[0].xy;
+    vec2 delta = light_source.xy - gl_TexCoord[0].xy;
     float sun_angle = length(delta) * fov;
 
     float rayleigh_scattering = (3/(16*pi))*(1 + pow(cos(sun_angle), 2));
-    float mie_scattering = pow(1 - mie_g, 2)/(4*pi*pow(1 + pow(mie_g, 2) - 2 * mie_g * cos(sun_angle), 3/2));
-    vec3 angular_scattering = angular_term * rayleigh * rayleigh_scattering * rayleigh_wavelengths + mie * mie_scattering;
+    float mie_scattering = pow(1 - mie_eccentricity, 2)/(4*pi*pow(1 + pow(mie_eccentricity, 2) - 2 * mie_eccentricity * cos(sun_angle), 3/2));
+    vec3 angular_scattering = angular * rayleigh * rayleigh_scattering * rayleigh_wavelengths + mie * mie_scattering;
 
     vec4 diffuse = texture2D(color_buffer, gl_TexCoord[0].xy);
     float depth = texture2D(depth_buffer, gl_TexCoord[0].xy).x;
@@ -69,7 +73,7 @@ void main(void)
       occlusion += sample.a / num_samples;
     }
 
-    occlusion = base_light + occlusion * (1.0 - base_light);
+    occlusion = ambient + occlusion * (1.0 - ambient);
 
     // Occlusion being zero would imply no light, very much a night sky, this is likely not desired in a shadowed environment.
 

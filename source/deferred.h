@@ -11,8 +11,8 @@ void UnbindRenderTarget(RenderTarget* t);
 
 struct DeferredRender;
 
-DeferredRender* InitDeferred();
+DeferredRender* InitDeferred(struct Environment* e);
 void DestroyDeferred(DeferredRender* r);
-void RenderDeferred(DeferredRender* r, RenderTarget* t);
+void RenderDeferred(DeferredRender* r, RenderTarget* t, Environment* env);
 
 #endif //_DEFERRED_H_

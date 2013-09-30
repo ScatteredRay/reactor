@@ -33,6 +33,7 @@
     <ClInclude Include="source\simple_vectors.h" />
     <ClInclude Include="source\system.h" />
     <ClInclude Include="source\sys_win.h" />
+    <ClInclude Include="source\uniforms.h" />
     <ClInclude Include="source\vectormath.h" />
     <ClInclude Include="source\view_decl.h" />
   </ItemGroup>
@@ -55,11 +56,13 @@
     <ClCompile Include="source\simple_shader.cpp" />
     <ClCompile Include="source\simple_texture.cpp" />
     <ClCompile Include="source\sys_win.cpp" />
+    <ClCompile Include="source\uniforms.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="source\glext_loader.inc" />
     <None Include="source\persist.inl" />
     <None Include="source\reflect.inl" />
+    <None Include="source\uniforms.inl" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{068E0E90-97F2-4F96-ADBC-3ECD32FD878C}</ProjectGuid>
