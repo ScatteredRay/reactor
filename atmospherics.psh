@@ -19,7 +19,7 @@ void main(void)
     // oclusion sampling
     float num_samples = 50.0;
     float weight = 0.1;
-    float exposure = 0.9;
+    float exposure = 0.9; // Can we factor this into tonemapping?
     float decay = 0.9;
 
     // Ambient light in the air, this is wehre far objects get scattering color without direct sun.

@@ -44,6 +44,69 @@ struct Reflect_Type<EnvLayer>
     }
 };
 
+struct Scattering
+{
+    Vector3 light_source;
+    Vector3 sun_color;
+    float sun_power;
+    float num_samples;
+    float weight;
+    float decay;
+    float extinction;
+    float ambient;
+    float angular;
+    float rayleigh;
+    float mie;
+    float mie_eccentricity;
+
+    Scattering() :
+        light_source(0.0, 0.0, 0.0),
+        sun_color(0.0, 0.0, 0.0),
+        sun_power(0.0),
+        num_samples(0.0),
+        weight(0.0),
+        decay(0.0),
+        extinction(0.0),
+        ambient(0.0),
+        angular(0.0),
+        rayleigh(0.0),
+        mie(0.0),
+        mie_eccentricity(0.0)
+    {}
+};
+
+template <>
+struct Reflect_Type<Vector3>
+{
+    static void metadata(Reflect& reflect)
+    {
+        // So bad!
+        reflect.reflect((float*)0, "X");
+        reflect.reflect((float*)4, "Y");
+        reflect.reflect((float*)8, "Z");
+    }
+};
+
+template <>
+struct Reflect_Type<Scattering>
+{
+    static void metadata(Reflect& reflect)
+    {
+        reflect(&Scattering::light_source, "LightLocation");
+        reflect(&Scattering::sun_color, "LightColor");
+        reflect(&Scattering::sun_power, "LightPower");
+        reflect(&Scattering::num_samples, "NumSamples");
+        reflect(&Scattering::weight, "Weight");
+        reflect(&Scattering::decay, "Decay");
+        reflect(&Scattering::extinction, "Extinction");
+        reflect(&Scattering::ambient, "Ambient");
+        reflect(&Scattering::angular, "Angular");
+        reflect(&Scattering::rayleigh, "Rayleigh");
+        reflect(&Scattering::mie, "Mie");
+        reflect(&Scattering::mie_eccentricity, "MieEccentricity");
+    }
+};
+
 struct Environment
 {
     GLuint environment_shader;
@@ -52,6 +115,7 @@ struct Environment
     GLuint depth_uniform;
     GLuint local_to_world_mat_uniform;
     StaticArray<EnvLayer*> Layers;
+    Scattering scattering;
 };
 
 template <>
@@ -60,6 +124,7 @@ struct Reflect_Type<Environment>
     static void metadata(Reflect& reflect)
     {
         //reflect(&Environment::Layers, "Layers");
+        reflect(&Environment::scattering, "Scattering");
     }
 };
 
