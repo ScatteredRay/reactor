@@ -7,8 +7,11 @@
 // interface between the system libraries back into the view.
 
 struct ViewInfo;
+struct GameData;
 
-ViewInfo* InitView(int width, int height);
+GameData* InitGameData(int argc, char** argv);
+
+ViewInfo* InitView(int width, int height, GameData* game_data);
 // Standard destruction function named because it's up to view to determine
 // if it actually destroys anything.
 void FinishView(ViewInfo*);

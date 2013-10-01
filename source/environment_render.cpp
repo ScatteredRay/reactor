@@ -138,6 +138,7 @@ struct Environment
     GLuint color_mask_uniform;
     GLuint depth_uniform;
     GLuint local_to_world_mat_uniform;
+
     StaticArray<EnvLayer*> Layers;
 
     unsigned int num_layers;
@@ -226,11 +227,17 @@ void RenderEnvLayer(EnvLayer* layer, Environment* e, Camera* camera)
     RenderUnitQuad();
 }
 
-Environment* InitEnvironment()
+Environment* InitEnvironment(const char* world)
 {
     InitQuad();
 
-    Environment* e = persist_create_from_config<Environment>("data/world/world.json");
+    char path[255];
+    snprintf(path, sizeof(path), "data/world/%s", world);
+
+    char tmp_path[255];
+    snprintf(tmp_path, sizeof(tmp_path), "%s/world.json", path);
+
+    Environment* e = persist_create_from_config<Environment>(tmp_path);
 
     e->environment_shader = CreateShaderProgram(SHADER_ENVIRONMENT);
 
@@ -246,15 +253,16 @@ Environment* InitEnvironment()
     e->Layers.reinit(num_layers + 1);
     for(unsigned int i = 0; i < num_layers; i++)
     {
-        char path[255];
-        snprintf(path, sizeof(path), "data/world/%i.bmp", i+1);
+        char layer_path[255];
+        snprintf(layer_path, sizeof(layer_path), "%s/%i.bmp", path, i+1);
 
         float parallax = (float)i / (float)(num_layers - 1);
 
-        e->Layers[i] = InitEnvLayer(path, parallax, e->screen_height);
+        e->Layers[i] = InitEnvLayer(layer_path, parallax, e->screen_height);
     }
 
-    e->Layers[num_layers] = InitEnvLayer("data/world/BG.bmp", 1.0f, e->screen_height);
+    snprintf(tmp_path, sizeof(tmp_path), "%s/BG.bmp", path);
+    e->Layers[num_layers] = InitEnvLayer(tmp_path, 1.0f, e->screen_height);
 
     e->Layers[num_layers]->color_mask = Vector4(1.0f, 1.0f, 1.0f, 0.0f);
 
@@ -343,4 +351,3 @@ void RenderUnitQuad()
     glDrawArrays(GL_TRIANGLES, 0, 6);
     ClearVertexDef(gQuadVerts);
 }
-

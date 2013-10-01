@@ -45,8 +45,34 @@ VertexDef boot_vert_def()
 
 const int Num_Players = 2;
 
+struct GameData
+{
+    char* world_name;
+
+    void set_name(const char* name)
+    {
+        if(world_name)
+            delete[] world_name;
+        world_name = new char[strlen(name) + 1];
+        strcpy(world_name, name);
+    }
+
+    GameData()
+    {
+        world_name = NULL;
+        set_name("start");
+    }
+
+    ~GameData()
+    {
+        delete[] world_name;
+    }
+};
+
 struct ViewInfo
 {
+    GameData* game_data;
+
     GLuint basic_shader;
     GLint diffuse_color_uniform;
     VertexDef boot_vert;
@@ -70,9 +96,21 @@ struct ViewInfo
     DeferredRender* deferred;
 };
 
-ViewInfo* InitView(int width, int height)
+GameData* InitGameData(int argc, char** argv)
+{
+    GameData* game = new GameData();
+
+    if(argc > 1)
+        game->set_name(argv[1]);
+
+    return game;
+}
+
+ViewInfo* InitView(int width, int height, GameData* game_data)
 {
     ViewInfo* view = new ViewInfo();
+
+    view->game_data = game_data;
 
 #ifndef _WIN32
     init_sdl_system();
@@ -142,7 +180,7 @@ ViewInfo* InitView(int width, int height)
     InitCharacters();
     view->character = CreateCharacter(view->player_input[0]);
 
-    view->environment = InitEnvironment();
+    view->environment = InitEnvironment(view->game_data->world_name);
 
     view->scene_target = InitRenderTarget(width, height);
     view->deferred = InitDeferred(view->environment);
@@ -179,6 +217,8 @@ void FinishView(ViewInfo* view)
 #ifndef _WIN32
     finalize_sdl_system();
 #endif
+
+    delete view->game_data;
 
     delete view;
 }

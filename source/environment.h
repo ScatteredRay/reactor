@@ -5,7 +5,7 @@ typedef unsigned int GLuint;
 
 struct Environment;
 
-Environment* InitEnvironment();
+Environment* InitEnvironment(const char* world);
 void DestroyEnvironment(Environment* e);
 
 void RenderEnvironment(Environment* e, struct Camera* camera);

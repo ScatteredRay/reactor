@@ -87,7 +87,9 @@ int InitWindowAndLoop(int argc, char** argv)
     void InitGLExt();
     InitGLExt();
 
-    WinSys_View = InitView(width, height);
+    GameData* game_data = InitGameData(argc, argv);
+
+    WinSys_View = InitView(width, height, game_data);
     ResizeView(WinSys_View, WinSys_Width, WinSys_Height);
 
     // This message loop is meant to consume all system resources, needs
