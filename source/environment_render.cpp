@@ -139,6 +139,9 @@ struct Environment
     GLuint depth_uniform;
     GLuint local_to_world_mat_uniform;
     StaticArray<EnvLayer*> Layers;
+
+    unsigned int num_layers;
+    float screen_height;
     Scattering scattering;
 };
 
@@ -148,6 +151,8 @@ struct Reflect_Type<Environment>
     static void metadata(Reflect& reflect)
     {
         //reflect(&Environment::Layers, "Layers");
+        reflect(&Environment::num_layers, "NumLayers");
+        reflect(&Environment::screen_height, "ScreenHeight");
         reflect(&Environment::scattering, "Scattering");
     }
 };
@@ -162,7 +167,7 @@ void CaptureScatteringUniforms(Environment* e, GLuint shader)
     e->scattering.capture_uniforms(shader);
 }
 
-EnvLayer* InitEnvLayer(const char* texture_path, float parallax)
+EnvLayer* InitEnvLayer(const char* texture_path, float parallax, float screen_height)
 {
     EnvLayer* layer = new EnvLayer();
 
@@ -172,7 +177,7 @@ EnvLayer* InitEnvLayer(const char* texture_path, float parallax)
 
     bitmap* img = load_bmp(texture_path);
     // We're targeting a 1080p window height.
-    layer->height = (float)bitmap_height(img) / 1080.0f;
+    layer->height = (float)bitmap_height(img) / screen_height;
     layer->aspect = (float)bitmap_width(img) / (float)bitmap_height(img);
     layer->layer_texture = CreateTexture(img);
     destroy_bitmap(img);
@@ -236,22 +241,22 @@ Environment* InitEnvironment()
 
     VertexDefBindToShader(gQuadVerts, e->environment_shader);
 
+    unsigned int num_layers = e->num_layers;
     // Init layers
-    unsigned int num_layers = 6;
-    e->Layers.reinit(num_layers);
-    for(unsigned int i = 0; i < num_layers-1; i++)
+    e->Layers.reinit(num_layers + 1);
+    for(unsigned int i = 0; i < num_layers; i++)
     {
         char path[255];
         snprintf(path, sizeof(path), "data/world/%i.bmp", i+1);
 
         float parallax = (float)i / (float)(num_layers - 1);
 
-        e->Layers[i] = InitEnvLayer(path, parallax);
+        e->Layers[i] = InitEnvLayer(path, parallax, e->screen_height);
     }
 
-    e->Layers[num_layers-1] = InitEnvLayer("data/world/BG.bmp", 1.0f);
+    e->Layers[num_layers] = InitEnvLayer("data/world/BG.bmp", 1.0f, e->screen_height);
 
-    e->Layers[num_layers-1]->color_mask = Vector4(1.0f, 1.0f, 1.0f, 0.0f);
+    e->Layers[num_layers]->color_mask = Vector4(1.0f, 1.0f, 1.0f, 0.0f);
 
     return e;
 }
