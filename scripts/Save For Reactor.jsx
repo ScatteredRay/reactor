@@ -1,11 +1,30 @@
 #target photoshop
 
+#include "lib/json2.js"
+
 $.localize = false;
 
 function display(str) {
     if(app.playbackDisplaydialogs != DialogModes.NO) {
         alert(str);
     }
+}
+
+function loadSceneConfig(path) {
+
+    var file = new File(path);
+    file.open('r');
+    var config = JSON.parse(file.read());
+    file.close();
+    return config;
+}
+
+function saveSceneConfig(path, config) {
+
+    var file = new File(path);
+    file.open('w');
+    file.write(JSON.stringify(config, null, 2));
+    file.close();
 }
 
 function hideAllBut(doc, layer) {
@@ -129,20 +148,33 @@ function main() {
         return 'cancel'
     }
 
+    var configPath = savePath + "world.json";
+
+    var sceneConfig = loadSceneConfig(configPath);
+
     // To fix weird selection problem.
     var dummy = doc.artLayers.add();
 
     var layers = doc.layers;
+
+    var num_layers = 0;
     for(var i=0; i<layers.length; i++) {
         var layerN = parseInt(layers[i].name);
         if(!isNaN(layerN)) {
             // Numeric floating layer.
-            saveLayerAs(doc, layers[i], savePath + layerN + ".bmp"); 
+            saveLayerAs(doc, layers[i], savePath + layerN + ".bmp");
+            if(layerN > num_layers) {
+                num_layers = layerN;
+            }
         }
         if(layers[i].name === "BG") {
             saveLayerAs(doc, layers[i], savePath + "BG.bmp");
         }
     }
+
+    sceneConfig.NumLayers = num_layers;
+
+    saveSceneConfig(configPath, sceneConfig);
 
     app.activeDocument = orig;
     doc.close(SaveOptions.DONOTSAVECHANGES);
