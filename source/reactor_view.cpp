@@ -11,6 +11,8 @@
 #include "core_systems.h"
 #include "reporting.h"
 
+#include "edit_server.h"
+
 #include "character.h"
 #include "camera.h"
 #include "environment.h"
@@ -94,6 +96,10 @@ struct ViewInfo
 
     RenderTarget* scene_target;
     DeferredRender* deferred;
+
+#ifdef WITH_EDIT_SERVER
+    EditServer* edit_server;
+#endif
 };
 
 GameData* InitGameData(int argc, char** argv)
@@ -109,6 +115,10 @@ GameData* InitGameData(int argc, char** argv)
 ViewInfo* InitView(int width, int height, GameData* game_data)
 {
     ViewInfo* view = new ViewInfo();
+
+#ifdef WITH_EDIT_SERVER
+    view->edit_server = InitEditServer();
+#endif
 
     view->game_data = game_data;
 
@@ -218,6 +228,10 @@ void FinishView(ViewInfo* view)
     finalize_sdl_system();
 #endif
 
+#ifdef WITH_EDIT_SERVER
+    DestroyEditServer(view->edit_server);
+#endif
+
     delete view->game_data;
 
     delete view;
@@ -231,6 +245,10 @@ void ResizeView(ViewInfo* view, int width, int height)
 
 void UpdateView(ViewInfo* view)
 {
+#ifdef WITH_EDIT_SERVER
+    UpdateEditServer(view->edit_server);
+#endif
+
     for(int i=0; i<Num_Players; i++)
         if(view->player_input[i])
             UpdateInput(view->player_input[i], view->input_handler);

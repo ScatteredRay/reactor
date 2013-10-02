@@ -7,8 +7,10 @@
 void log(log_level, const char* str)
 {
     fputs(str, stderr);
+    fputc('\n', stderr);
 
     put_debug_string(str);
+    put_debug_string("\n");
 }
 
 void logf(log_level level, const char* fmt, ...)
