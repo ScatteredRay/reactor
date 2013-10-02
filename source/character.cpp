@@ -1,6 +1,7 @@
 #include "character.h"
 #include "gl_all.h"
 #include "vectormath.h"
+#include "persist.h"
 
 #include "simple_mesh.h"
 #include "simple_vectors.h"
@@ -10,8 +11,18 @@
 
 struct Character
 {
+    float speed;
     Vector3 location;
     PlayerInput* input;
+};
+
+template <>
+struct Reflect_Type<Character>
+{
+    static void metadata(Reflect& reflect)
+    {
+        reflect(&Character::speed, "Speed");
+    }
 };
 
 VertexDef character_vert_def;
@@ -68,7 +79,7 @@ void FinishCharacters()
 
 Character* CreateCharacter(PlayerInput* input)
 {
-    Character* character = new Character();
+    Character* character = persist_create_from_config<Character>("data/character.json");
 
     character->location = Vector3(0.0f, 0.0f, 0.0f);
     character->input = input;
@@ -86,7 +97,7 @@ void UpdateCharacter(Character* character, float DeltaTime)
     float player_speed = 0.8f;
 
     character->location
-        += player_speed * DeltaTime *
+        += character->speed * DeltaTime *
         Vector3(SmoothInput(GetAxisState(character->input, Input_Move_X)),
                 SmoothInput(GetAxisState(character->input, Input_Move_Y)),
                 0.0f);
