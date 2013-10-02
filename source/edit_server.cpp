@@ -23,7 +23,12 @@ struct EditServer
 static int edit_srv_dispatch(struct WebbyConnection *connection)
 {
     //connection->request.uri
-    WebbyBeginResponse(connection, 200, 14, NULL, 0);
+    const int num_headers = 1;
+    WebbyHeader headers[num_headers];
+    headers[0].name = "Access-Control-Allow-Origin";
+    headers[0].value = "*";
+
+    WebbyBeginResponse(connection, 200, 14, headers, num_headers);
     WebbyWrite(connection, "Hello, world!\n", 14);
     WebbyEndResponse(connection);
     return 0;
