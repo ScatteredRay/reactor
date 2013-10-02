@@ -56,13 +56,14 @@ struct Scattering
     float extinction;
     float ambient;
     float angular;
+    float out_scattering;
     float rayleigh;
     float mie;
     float mie_eccentricity;
 
     Uniforms uniforms;
 
-    static const unsigned int uniform_count = 12;
+    static const unsigned int uniform_count = 13;
 
     Scattering() :
         light_source(0.0, 0.0, 0.0),
@@ -74,6 +75,7 @@ struct Scattering
         extinction(0.0),
         ambient(0.0),
         angular(0.0),
+        out_scattering(0.0),
         rayleigh(0.0),
         mie(0.0),
         mie_eccentricity(0.0),
@@ -92,6 +94,7 @@ struct Scattering
         uniforms.add_uniform("extinction", &extinction, i++, shader);
         uniforms.add_uniform("ambient", &ambient, i++, shader);
         uniforms.add_uniform("angular", &angular, i++, shader);
+        uniforms.add_uniform("out_scattering", &out_scattering, i++, shader);
         uniforms.add_uniform("rayleigh", &rayleigh, i++, shader);
         uniforms.add_uniform("mie", &mie, i++, shader);
         uniforms.add_uniform("mie_eccentricity", &mie_eccentricity, i++, shader);
@@ -125,6 +128,7 @@ struct Reflect_Type<Scattering>
         reflect(&Scattering::extinction, "Extinction");
         reflect(&Scattering::ambient, "Ambient");
         reflect(&Scattering::angular, "Angular");
+        reflect(&Scattering::out_scattering, "Outscattering");
         reflect(&Scattering::rayleigh, "Rayleigh");
         reflect(&Scattering::mie, "Mie");
         reflect(&Scattering::mie_eccentricity, "MieEccentricity");
