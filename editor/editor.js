@@ -195,8 +195,21 @@ function floatEdit(property, parent) {
   function updateValue(val) {
     propertyUpdateValue(property, val);
     el.value = val;
-
   }
+
+  function updateFromInput() {
+    var f = parseFloat(el.value);
+    updateValue(f);
+  }
+
+  el.onblur = updateFromInput;
+
+  el.onkeypress = function(e) {
+    var key = e.which;
+    if(key == 13) {
+      updateFromInput();
+    }
+  };
 
   // Todo: implement mouse capture.
   el.value = property.value;
