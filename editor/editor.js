@@ -5,6 +5,64 @@ var typedata = {
       "Scattering" : {
         "type": "object",
         "contents": {
+          "LightLocation": {
+            "type": "object",
+            "contents": {
+              "X": {
+                "type": "float",
+                "value": 0.3,
+                "range": {
+                  "min": 0.0,
+                  "max": 1.0
+                }
+              },
+              "Y": {
+                "type": "float",
+                "value": 0.6,
+                "range": {
+                  "min": 0.0,
+                  "max": 1.0
+                }
+              },
+              "Z": {
+                "type": "float",
+                "value": 0.0,
+                "range": {
+                  "min": 0.0,
+                  "max": 1.0
+                }
+              }
+            }
+          },
+          "LightColor": {
+            "type": "object",
+            "contents": {
+              "X": {
+                "type": "float",
+                "value": 1.0,
+                "range": {
+                  "min": 0.0,
+                  "max": 1.0
+                }
+              },
+              "Y": {
+                "type": "float",
+                "value": 0.4,
+                "range": {
+                  "min": 0.0,
+                  "max": 1.0
+                }
+              },
+              "Z": {
+                "type": "float",
+                "value": 0.0,
+                "range": {
+                  "min": 0.0,
+                  "max": 1.0
+                }
+              }
+            }
+          },
           "LightPower": {
             "type": "float",
             "value": 1.0,
@@ -12,7 +70,79 @@ var typedata = {
               "min": 0.0,
               "max": 10.0
             }
-          }
+          },
+          "NumSamples": {
+            "type": "float",
+            "value": 50.0,
+            "range": {
+              "min": 0.0,
+              "max": 100.0
+            }
+          },
+          "Weight": {
+            "type": "float",
+            "value": 0.1,
+            "range": {
+              "min": 0.0,
+              "max": 1.0
+            }
+          },
+          "Decay": {
+            "type": "float",
+            "value": 0.9,
+            "range": {
+              "min": 0.0,
+              "max": 1.0
+            }
+          },
+          "Extinction": {
+            "type": "float",
+            "value": 0.01,
+            "range": {
+              "min": 0.0,
+              "max": 0.10
+            }
+          },
+          "Ambient": {
+            "type": "float",
+            "value": 0.2,
+            "range": {
+              "min": 0.0,
+              "max": 1.0
+            }
+          },
+          "Angular": {
+            "type": "float",
+            "value": 0.2,
+            "range": {
+              "min": 0.0,
+              "max": 1.0
+            }
+          },
+          "Rayleigh": {
+            "type": "float",
+            "value": 0.2,
+            "range": {
+              "min": 0.0,
+              "max": 1.0
+            }
+          },
+          "Mie": {
+            "type": "float",
+            "value": 0.55,
+            "range": {
+              "min": 0.0,
+              "max": 1.0
+            }
+          },
+          "MieEccentricity": {
+            "type": "float",
+            "value": 0.5,
+            "range": {
+              "min": 0.0,
+              "max": 0.99
+            }
+          },
         }
       }
     }
