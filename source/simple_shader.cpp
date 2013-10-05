@@ -24,7 +24,7 @@ char* ReadShaderSourceFromFile(const char* filename)
     ret[readc] = '\0';
 
     fclose(file);
-    
+
     return ret;
 }
 
@@ -59,7 +59,7 @@ GLuint CreateShader(const char* filename, GLenum type)
         glDeleteShader(shader);
         return 0;
     }
-    
+
     return shader;
 }
 
@@ -88,30 +88,33 @@ GLuint CreateShaderProgram(shader_id shader)
     glGetProgramiv(program, GL_LINK_STATUS, &link_status);
 
      if(link_status == GL_FALSE)
-    {
-        size_t buf_len;
-        glGetProgramiv(shader, GL_INFO_LOG_LENGTH, (GLsizei*)&buf_len);
-        char* buffer = (char*)malloc(buf_len);
-        size_t read_len;
-        glGetProgramInfoLog(shader, buf_len, (GLsizei*)&read_len, buffer);
-        assert(buf_len == read_len + 1);
-        buffer[buf_len] = '\0';
-        log(LOG_ERROR, buffer);
-        free(buffer);
-        goto error_program;
-    }
+     {
+         size_t buf_len;
+         glGetProgramiv(shader, GL_INFO_LOG_LENGTH, (GLsizei*)&buf_len);
+         char* buffer = (char*)malloc(buf_len);
+         size_t read_len;
+         glGetProgramInfoLog(shader, buf_len, (GLsizei*)&read_len, buffer);
+         assert(buf_len == read_len + 1);
+         buffer[buf_len] = '\0';
+         log(LOG_ERROR, buffer);
+         free(buffer);
+         goto error_program;
+     }
 
-    return program;
+     glDeleteShader(pshader);
+     glDeleteShader(vshader);
+
+     return program;
 
 error_program:
-    glDetachShader(program, pshader);
-    glDetachShader(program, vshader);
-    glDeleteProgram(program);
-    glDeleteShader(pshader);
+     glDetachShader(program, pshader);
+     glDetachShader(program, vshader);
+     glDeleteProgram(program);
+     glDeleteShader(pshader);
 error_pshader:
-    glDeleteShader(vshader);
+     glDeleteShader(vshader);
 error:
-    return 0;
+     return 0;
 }
 
 void DestroyProgramAndAttachedShaders(GLuint program)
@@ -123,7 +126,7 @@ void DestroyProgramAndAttachedShaders(GLuint program)
     GLuint shaders[MAX_ATTACHED_SHADERS];
 
     glGetAttachedShaders(program, MAX_ATTACHED_SHADERS, &attached_shaders, shaders);
-    
+
     for(int i=0; i<attached_shaders; i++)
     {
         glDetachShader(program, shaders[i]);
