@@ -34,16 +34,12 @@ struct EnvLayer
     Vector4 color_mask;
 };
 
-template <>
-struct Reflect_Type<EnvLayer>
+REFLECT_TYPE(EnvLayer)
 {
-    static void metadata(Reflect& reflect)
-    {
-        reflect(&EnvLayer::parallax, "Depth");
-        //reflect(&EnvLayer::layer_texture, "Texture");
-        //reflect(&EnvLayer::color_mask, "ColorMask");
-    }
-};
+    reflect(&EnvLayer::parallax, "Depth");
+    //reflect(&EnvLayer::layer_texture, "Texture");
+    //reflect(&EnvLayer::color_mask, "ColorMask");
+}
 
 struct Scattering
 {
@@ -102,38 +98,31 @@ struct Scattering
     }
 };
 
-template <>
-struct Reflect_Type<Vector3>
+REFLECT_TYPE(Vector3)
 {
-    static void metadata(Reflect& reflect)
-    {
-        // So bad!
-        reflect.reflect((float*)0, "X");
-        reflect.reflect((float*)4, "Y");
-        reflect.reflect((float*)8, "Z");
-    }
-};
+    // So bad!
+    reflect.reflect((float*)0, "X");
+    reflect.reflect((float*)4, "Y");
+    reflect.reflect((float*)8, "Z");
+}
 
-template <>
-struct Reflect_Type<Scattering>
+
+REFLECT_TYPE(Scattering)
 {
-    static void metadata(Reflect& reflect)
-    {
-        reflect(&Scattering::light_source, "LightLocation");
-        reflect(&Scattering::sun_color, "LightColor");
-        reflect(&Scattering::sun_power, "LightPower");
-        reflect(&Scattering::num_samples, "NumSamples");
-        reflect(&Scattering::weight, "Weight");
-        reflect(&Scattering::decay, "Decay");
-        reflect(&Scattering::extinction, "Extinction");
-        reflect(&Scattering::ambient, "Ambient");
-        reflect(&Scattering::angular, "Angular");
-        reflect(&Scattering::out_scattering, "Outscattering");
-        reflect(&Scattering::rayleigh, "Rayleigh");
-        reflect(&Scattering::mie, "Mie");
-        reflect(&Scattering::mie_eccentricity, "MieEccentricity");
-    }
-};
+    reflect(&Scattering::light_source, "LightLocation");
+    reflect(&Scattering::sun_color, "LightColor");
+    reflect(&Scattering::sun_power, "LightPower");
+    reflect(&Scattering::num_samples, "NumSamples");
+    reflect(&Scattering::weight, "Weight");
+    reflect(&Scattering::decay, "Decay");
+    reflect(&Scattering::extinction, "Extinction");
+    reflect(&Scattering::ambient, "Ambient");
+    reflect(&Scattering::angular, "Angular");
+    reflect(&Scattering::out_scattering, "Outscattering");
+    reflect(&Scattering::rayleigh, "Rayleigh");
+    reflect(&Scattering::mie, "Mie");
+    reflect(&Scattering::mie_eccentricity, "MieEccentricity");
+}
 
 struct Environment
 {
@@ -150,17 +139,13 @@ struct Environment
     Scattering scattering;
 };
 
-template <>
-struct Reflect_Type<Environment>
+REFLECT_TYPE(Environment)
 {
-    static void metadata(Reflect& reflect)
-    {
-        //reflect(&Environment::Layers, "Layers");
-        reflect(&Environment::num_layers, "NumLayers");
-        reflect(&Environment::screen_height, "ScreenHeight");
-        reflect(&Environment::scattering, "Scattering");
-    }
-};
+    //reflect(&Environment::Layers, "Layers");
+    reflect(&Environment::num_layers, "NumLayers");
+    reflect(&Environment::screen_height, "ScreenHeight");
+    reflect(&Environment::scattering, "Scattering");
+}
 
 Uniforms* GetScatteringUniforms(Environment* e)
 {

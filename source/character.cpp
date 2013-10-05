@@ -16,14 +16,10 @@ struct Character
     PlayerInput* input;
 };
 
-template <>
-struct Reflect_Type<Character>
+REFLECT_TYPE(Character)
 {
-    static void metadata(Reflect& reflect)
-    {
-        reflect(&Character::speed, "Speed");
-    }
-};
+    reflect(&Character::speed, "Speed");
+}
 
 VertexDef character_vert_def;
 GLuint character_mesh;

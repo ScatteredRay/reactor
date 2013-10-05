@@ -3,13 +3,10 @@
 
 #include <assert.h>
 
-namespace Test
-{
-    void TestPersist();
-};
+void TestPersist();
 
 int main(int argc, char* argv)
 {
-    Test::TestPersist();
+    TestPersist();
     return 0;
 }

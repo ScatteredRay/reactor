@@ -128,6 +128,14 @@ public:
 template<typename T>
 Reflect* get_reflection();
 
+#define REFLECT_TYPE(type) \
+template <> \
+struct Reflect_Type<type> \
+{ \
+    static void metadata(Reflect& reflect); \
+}; \
+void Reflect_Type<type>::metadata(Reflect& reflect)
+
 #include "reflect.inl"
 
 #endif //_REFLECT_H_
