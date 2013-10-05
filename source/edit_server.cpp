@@ -8,6 +8,7 @@
 
 #include "webby/webby.h"
 #include <string.h>
+#include <stdlib.h>
 #include <assert.h>
 
 #ifdef _WIN32
@@ -22,15 +23,41 @@ struct EditServer
 
 static int edit_srv_dispatch(struct WebbyConnection *connection)
 {
-    //connection->request.uri
-    const int num_headers = 1;
+    const int num_headers = 3;
     WebbyHeader headers[num_headers];
     headers[0].name = "Access-Control-Allow-Origin";
     headers[0].value = "*";
+    headers[1].name = "Access-Control-Allow-Headers";
+    headers[1].value = "origin, content-type, accept";
+    headers[2].name = "Access-Control-Allow-Methods";
+    headers[2].value = "POST, PUT, GET";
 
-    WebbyBeginResponse(connection, 200, 14, headers, num_headers);
-    WebbyWrite(connection, "Hello, world!\n", 14);
-    WebbyEndResponse(connection);
+    if(stricmp(connection->request.method, "OPTIONS") == 0)
+    {
+        WebbyBeginResponse(connection, 200, 14, headers, num_headers);
+        WebbyWrite(connection, "\n\n", 14);
+        WebbyEndResponse(connection);
+    }
+    else if(stricmp(connection->request.method, "PUT") == 0)
+    {
+        size_t len = connection->request.content_length;
+
+        assert(len < 255); // Just until we have more robust  parsing put together.
+        char* buf = new char[len + 1];
+        WebbyRead(connection, buf, len);
+        buf[len] = '\0';
+        float f = (float)atof(buf);
+        delete[] buf;
+        WebbyBeginResponse(connection, 200, 14, headers, num_headers);
+        WebbyWrite(connection, "SUCCESS", 14);
+        WebbyEndResponse(connection);
+    }
+    else
+    {
+        WebbyBeginResponse(connection, 404, 14, headers, num_headers);
+        WebbyWrite(connection, "Resource not Found", 14);
+        WebbyEndResponse(connection);
+    }
     return 0;
 }
 
@@ -60,7 +87,7 @@ EditServer* InitEditServer()
     memset(&config, 0, sizeof config);
     config.bind_address = "127.0.0.1";
     config.listening_port = 25115;
-    config.flags = WEBBY_SERVER_LOG_DEBUG;
+    config.flags = 0;
     config.connection_max = 4;
     config.request_buffer_size = 2048;
     config.io_buffer_size = 8192;

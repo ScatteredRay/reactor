@@ -19,18 +19,29 @@ var typedata = {
   }
 };
 
-var req = new XMLHttpRequest();
+function getFoo() {
+  // Just keepping this here.
+  var req = new XMLHttpRequest();
 
-req.open("GET", "http://127.0.0.1:25115/object/test", true);
-req.onreadystatechange = function() {
-  if(req.readyState == 4 && req.status == 200) {
-    alert(req.responseText);
-  }
-};
-req.send();
+  req.open("PUT", "http://127.0.0.1:25115/object" + path, true);
+  req.onreadystatechange = function() {
+    if(req.readyState == 4 && req.status == 200) {
+      alert(req.responseText);
+    }
+  };
+  req.send();
+}
+
+function sendPropertyUpdate(path, value) {
+  var req = new XMLHttpRequest();
+  req.open("PUT", "http://127.0.0.1:25115/object" + path, true);
+  // value
+  req.send(value.toString());
+}
 
 function propertyUpdateValue(property, val) {
   property.value = val;
+  sendPropertyUpdate(property.path, val);
 }
 
 function elem(type, parent, classes) {
@@ -107,12 +118,13 @@ function addProperty(name, property, parent) {
   return propEdit;
 }
 
-function setupProperties(properties, parent) {
+function setupProperties(properties, parent, path) {
   for(var p in properties) {
     var prop = properties[p];
+    prop.path = path + '/' + p;
     var e = addProperty(p, prop, parent);
     if(prop.contents) {
-      setupProperties(prop.contents, e);
+      setupProperties(prop.contents, e, prop.path);
     }
   }
 }
@@ -121,5 +133,5 @@ function onInit()
 {
   var PropertiesElem = document.getElementById('properties')
 
-  setupProperties(typedata, PropertiesElem);
+  setupProperties(typedata, PropertiesElem, "");
 }
