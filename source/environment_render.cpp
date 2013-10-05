@@ -147,6 +147,11 @@ REFLECT_TYPE(Environment)
     reflect(&Environment::scattering, "Scattering");
 }
 
+Reflect* GetEnvironmentReflection()
+{
+    return get_reflection<Environment>();
+}
+
 Uniforms* GetScatteringUniforms(Environment* e)
 {
     return &e->scattering.uniforms;

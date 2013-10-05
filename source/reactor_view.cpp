@@ -11,8 +11,6 @@
 #include "core_systems.h"
 #include "reporting.h"
 
-#include "edit_server.h"
-
 #include "character.h"
 #include "camera.h"
 #include "environment.h"
@@ -20,6 +18,7 @@
 #include "system.h"
 
 #include "editor_meshes.h"
+#include "edit_server.h"
 
 #include <assert.h>
 #include "gl_all.h"
@@ -194,6 +193,10 @@ ViewInfo* InitView(int width, int height, GameData* game_data)
 
     view->scene_target = InitRenderTarget(width, height);
     view->deferred = InitDeferred(view->environment);
+
+#ifdef WITH_EDIT_SERVER
+    EditServerAddObject(view->edit_server, "Environment", view->environment);
+#endif //WITH_EDIT_SERVER
 
     return view;
 }

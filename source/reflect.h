@@ -120,13 +120,19 @@ public:
 
     void* construct();
     void* construct_in(void* owner);
-    void set_int(void* owner, int i);
-    void set_bool(void* owner, bool b);
-    void set_float(void* owner, float f);
+    void set_int(void* ptr, int i);
+    void set_bool(void* ptr, bool b);
+    void set_float(void* ptr, float f);
 };
 
 template<typename T>
 Reflect* get_reflection();
+
+// We need to declare reflection info for both the type, and pointers to it.
+
+#define DECLARE_REFLECT_TYPE(type) \
+Reflect* get_reflection_for(type*); \
+Reflect* get_reflection_for(type**);
 
 #define REFLECT_TYPE(type) \
 template <> \
@@ -134,6 +140,12 @@ struct Reflect_Type<type> \
 { \
     static void metadata(Reflect& reflect); \
 }; \
+Reflect* get_reflection_for(type*) { \
+    return get_reflection_impl<type>(); \
+} \
+Reflect* get_reflection_for(type**) { \
+    return get_reflection_impl<type*>(); \
+} \
 void Reflect_Type<type>::metadata(Reflect& reflect)
 
 #include "reflect.inl"

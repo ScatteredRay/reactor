@@ -5,23 +5,55 @@
 #ifdef WITH_EDIT_SERVER
 
 #include "reporting.h"
+#include "reflect.h"
 
 #include "webby/webby.h"
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 
+#include <map>
+#include <string>
+
 #ifdef _WIN32
 #include <winsock2.h>
 #endif //_WIN32
+
+struct EditObject
+{
+    void* obj;
+    Reflect* reflect;
+};
+
+struct string_compare
+{
+    bool operator() (const char* x, const char* y) const
+    {
+        return stricmp(x, y);
+    }
+    typedef char* first_argument_type;
+    typedef char* second_argument_type;
+    typedef bool result_type;
+};
 
 struct EditServer
 {
     void* memory;
     WebbyServer* server;
+
+    std::map<char*, EditObject*, string_compare> objMap;
 };
 
-static int edit_srv_dispatch(struct WebbyConnection *connection)
+EditServer* g_edit_server;
+
+static void returnError(struct WebbyConnection* connection)
+{
+    WebbyBeginResponse(connection, 500, 14, NULL, 0);
+    WebbyWrite(connection, "Internal Error", 14);
+    WebbyEndResponse(connection);
+}
+
+static int edit_srv_dispatch(struct WebbyConnection* connection)
 {
     const int num_headers = 3;
     WebbyHeader headers[num_headers];
@@ -40,21 +72,56 @@ static int edit_srv_dispatch(struct WebbyConnection *connection)
     }
     else if(stricmp(connection->request.method, "PUT") == 0)
     {
-        size_t len = connection->request.content_length;
+        char* str = new char[strlen(connection->request.uri) + 1];
+        strcpy(str, connection->request.uri);
 
-        assert(len < 255); // Just until we have more robust  parsing put together.
-        char* buf = new char[len + 1];
-        WebbyRead(connection, buf, len);
-        buf[len] = '\0';
-        float f = (float)atof(buf);
-        delete[] buf;
-        WebbyBeginResponse(connection, 200, 14, headers, num_headers);
-        WebbyWrite(connection, "SUCCESS", 14);
-        WebbyEndResponse(connection);
+        const char* delim = "/\\";
+
+        char* tok = strtok(str, delim);
+
+        if(stricmp(tok, "object") == 0)
+        {
+            tok = strtok(NULL, delim);
+            EditObject* obj = tok ? g_edit_server->objMap[tok] : NULL;
+            if(obj) {
+                void* ptr = obj->obj;
+                Reflect* reflect = obj->reflect;
+                tok = strtok(NULL, delim);
+                while(tok) {
+                    Reflect* r = reflect->get_property(tok);
+                    if(r)
+                    {
+                        reflect = r;
+                        ptr = reflect->get_pointer(ptr);
+                    }
+                    tok = strtok(NULL, delim);
+                }
+
+                assert(ptr && reflect);
+
+                size_t len = connection->request.content_length;
+                assert(len < 255); // Just until we have more robust  parsing put together.
+                char* buf = new char[len + 1];
+                WebbyRead(connection, buf, len);
+                buf[len] = '\0';
+                assert(reflect->get_type() == Type_Float);
+                float f = (float)atof(buf);
+                reflect->set_float(ptr, f);
+                delete[] buf;
+                WebbyBeginResponse(connection, 200, 14, headers, num_headers);
+                WebbyWrite(connection, "SUCCESS", 14);
+                WebbyEndResponse(connection);
+            }
+            else
+            {
+                returnError(connection);
+            }
+        }
+        delete[] str;
     }
     else
     {
-        WebbyBeginResponse(connection, 404, 14, headers, num_headers);
+        WebbyBeginResponse(connection, 404, 14, NULL, 0);
         WebbyWrite(connection, "Resource not Found", 14);
         WebbyEndResponse(connection);
     }
@@ -84,7 +151,7 @@ EditServer* InitEditServer()
 
     WebbyServerConfig config;
 
-    memset(&config, 0, sizeof config);
+    memset(&config, 0, sizeof(config));
     config.bind_address = "127.0.0.1";
     config.listening_port = 25115;
     config.flags = 0;
@@ -106,13 +173,23 @@ EditServer* InitEditServer()
         assert(srv->server);
     }
 
+    g_edit_server = srv;
     return srv;
 }
 
 void DestroyEditServer(EditServer* srv)
 {
+
+    for(auto it = srv->objMap.begin(); it != srv->objMap.end(); it++)
+    {
+        delete[] it->first;
+        delete it->second;
+    }
+
     WebbyServerShutdown(srv->server);
     free(srv->memory);
+
+    delete srv;
 
 #ifdef _WIN32
     WSACleanup();
@@ -122,6 +199,17 @@ void DestroyEditServer(EditServer* srv)
 void UpdateEditServer(EditServer* srv)
 {
     WebbyServerUpdate(srv->server);
+}
+
+void EditServerAddObject(EditServer* srv, const char* name, void* ptr, Reflect* reflect)
+{
+    size_t len = strlen(name);
+    char* key = new char[len + 1];
+    strcpy(key, name);
+    EditObject* obj = new EditObject();
+    obj->obj = ptr;
+    obj->reflect = reflect;
+    srv->objMap[key] = obj;
 }
 
 #endif //WITH_EDIT_SERVER

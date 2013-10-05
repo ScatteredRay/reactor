@@ -159,20 +159,20 @@ void* Reflect::construct_in(void* owner)
     return obj;
 }
 
-void Reflect::set_int(void* owner, int i)
+void Reflect::set_int(void* ptr, int i)
 {
     assert(type == Type_Integer);
-    set_basicvalue(this, owner, &i);
+    set_basicvalue(this, ptr, &i);
 }
 
-void Reflect::set_bool(void* owner, bool b)
+void Reflect::set_bool(void* ptr, bool b)
 {
     assert(type == Type_Bool);
-    set_basicvalue(this, owner, &b);
+    set_basicvalue(this, ptr, &b);
 }
 
-void Reflect::set_float(void* owner, float f)
+void Reflect::set_float(void* ptr, float f)
 {
     assert(type == Type_Float);
-    set_basicvalue(this, owner, &f);
+    set_basicvalue(this, ptr, &f);
 }

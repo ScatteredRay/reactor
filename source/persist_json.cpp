@@ -170,7 +170,7 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
         if(!CheckType(Type_Bool))
             return;
 
-        reflect->set_bool(objs.top(), b);
+        reflect->set_bool(reflect->get_pointer(objs.top()), b);
 
         Pop();
     }
@@ -180,14 +180,16 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
         if(!Check())
             return;
 
+        void* ptr = reflect->get_pointer(objs.top());
+
         switch(reflect->get_type())
         {
         case Type_Integer:
-            reflect->set_int(objs.top(), i);
+            reflect->set_int(ptr, i);
             Pop();
             break;
         case Type_Float:
-            reflect->set_float(objs.top(), (float)i);
+            reflect->set_float(ptr, (float)i);
             Pop();
             break;
         default:
@@ -217,7 +219,7 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
         if(!CheckType(Type_Float))
             return;
 
-        reflect->set_float(objs.top(), (float)d);
+        reflect->set_float(reflect->get_pointer(objs.top()), (float)d);
 
         Pop();
     }

@@ -7,10 +7,10 @@
 #include <assert.h>
 
 template <typename DestT, typename SrcT>
-void set_basicvalue(Reflect* reflect, void* owner, void* field)
+void set_basicvalue(Reflect* reflect, void* ptr, void* field)
 {
     assert(sizeof(DestT) == reflect->get_size());
-    *((DestT*)reflect->get_pointer(owner)) = (DestT)(*((SrcT*)field));
+    *((DestT*)ptr) = (DestT)(*((SrcT*)field));
 }
 
 template <typename T>
@@ -72,8 +72,15 @@ Reflect& Reflect::operator()(FieldT StructureT::* prop, const char* prop_name)
     return reflect(&(((StructureT*)NULL)->*prop), prop_name);
 }
 
+// Some weird template stuff for when we hide stuff from headers.
 template<typename T>
 Reflect* get_reflection()
+{
+    return get_reflection_for((T*)NULL);
+}
+
+template<typename T>
+Reflect* get_reflection_impl()
 {
     Reflect* reflect = new Reflect();
     reflect->init<T>(NULL, "");

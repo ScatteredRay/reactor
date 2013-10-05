@@ -13,4 +13,8 @@ void RenderEnvironment(Environment* e, struct Camera* camera);
 struct Uniforms* GetScatteringUniforms(Environment* e);
 void CaptureScatteringUniforms(Environment* e, GLuint shader);
 
+#include "reflect.h"
+
+DECLARE_REFLECT_TYPE(Environment)
+
 #endif //_ENFIRONMENT_H_

@@ -3,6 +3,7 @@
 #ifndef _COLLECTIONS_H_
 #define _COLLECTIONS_H_
 
+#include "stdlib.h"
 #include <assert.h>
 
 template<typename t>
