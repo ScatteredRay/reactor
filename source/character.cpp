@@ -12,6 +12,7 @@
 struct Character
 {
     float speed;
+    float height;
     Vector3 location;
     PlayerInput* input;
 };
@@ -19,6 +20,7 @@ struct Character
 REFLECT_TYPE(Character)
 {
     reflect(&Character::speed, "Speed");
+    reflect(&Character::height, "Height");
 }
 
 VertexDef character_vert_def;
@@ -27,6 +29,7 @@ GLuint character_texture;
 GLint character_sampler_uniform;
 GLint character_local_to_world_uniform;
 GLuint character_shader;
+float character_aspect;
 
 struct character_vert
 {
@@ -63,7 +66,10 @@ void InitCharacters()
     character_sampler_uniform = glGetUniformLocation(character_shader, "sprite_tex");
     character_local_to_world_uniform = glGetUniformLocation(character_shader, "local_to_world");
 
-    character_texture = CreateTextureFromBMP("data/char.bmp");
+    bitmap* img = load_bmp("data/char.bmp");
+    character_aspect = (float)bitmap_width(img) / (float)bitmap_height(img);
+    character_texture = CreateTexture(img);
+    destroy_bitmap(img);
 }
 
 void FinishCharacters()
@@ -110,7 +116,9 @@ void RenderCharacter(Character* character)
     glBindBuffer(GL_ARRAY_BUFFER, character_mesh);
     ApplyVertexDef(character_vert_def);
 
-    Matrix4 local_to_world = Matrix4::translation(character->location);
+    Matrix4 local_to_world =
+        Matrix4::translation(character->location) *
+        Matrix4::scale(Vector3(character->height, character->height / character_aspect, 1));
 
     glUniformMatrix4fv(character_local_to_world_uniform, 1, false, (float*)&local_to_world);
     glUniform1i(character_sampler_uniform, 0);
