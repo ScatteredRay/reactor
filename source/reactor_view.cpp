@@ -189,7 +189,7 @@ ViewInfo* InitView(int width, int height, GameData* game_data)
     InitCharacters();
     view->character = CreateCharacter(view->player_input[0]);
 
-    view->environment = InitEnvironment(view->game_data->world_name);
+    view->environment = InitEnvironment(view->game_data->world_name, view->camera);
 
     view->scene_target = InitRenderTarget(width, height);
     view->deferred = InitDeferred(view->environment);

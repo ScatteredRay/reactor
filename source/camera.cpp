@@ -12,6 +12,8 @@ struct Camera
     Vector3 location;
     Matrix4 projection;
     float aspect;
+    Vector3 lower_bounds;
+    Vector3 upper_bounds;
 };
 
 void SetCameraProjection(Camera* camera, float screen_width, float screen_height)
@@ -26,6 +28,9 @@ Camera* InitCamera(int screen_width, int screen_height)
 
     camera->location = camera_start_location;
     camera->aspect = 1.0;
+
+    camera->lower_bounds = Vector3(0.0, 0.0, 0.0);
+    camera->upper_bounds = Vector3(0.0, 0.0, 0.0);
 
     SetCameraProjection(camera, (float)screen_width, (float)screen_height);
 
@@ -48,10 +53,20 @@ void UpdateCamera(Camera* camera, Vector3* tracking_points, unsigned int num_tra
     if(num_tracking_points)
     {
         location /= num_tracking_points + 1;
-        location.setZ(camera->location.getZ());
     }
 
+    location =
+        minPerElem(
+            maxPerElem(location, camera->lower_bounds),
+            camera->upper_bounds);
+
+    location.setZ(camera->location.getZ());
     camera->location = location;
+}
+
+void CameraSetBounds(Camera* camera, Vector3 bounds)
+{
+    camera->upper_bounds = bounds;
 }
 
 Vector3 CameraGetLocation(Camera* camera)

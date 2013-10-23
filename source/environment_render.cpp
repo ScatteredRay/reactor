@@ -106,7 +106,6 @@ REFLECT_TYPE(Vector3)
     reflect.reflect((float*)8, "Z");
 }
 
-
 REFLECT_TYPE(Scattering)
 {
     reflect(&Scattering::light_source, "LightLocation");
@@ -137,6 +136,8 @@ struct Environment
     unsigned int num_layers;
     float screen_height;
     Scattering scattering;
+
+    Vector2 bounds;
 };
 
 REFLECT_TYPE(Environment)
@@ -145,6 +146,7 @@ REFLECT_TYPE(Environment)
     reflect(&Environment::num_layers, "NumLayers");
     reflect(&Environment::screen_height, "ScreenHeight");
     reflect(&Environment::scattering, "Scattering");
+    reflect(&Environment::bounds, "BoundsPx");
 }
 
 Reflect* GetEnvironmentReflection()
@@ -221,7 +223,7 @@ void RenderEnvLayer(EnvLayer* layer, Environment* e, Camera* camera)
     RenderUnitQuad();
 }
 
-Environment* InitEnvironment(const char* world)
+Environment* InitEnvironment(const char* world, Camera* camera)
 {
     InitQuad();
 
@@ -232,6 +234,11 @@ Environment* InitEnvironment(const char* world)
     snprintf(tmp_path, sizeof(tmp_path), "%s/world.json", path);
 
     Environment* e = persist_create_from_config<Environment>(tmp_path);
+
+    e->bounds /= e->screen_height;
+    e->bounds.setZ(0.0f);
+
+    CameraSetBounds(camera, e->bounds);
 
     e->environment_shader = CreateShaderProgram(SHADER_ENVIRONMENT);
 

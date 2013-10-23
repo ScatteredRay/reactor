@@ -9,4 +9,6 @@
 
 using namespace Vectormath::Aos;
 
+typedef Vector3 Vector2;
+
 #endif //_VECTORMATH_H_
