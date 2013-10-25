@@ -8,6 +8,10 @@
 
 #include <windows.h>
 
+extern "C" {
+    _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+}
+
 void put_debug_string(const char* str)
 {
     OutputDebugStringA(str);
@@ -70,8 +74,11 @@ int InitWindowAndLoop(int argc, char** argv)
     pfd.nVersion = 1;
     pfd.dwFlags = PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
     pfd.iPixelType = PFD_TYPE_RGBA;
-    pfd.cColorBits = 32;
+    pfd.cColorBits = 24;
     pfd.cDepthBits = 32;
+    pfd.cAlphaBits = 0;
+    pfd.cAccumBits = 0;
+    pfd.cStencilBits = 0;
     pfd.iLayerType = PFD_MAIN_PLANE;
 
     int pixel_format = ChoosePixelFormat(dc, &pfd);
