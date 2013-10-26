@@ -3,7 +3,7 @@
 
 
 struct RenderTarget;
-RenderTarget* InitRenderTarget(unsigned int width, unsigned int height);
+RenderTarget* InitRenderTarget(unsigned int width, unsigned int height, unsigned int num_framebuffers);
 void DestroyRenderTarget(RenderTarget* t);
 void ResizeRenderTarget(RenderTarget* t, unsigned int width, unsigned int height);
 void BindRenderTarget(RenderTarget* t);

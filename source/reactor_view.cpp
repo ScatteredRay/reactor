@@ -191,7 +191,7 @@ ViewInfo* InitView(int width, int height, GameData* game_data)
 
     view->environment = InitEnvironment(view->game_data->world_name, view->camera);
 
-    view->scene_target = InitRenderTarget(width, height);
+    view->scene_target = InitRenderTarget(width, height, 2);
     view->deferred = InitDeferred(view->environment);
 
 #ifdef WITH_EDIT_SERVER

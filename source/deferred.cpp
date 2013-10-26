@@ -7,6 +7,8 @@
 
 #include "gl_all.h"
 #include <assert.h>
+#include <memory>
+using std::unique_ptr;
 
 struct DeferredRender
 {
@@ -15,21 +17,22 @@ struct DeferredRender
     GLuint depth_buffer_uniform;
 };
 
-// TODO, make this dynamic
-const unsigned int ENV_NUM_FRAMEBUFFERS = 2;
-
 struct RenderTarget
 {
     GLuint framebuffer;
     GLuint depth_render_buffer;
-    GLuint framebuffer_textures[ENV_NUM_FRAMEBUFFERS];
-    GLenum render_buffer_list[ENV_NUM_FRAMEBUFFERS];
+    unsigned int num_framebuffers;
+    unique_ptr<GLuint[]> framebuffer_textures;
+    unique_ptr<GLenum[]> render_buffer_list;
 };
 
-void InitRenderTarget(RenderTarget* t, unsigned int width, unsigned int height)
+void InitRenderTarget(RenderTarget* t, unsigned int width, unsigned int height, unsigned int num_framebuffers)
 {
     glGenFramebuffers(1, &t->framebuffer);
-    glGenTextures(ENV_NUM_FRAMEBUFFERS, t->framebuffer_textures);
+    t->num_framebuffers = num_framebuffers;
+    t->framebuffer_textures = unique_ptr<GLuint[]>(new GLuint[num_framebuffers]);
+    t->render_buffer_list = unique_ptr<GLenum[]>(new GLenum[num_framebuffers]);
+    glGenTextures(num_framebuffers, t->framebuffer_textures.get());
 
     glBindFramebuffer(GL_FRAMEBUFFER, t->framebuffer);
 
@@ -39,7 +42,7 @@ void InitRenderTarget(RenderTarget* t, unsigned int width, unsigned int height)
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, t->depth_render_buffer);
 
-    for(unsigned int i=0; i<ENV_NUM_FRAMEBUFFERS; i++)
+    for(unsigned int i=0; i<num_framebuffers; i++)
     {
         glBindTexture(GL_TEXTURE_2D, t->framebuffer_textures[i]);
 
@@ -62,7 +65,7 @@ void InitRenderTarget(RenderTarget* t, unsigned int width, unsigned int height)
         t->render_buffer_list[i] = GL_COLOR_ATTACHMENT0 + i;
     }
 
-    glDrawBuffers(ENV_NUM_FRAMEBUFFERS, t->render_buffer_list);
+    glDrawBuffers(num_framebuffers, t->render_buffer_list.get());
 
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     assert(status == GL_FRAMEBUFFER_COMPLETE);
@@ -70,11 +73,11 @@ void InitRenderTarget(RenderTarget* t, unsigned int width, unsigned int height)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-RenderTarget* InitRenderTarget(unsigned int width, unsigned int height)
+RenderTarget* InitRenderTarget(unsigned int width, unsigned int height, unsigned int num_framebuffers)
 {
     RenderTarget* t = new RenderTarget();
 
-    InitRenderTarget(t, width, height);
+    InitRenderTarget(t, width, height, num_framebuffers);
 
     return t;
 }
@@ -82,7 +85,7 @@ RenderTarget* InitRenderTarget(unsigned int width, unsigned int height)
 void ReleaseRenderTarget(RenderTarget* t)
 {
     glDeleteRenderbuffers(1, &t->depth_render_buffer);
-    glDeleteTextures(ENV_NUM_FRAMEBUFFERS, t->framebuffer_textures);
+    glDeleteTextures(t->num_framebuffers, t->framebuffer_textures.get());
     glDeleteFramebuffers(1, &t->framebuffer);
 }
 
@@ -95,7 +98,7 @@ void DestroyRenderTarget(RenderTarget* t)
 void ResizeRenderTarget(RenderTarget* t, unsigned int width, unsigned int height)
 {
     ReleaseRenderTarget(t);
-    InitRenderTarget(t, width, height);
+    InitRenderTarget(t, width, height, t->num_framebuffers);
 }
 
 void BindRenderTarget(RenderTarget* t)
