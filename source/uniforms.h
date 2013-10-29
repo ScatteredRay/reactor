@@ -15,7 +15,25 @@ enum UniformType {
     Uniform_Image
 };
 
-struct UniformElem;
+struct UniformBindState
+{
+    unsigned int texture_id;
+    unsigned int image_id;
+
+    UniformBindState() : texture_id(0), image_id(0) {}
+};
+
+struct UniformElem
+{
+    void* ptr;
+    UniformType type;
+    GLuint uniform;
+
+    void init(const char* name, void* source, UniformType type, GLuint shader);
+
+    void bind(void* _ptr, UniformBindState& bind_state);
+    void bind(UniformBindState& bind_state);
+};
 
 struct Uniforms
 {
@@ -30,6 +48,17 @@ struct Uniforms
     template<typename T>
     void add_uniform(const char* name, T* source, unsigned int i, GLuint shader);
 
+    unsigned int get_uniform_idx(const char* name, GLuint shader);
+
+    void bind_uniform(unsigned int idx, void* ptr, UniformBindState& bind_state);
+
+    template<typename t>
+    void bind_uniform(unsigned int idx, t val, UniformBindState& bind_state)
+    {
+        bind_uniform(idx, (void*)&val, bind_state);
+    }
+
+    void bind(UniformBindState& bind_state);
     void bind();
 };
 

@@ -51,7 +51,7 @@ struct Scattering
 
     Uniforms uniforms;
 
-    static const unsigned int uniform_count = 13;
+    static const unsigned int uniform_count = 15;
 
     Scattering() :
         light_source(0.0, 0.0, 0.0),
@@ -86,6 +86,8 @@ struct Scattering
         uniforms.add_uniform("rayleigh", &rayleigh, i++, shader);
         uniforms.add_uniform("mie", &mie, i++, shader);
         uniforms.add_uniform("mie_eccentricity", &mie_eccentricity, i++, shader);
+        uniforms.add_uniform("color_buffer", NULL, Uniform_Texture, i++, shader);
+        uniforms.add_uniform("depth_buffer", NULL, Uniform_Texture, i++, shader);
         assert(i == uniforms.num_uniforms);
     }
 };

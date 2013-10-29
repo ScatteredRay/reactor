@@ -15,8 +15,8 @@
 struct DeferredRender
 {
     GLuint postprocess_shader;
-    GLuint color_buffer_uniform;
-    GLuint depth_buffer_uniform;
+    unsigned int color_buffer_uniform;
+    unsigned int depth_buffer_uniform;
 };
 
 DeferredRender* InitDeferred(Environment* env)
@@ -24,10 +24,11 @@ DeferredRender* InitDeferred(Environment* env)
     DeferredRender* r = new DeferredRender();
 
     r->postprocess_shader = CreateShaderProgram(SHADER_ATMOSPHERICS);
-    r->color_buffer_uniform = glGetUniformLocation(r->postprocess_shader, "color_buffer");
-    r->depth_buffer_uniform = glGetUniformLocation(r->postprocess_shader, "depth_buffer");
-
     CaptureScatteringUniforms(env, r->postprocess_shader);
+
+    Uniforms* uniforms = GetScatteringUniforms(env);
+    r->color_buffer_uniform = uniforms->get_uniform_idx("color_buffer", r->postprocess_shader);
+    r->depth_buffer_uniform = uniforms->get_uniform_idx("depth_buffer", r->postprocess_shader);
 
     return r;
 }
@@ -42,17 +43,11 @@ void RenderDeferred(DeferredRender* r, RenderTarget* t, Environment* env)
 {
     glUseProgram(r->postprocess_shader);
 
-    //Clean me up!
-
-    glUniform1i(r->color_buffer_uniform, 0);
-    glActiveTexture(GL_TEXTURE0 + 0);
-    glBindTexture(GL_TEXTURE_2D, RenderTargetTexture(t, 0));
-
-    glUniform1i(r->depth_buffer_uniform, 1);
-    glActiveTexture(GL_TEXTURE0 + 1);
-    glBindTexture(GL_TEXTURE_2D, RenderTargetTexture(t, 1));
-
-    GetScatteringUniforms(env)->bind();
+    UniformBindState bind_state;
+    Uniforms* uniforms = GetScatteringUniforms(env);
+    uniforms->bind(bind_state);
+    uniforms->bind_uniform(r->color_buffer_uniform, RenderTargetTexture(t, 0), bind_state);
+    uniforms->bind_uniform(r->depth_buffer_uniform, RenderTargetTexture(t, 1), bind_state);    
 
     RenderUnitQuad();
 
