@@ -10,19 +10,12 @@ enum UniformType {
     Uniform_Float,
     Uniform_Float2,
     Uniform_Float3,
-    Uniform_Float4
+    Uniform_Float4,
+    Uniform_Texture,
+    Uniform_Image
 };
 
-struct UniformElem
-{
-    void* ptr;
-    UniformType type;
-    GLuint uniform;
-
-    void init(const char* name, void* source, UniformType type, GLuint shader);
-
-    void bind();
-};
+struct UniformElem;
 
 struct Uniforms
 {

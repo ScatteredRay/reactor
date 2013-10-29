@@ -7,6 +7,7 @@
 #include "simple_texture.h"
 #include "simple_mesh.h"
 #include "obj_load.h"
+#include "render_util.h"
 #include "input.h"
 #include "core_systems.h"
 #include "reporting.h"
@@ -15,6 +16,7 @@
 #include "camera.h"
 #include "environment.h"
 #include "deferred.h"
+#include "particles.h"
 #include "system.h"
 
 #include "editor_meshes.h"
@@ -92,6 +94,8 @@ struct ViewInfo
     Camera* camera;
 
     Environment* environment;
+
+    Particles* particles;
 
     RenderTarget* scene_target;
     DeferredRender* deferred;
@@ -184,6 +188,7 @@ ViewInfo* InitView(int width, int height, GameData* game_data)
                view->collision_mesh->faces[i].c);*/
 
 
+    InitRenderUtil();
     view->camera = InitCamera(width, height);
 
     InitCharacters();
@@ -194,6 +199,8 @@ ViewInfo* InitView(int width, int height, GameData* game_data)
     view->scene_target = InitRenderTarget(width, height, 2);
     view->deferred = InitDeferred(view->environment);
 
+    view->particles = InitParticles();
+
 #ifdef WITH_EDIT_SERVER
     EditServerAddObject(view->edit_server, "Environment", view->environment);
 #endif //WITH_EDIT_SERVER
@@ -203,6 +210,7 @@ ViewInfo* InitView(int width, int height, GameData* game_data)
 
 void FinishView(ViewInfo* view)
 {
+    DestroyParticles(view->particles);
     DestroyDeferred(view->deferred);
     DestroyRenderTarget(view->scene_target);
 
@@ -218,6 +226,7 @@ void FinishView(ViewInfo* view)
 
     DestroyMesh(view->grid);
     CleanupEditor();
+    CleanupRenderUtil();
 
     DestroyVertexDef(view->boot_vert);
     DestroyVertexDef(view->collision_vert);
@@ -307,6 +316,9 @@ void UpdateView(ViewInfo* view)
     RenderCharacter(view->character);
 
     UnbindRenderTarget(view->scene_target);
+
+    UpdateParticles(view->particles);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     RenderDeferred(view->deferred, view->scene_target, view->environment);
 }

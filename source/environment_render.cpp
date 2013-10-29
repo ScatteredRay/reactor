@@ -3,6 +3,7 @@
 #include "simple_shader.h"
 #include "simple_texture.h"
 #include "uniforms.h"
+#include "render_util.h"
 #include "vectormath.h"
 #include "collections.h"
 #include "camera.h"
@@ -14,15 +15,6 @@
 #include <assert.h>
 #include <cstdio>
 #include "system.h"
-
-GLuint gQuad;
-VertexDef gQuadVerts;
-
-
-// Move this somewhere common.
-void InitQuad();
-void DestroyQuad();
-void RenderUnitQuad();
 
 struct EnvLayer
 {
@@ -94,7 +86,7 @@ struct Scattering
         uniforms.add_uniform("rayleigh", &rayleigh, i++, shader);
         uniforms.add_uniform("mie", &mie, i++, shader);
         uniforms.add_uniform("mie_eccentricity", &mie_eccentricity, i++, shader);
-        assert(i == uniform_count);
+        assert(i == uniforms.num_uniforms);
     }
 };
 
@@ -225,8 +217,6 @@ void RenderEnvLayer(EnvLayer* layer, Environment* e, Camera* camera)
 
 Environment* InitEnvironment(const char* world, Camera* camera)
 {
-    InitQuad();
-
     char path[255];
     snprintf(path, sizeof(path), "data/world/%s", world);
 
@@ -247,7 +237,7 @@ Environment* InitEnvironment(const char* world, Camera* camera)
     e->depth_uniform = glGetUniformLocation(e->environment_shader, "depth");
     e->local_to_world_mat_uniform = glGetUniformLocation(e->environment_shader, "local_to_world");
 
-    VertexDefBindToShader(gQuadVerts, e->environment_shader);
+    BindShaderToUnitQuad(e->environment_shader);
 
     unsigned int num_layers = e->num_layers;
     // Init layers
@@ -281,7 +271,6 @@ void DestroyEnvironment(Environment* e)
 
     DestroyProgramAndAttachedShaders(e->environment_shader);
     delete e;
-    DestroyQuad();
 }
 
 void RenderEnvironment(Environment* e, Camera* camera)
@@ -306,49 +295,4 @@ void RenderEnvironment(Environment* e, Camera* camera)
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         }
     }
-}
-
-struct tex_quad_vert
-{
-    vector3 location;
-    vector2 uv;
-};
-
-VertexDef gen_tex_quad_vert_def()
-{
-    tex_quad_vert* proxy = 0;
-    VertexDef VD = CreateVertexDef(sizeof(tex_quad_vert), 2);
-    int i = 0;
-    AddVertexAttribute(VD, i++, VERTEX_POSITION_ATTR, (size_t)&proxy->location, 3, GL_FLOAT);
-    AddVertexAttribute(VD, i++, VERTEX_UV_ATTR, (size_t)&proxy->uv, 2, GL_FLOAT);
-
-    return VD;
-}
-
-const tex_quad_vert quad_mesh[] =
-{{{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}},
- {{1.0f, -1.0f, 0.0f},  {1.0f, 0.0f}},
- {{-1.0f, 1.0f, 0.0f},  {0.0f, 1.0f}},
- {{-1.0f, 1.0f, 0.0f},  {0.0f, 1.0f}},
- {{1.0f, -1.0f, 0.0f},  {1.0f, 0.0f}},
- {{1.0f, 1.0f, 0.0f},   {1.0f, 1.0f}}};
-
-void InitQuad()
-{
-    gQuadVerts = gen_tex_quad_vert_def();
-    gQuad = CreateMesh(6, sizeof(tex_quad_vert), quad_mesh);
-}
-
-void DestroyQuad()
-{
-    DestroyMesh(gQuad);
-    DestroyVertexDef(gQuadVerts);
-}
-
-void RenderUnitQuad()
-{
-    glBindBuffer(GL_ARRAY_BUFFER, gQuad);
-    ApplyVertexDef(gQuadVerts);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    ClearVertexDef(gQuadVerts);
 }

@@ -94,7 +94,7 @@ unsigned int bitmap_height(bitmap* bmp)
     return bmp->height;
 }
 
-GLuint CreateTexture(bitmap* img)
+GLuint CreateTexture(unsigned int width, unsigned int height, void* data, GLenum format, GLenum type)
 {
     GLuint tex;
     glGenTextures(1, &tex);
@@ -108,15 +108,20 @@ GLuint CreateTexture(bitmap* img)
 
     glTexImage2D(GL_TEXTURE_2D,
                  0,
-                 GL_RGBA8,
-                 img->width,
-                 img->height,
+                 format,
+                 width,
+                 height,
                  0,
-                 GL_RGBA,
-                 GL_UNSIGNED_INT_8_8_8_8,
-                 img->data);
+                 format,
+                 type,
+                 data);
 
     return tex;
+}
+
+GLuint CreateTexture(bitmap* img)
+{
+    return CreateTexture(img->width, img->height, img->data, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8);
 }
 
 GLuint CreateTextureFromBMP(const char* filename)

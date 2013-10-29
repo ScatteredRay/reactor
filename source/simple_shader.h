@@ -11,7 +11,9 @@ enum shader_id
     SHADER_CONSTANT_COLOR = 0,
     SHADER_ENVIRONMENT = 1,
     SHADER_CHARACTER = 2,
-    SHADER_ATMOSPHERICS = 3
+    SHADER_ATMOSPHERICS = 3,
+    SHADER_PARTICLE_GEN = 4,
+    SHADER_PARTICLE_SIM = 5
 };
 
 GLuint CreateShaderProgram(shader_id shader);

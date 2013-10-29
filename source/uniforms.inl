@@ -2,6 +2,7 @@
 // See the LICENSE file for usage, modification, and distribution terms.
 
 #include "vectormath.h"
+#include <assert.h>
 
 template<typename T>
 struct MetaUniform

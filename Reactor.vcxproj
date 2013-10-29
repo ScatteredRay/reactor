@@ -25,8 +25,11 @@
     <ClInclude Include="source\gl_all.h" />
     <ClInclude Include="source\input.h" />
     <ClInclude Include="source\obj_load.h" />
+    <ClInclude Include="source\particles.h" />
     <ClInclude Include="source\persist.h" />
     <ClInclude Include="source\reflect.h" />
+    <ClInclude Include="source\render_target.h" />
+    <ClInclude Include="source\render_util.h" />
     <ClInclude Include="source\reporting.h" />
     <ClInclude Include="source\simple_mesh.h" />
     <ClInclude Include="source\simple_shader.h" />
@@ -53,10 +56,13 @@
     <ClCompile Include="source\input_win.cpp" />
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\obj_load.cpp" />
+    <ClCompile Include="source\particles.cpp" />
     <ClCompile Include="source\persist.cpp" />
     <ClCompile Include="source\persist_json.cpp" />
     <ClCompile Include="source\reactor_view.cpp" />
     <ClCompile Include="source\reflect.cpp" />
+    <ClCompile Include="source\render_target.cpp" />
+    <ClCompile Include="source\render_util.cpp" />
     <ClCompile Include="source\reporting.cpp" />
     <ClCompile Include="source\simple_mesh.cpp" />
     <ClCompile Include="source\simple_shader.cpp" />
