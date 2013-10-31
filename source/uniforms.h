@@ -12,7 +12,8 @@ enum UniformType {
     Uniform_Float3,
     Uniform_Float4,
     Uniform_Texture,
-    Uniform_Image
+    Uniform_Image,
+    Uniform_Atomic
 };
 
 struct UniformBindState

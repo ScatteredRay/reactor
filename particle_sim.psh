@@ -1,9 +1,10 @@
 // Copyright (c) 2013, Nicholas "Indy" Ray. All rights reserved.
 // See the LICENSE file for usage, modification, and distribution terms.
+#version 420
 
-uniform gimage2D particle_buffer;
+layout (rgba32f) uniform image2D particle_buffer;
 
 void main(void)
 {
-  discard;
+  gl_FragColor = vec4(0.00, 1.00, 0.00, 1.00);
 }

@@ -10,7 +10,23 @@ void UniformElem::init(const char* name, void* source, UniformType ty, GLuint sh
 {
     ptr = source;
     type = ty;
-    uniform = glGetUniformLocation(shader, name);
+    switch(type)
+    {
+    case Uniform_Atomic:
+    {
+        GLuint uniformIdx;
+        glGetUniformIndices(shader, 1, &name, &uniformIdx);
+        GLint atomicIdx;
+        glGetActiveUniformsiv(shader, 1, &uniformIdx, GL_UNIFORM_ATOMIC_COUNTER_BUFFER_INDEX, &atomicIdx);
+        GLint binding;
+        glGetActiveAtomicCounterBufferiv(shader, atomicIdx, GL_ATOMIC_COUNTER_BUFFER_BINDING, &binding);
+        uniform = binding;
+        break;
+    }
+    default:
+        uniform = glGetUniformLocation(shader, name);
+        break;
+    }
 }
 
 void UniformElem::bind(void* _ptr, UniformBindState& bind_state)
@@ -45,6 +61,10 @@ void UniformElem::bind(void* _ptr, UniformBindState& bind_state)
         bind_state.image_id++;
         break;
     }
+    case Uniform_Atomic:
+        // TODO: support binding from offsets.
+        glBindBufferRange(GL_ATOMIC_COUNTER_BUFFER, uniform, *((GLuint*)_ptr), 0, 4);
+        break;
     default:
         assert(false);
         break;

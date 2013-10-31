@@ -317,10 +317,9 @@ void UpdateView(ViewInfo* view)
 
     UnbindRenderTarget(view->scene_target);
 
-    UpdateParticles(view->particles);
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     RenderDeferred(view->deferred, view->scene_target, view->environment);
+    UpdateParticles(view->particles);
 }
 
 InputHandler* GetInputHandler(ViewInfo* view)

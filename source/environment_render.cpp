@@ -286,7 +286,6 @@ void RenderEnvironment(Environment* e, Camera* camera)
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf((float*)&identity);
 
-
     glBlendFunc(GL_ONE, GL_ZERO);
     unsigned int num_layers = e->Layers.size();
     for(unsigned int i = num_layers; i > 0; i--)
