@@ -15,8 +15,9 @@
 
 struct Particles
 {
-    unsigned int vertex_size_sqrt;
+    unsigned int vertex_count;
     GLuint vertex_buffer;
+    GLuint vertex_texture;
     GLuint atomic_count_buffer;
 
     GLuint shader_gen;
@@ -24,19 +25,20 @@ struct Particles
     GLuint shader_sim;
     Uniforms sim_uniforms;
 
-    Particles() : gen_uniforms(2), sim_uniforms(1)
+    Particles() : gen_uniforms(3), sim_uniforms(0)
     {
     }
 
     void CaptureUniforms()
     {
         int i = 0;
-        gen_uniforms.add_uniform("particle_buffer", &vertex_buffer, Uniform_Image, i++, shader_gen);
+        gen_uniforms.add_uniform("particle_buffer", &vertex_texture, Uniform_Image, i++, shader_gen);
         gen_uniforms.add_uniform("particle_count", &atomic_count_buffer, Uniform_Atomic, i++, shader_gen);
+        gen_uniforms.add_uniform("max_particles", &vertex_count, i++, shader_gen);
         assert(i == gen_uniforms.num_uniforms);
 
         i = 0;
-        sim_uniforms.add_uniform("particle_buffer", &vertex_buffer, Uniform_Image, i++, shader_sim);
+        //sim_uniforms.add_uniform("particle_buffer", &vertex_texture, Uniform_Image, i++, shader_sim);
         assert(i == sim_uniforms.num_uniforms);
     }
 
@@ -54,14 +56,17 @@ Particles* InitParticles()
     BindShaderToUnitQuad(particles->shader_sim);
     particles->CaptureUniforms();
 
-    particles->vertex_size_sqrt = 512;
-    particles->vertex_buffer =
-        CreateTexture(
-            particles->vertex_size_sqrt,
-            particles->vertex_size_sqrt,
-            NULL,
-            GL_RGBA32I,
-            GL_INT);
+    particles->vertex_count = 65536;
+    unsigned int vertex_len = 4 * 4;
+    glGenBuffers(1, &particles->vertex_buffer);
+    glBindBuffer(GL_TEXTURE_BUFFER, particles->vertex_buffer);
+    glBufferData(GL_TEXTURE_BUFFER, vertex_len * particles->vertex_count, NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_TEXTURE_BUFFER, 0);
+
+    glGenTextures(1, &particles->vertex_texture);
+    glBindTexture(GL_TEXTURE_BUFFER, particles->vertex_texture);
+    glTexBuffer(GL_TEXTURE_BUFFER, GL_RGBA32F, particles->vertex_buffer);
+    glBindBuffer(GL_TEXTURE_BUFFER, 0);
 
     glGenBuffers(1, &particles->atomic_count_buffer);
     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, particles->atomic_count_buffer);
@@ -99,6 +104,8 @@ void UpdateParticles(Particles* particles)
     RenderUnitQuad();
 
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+
+    //glBlendFunc(GL_ZERO, GL_ONE);
 
     glUseProgram(particles->shader_sim);
     particles->sim_uniforms.bind();

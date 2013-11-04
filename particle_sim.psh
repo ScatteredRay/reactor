@@ -2,7 +2,7 @@
 // See the LICENSE file for usage, modification, and distribution terms.
 #version 420
 
-layout (rgba32f) uniform image2D particle_buffer;
+//layout (rgba32f) uniform image2D particle_buffer;
 
 void main(void)
 {

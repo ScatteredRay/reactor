@@ -61,6 +61,34 @@ struct MetaUniform<Vector4>
     }
 };
 
+template<>
+struct MetaUniform<int>
+{
+    static int* ptr(int* p)
+    {
+        return p;
+    }
+
+    static UniformType type()
+    {
+        return Uniform_Int;
+    }
+};
+
+template<>
+struct MetaUniform<unsigned int>
+{
+    static unsigned int* ptr(unsigned int* p)
+    {
+        return p;
+    }
+
+    static UniformType type()
+    {
+        return Uniform_UInt;
+    }
+};
+
 template<typename T>
 void Uniforms::add_uniform(const char* name, T* source, unsigned int i, GLuint shader)
 {

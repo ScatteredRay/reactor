@@ -5,8 +5,18 @@
 layout (rgba32f) uniform image2D particle_buffer;
 layout (binding = 0) uniform atomic_uint particle_count;
 
+uniform uint max_particles;
+
 void main(void)
 {
-  atomicCounterIncrement(particle_count);
-  gl_FragColor = vec4(1.00, 0.00, 0.00, 1.00);
+  uint pidx = atomicCounterIncrement(particle_count);
+  // The race condition for this is that we don't add a particle we could have when near max.
+  if(pidx >= max_particles)
+  {
+    atomicCounterDecrement(particle_count);
+  }
+  else
+  {
+    // Add particle.
+  }
 }

@@ -11,6 +11,8 @@ enum UniformType {
     Uniform_Float2,
     Uniform_Float3,
     Uniform_Float4,
+    Uniform_Int,
+    Uniform_UInt,
     Uniform_Texture,
     Uniform_Image,
     Uniform_Atomic

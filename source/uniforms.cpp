@@ -45,6 +45,12 @@ void UniformElem::bind(void* _ptr, UniformBindState& bind_state)
     case Uniform_Float4:
         glUniform4fv(uniform, 1, (GLfloat*)_ptr);
         break;
+    case Uniform_Int:
+        glUniform1iv(uniform, 1, (GLint*)_ptr);
+        break;
+    case Uniform_UInt:
+        glUniform1uiv(uniform, 1, (GLuint*)_ptr);
+        break;
     case Uniform_Texture:
         glUniform1i(uniform, bind_state.texture_id);
         glActiveTexture(GL_TEXTURE0 + bind_state.texture_id);
