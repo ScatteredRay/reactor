@@ -5,6 +5,8 @@
 
 #include "simple_texture.h"
 #include "simple_shader.h"
+#include "simple_mesh.h"
+#include "simple_vectors.h"
 #include "render_target.h"
 #include "render_util.h"
 #include "uniforms.h"
@@ -12,6 +14,29 @@
 
 #include "gl_all.h"
 #include <assert.h>
+
+struct GLArraysIndirectCommand
+{
+    unsigned int count;
+    unsigned int primCount;
+    unsigned int first;
+    unsigned int baseInstance;
+};
+
+struct ParticleVert
+{
+    vector4 location;
+};
+
+VertexDef GenParticleVertDef()
+{
+    ParticleVert* proxy = 0;
+    VertexDef VD = CreateVertexDef(sizeof(ParticleVert), 1);
+    int i = 0;
+    AddVertexAttribute(VD, i++, VERTEX_POSITION_ATTR, (size_t)&proxy->location, 4, GL_FLOAT);
+
+    return VD;
+}
 
 struct Particles
 {
@@ -25,6 +50,8 @@ struct Particles
     GLuint shader_sim;
     Uniforms sim_uniforms;
 
+    VertexDef particle_vertex_def;
+
     Particles() : gen_uniforms(3), sim_uniforms(0)
     {
     }
@@ -33,6 +60,7 @@ struct Particles
     {
         int i = 0;
         gen_uniforms.add_uniform("particle_buffer", &vertex_texture, Uniform_Image, i++, shader_gen);
+        // TODO: This only works because `count` is the first element of `GLArraysIndirectCommand`. Make this more general.
         gen_uniforms.add_uniform("particle_count", &atomic_count_buffer, Uniform_Atomic, i++, shader_gen);
         gen_uniforms.add_uniform("max_particles", &vertex_count, i++, shader_gen);
         assert(i == gen_uniforms.num_uniforms);
@@ -44,24 +72,24 @@ struct Particles
 
 };
 
-
-
 Particles* InitParticles()
 {
     Particles* particles = new Particles();
 
+    particles->particle_vertex_def = GenParticleVertDef();
+
     particles->shader_gen = CreateShaderProgram(SHADER_PARTICLE_GEN);
     particles->shader_sim = CreateShaderProgram(SHADER_PARTICLE_SIM);
     BindShaderToUnitQuad(particles->shader_gen);
-    BindShaderToUnitQuad(particles->shader_sim);
+    VertexDefBindToShader(particles->particle_vertex_def, particles->shader_sim);
     particles->CaptureUniforms();
 
     particles->vertex_count = 65536;
-    unsigned int vertex_len = 4 * 4;
+    unsigned int vertex_len = sizeof(ParticleVert);
     glGenBuffers(1, &particles->vertex_buffer);
-    glBindBuffer(GL_TEXTURE_BUFFER, particles->vertex_buffer);
-    glBufferData(GL_TEXTURE_BUFFER, vertex_len * particles->vertex_count, NULL, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_TEXTURE_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, particles->vertex_buffer);
+    glBufferData(GL_ARRAY_BUFFER, vertex_len * particles->vertex_count, NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glGenTextures(1, &particles->vertex_texture);
     glBindTexture(GL_TEXTURE_BUFFER, particles->vertex_texture);
@@ -70,10 +98,13 @@ Particles* InitParticles()
 
     glGenBuffers(1, &particles->atomic_count_buffer);
     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, particles->atomic_count_buffer);
-    glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLuint), NULL, GL_DYNAMIC_DRAW);
+    glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(GLArraysIndirectCommand), NULL, GL_DYNAMIC_DRAW);
     // Do we need to call BufferData if we just map it right after?
-    GLuint* atomic_data = (GLuint*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLuint), GL_MAP_WRITE_BIT);
-    *atomic_data = 0;
+    GLArraysIndirectCommand* atomic_data = (GLArraysIndirectCommand*)glMapBufferRange(GL_ATOMIC_COUNTER_BUFFER, 0, sizeof(GLArraysIndirectCommand), GL_MAP_WRITE_BIT);
+    atomic_data->count = 0;
+    atomic_data->primCount = 1;
+    atomic_data->first = 0;
+    atomic_data->baseInstance = 0;
     glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
     glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, NULL);
 
@@ -85,6 +116,8 @@ void DestroyParticles(Particles* particles)
     DestroyTexture(particles->vertex_buffer);
     DestroyProgramAndAttachedShaders(particles->shader_gen);
     DestroyProgramAndAttachedShaders(particles->shader_sim);
+
+    DestroyVertexDef(particles->particle_vertex_def);
     delete particles;
 }
 
@@ -103,15 +136,18 @@ void UpdateParticles(Particles* particles)
     particles->gen_uniforms.bind();
     RenderUnitQuad();
 
-    glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+    glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT | GL_COMMAND_BARRIER_BIT);
 
-    //glBlendFunc(GL_ZERO, GL_ONE);
+    glBlendFunc(GL_ONE, GL_ZERO);
 
     glUseProgram(particles->shader_sim);
     particles->sim_uniforms.bind();
-    RenderUnitQuad();
 
-    glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT);
-
-    glBlendFunc(GL_ONE, GL_ZERO);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, particles->atomic_count_buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, particles->vertex_buffer);
+    ApplyVertexDef(particles->particle_vertex_def);
+    glDrawArraysIndirect(GL_POINTS, 0);
+    ClearVertexDef(particles->particle_vertex_def);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
 }

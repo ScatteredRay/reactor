@@ -61,10 +61,11 @@ void UniformElem::bind(void* _ptr, UniformBindState& bind_state)
     {
         // TODO: make these customizable.
         GLenum access = GL_READ_WRITE;
-        GLenum format = GL_RGBA32I;
+        GLenum format = GL_RGBA32F;
         glUniform1i(uniform, bind_state.image_id);
         glBindImageTexture(bind_state.image_id, *((GLuint*)_ptr), 0, GL_FALSE, 0, access, format);
         bind_state.image_id++;
+        // Unbind looks like: glBindImageTexture(0, NULL, 0, GL_TRUE, 0, GL_READ_ONLY, GL_R8);
         break;
     }
     case Uniform_Atomic:

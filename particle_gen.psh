@@ -2,7 +2,7 @@
 // See the LICENSE file for usage, modification, and distribution terms.
 #version 420
 
-layout (rgba32f) uniform image2D particle_buffer;
+layout (rgba32f) uniform imageBuffer particle_buffer;
 layout (binding = 0) uniform atomic_uint particle_count;
 
 uniform uint max_particles;
@@ -18,5 +18,6 @@ void main(void)
   else
   {
     // Add particle.
+    imageStore(particle_buffer, int(pidx), vec4(0.75, 0.75, 0.75, 1.00));
   }
 }
