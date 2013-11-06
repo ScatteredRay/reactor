@@ -42,6 +42,7 @@ struct Particles
 {
     static const unsigned int BUFFER_COUNT = 2;
     unsigned int vertex_count;
+    unsigned int frame_count;
     GLuint vertex_buffers[BUFFER_COUNT];
     GLuint vertex_textures[BUFFER_COUNT];
     GLuint atomic_count_buffer;
@@ -53,7 +54,7 @@ struct Particles
 
     VertexDef particle_vertex_def;
 
-    Particles() : gen_uniforms(3), sim_uniforms(0)
+    Particles() : gen_uniforms(4), sim_uniforms(0)
     {
     }
 
@@ -64,6 +65,7 @@ struct Particles
         // TODO: This only works because `count` is the first element of `GLArraysIndirectCommand`. Make this more general.
         gen_uniforms.add_uniform("particle_count", &atomic_count_buffer, Uniform_Atomic, i++, shader_gen);
         gen_uniforms.add_uniform("max_particles", &vertex_count, i++, shader_gen);
+        gen_uniforms.add_uniform("frame_count", &frame_count, i++, shader_gen);
         assert(i == gen_uniforms.num_uniforms);
 
         i = 0;
@@ -77,6 +79,8 @@ Particles* InitParticles()
 {
     Particles* particles = new Particles();
 
+    particles->frame_count = 0;
+
     particles->particle_vertex_def = GenParticleVertDef();
 
     particles->shader_gen = CreateShaderProgram(SHADER_PARTICLE_GEN);
@@ -87,7 +91,7 @@ Particles* InitParticles()
     VertexDefBindToShader(particles->particle_vertex_def, particles->shader_sim);
     particles->CaptureUniforms();
 
-    particles->vertex_count = 65536;
+    particles->vertex_count = 65536 * 10;
     unsigned int vertex_len = sizeof(ParticleVert);
 
     glGenBuffers(Particles::BUFFER_COUNT, particles->vertex_buffers);
@@ -166,6 +170,9 @@ void UpdateParticles(Particles* particles)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0);
+
+
+    particles->frame_count++;
 
     // Rotate buffers.
 

@@ -6,6 +6,7 @@ layout (rgba32f) uniform imageBuffer particle_buffer;
 layout (binding = 0) uniform atomic_uint particle_count;
 
 uniform uint max_particles;
+uniform uint frame_count;
 
 varying vec2 texCoord;
 
@@ -35,7 +36,7 @@ float snoise(vec2 v);
 
 void main(void)
 {
-  if(snoise(texCoord * 4092.0) > 0.7f)
+  if(snoise((texCoord * 4092.0) + frame_count) > 0.9f)
   {
     vec4 pos = texToScreen * vec4(texCoord, 0.0, 1.0);
     addParticle(pos);
