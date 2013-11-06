@@ -7,7 +7,16 @@ layout (binding = 0) uniform atomic_uint particle_count;
 
 uniform uint max_particles;
 
-void main(void)
+varying vec2 texCoord;
+
+const mat4 texToScreen = mat4(
+  2.0, 0.0, 0.0, 0.0,
+  0.0, 2.0, 0.0, 0.0,
+  0.0, 0.0, 2.0, 0.0,
+  -1.0, -1.0, -1.0, 1.0
+);
+
+void addParticle(vec4 pos)
 {
   uint pidx = atomicCounterIncrement(particle_count);
   // The race condition for this is that we don't add a particle we could have when near max.
@@ -18,6 +27,15 @@ void main(void)
   else
   {
     // Add particle.
-    imageStore(particle_buffer, int(pidx), vec4(0.75, 0.75, 0.75, 1.00));
+    imageStore(particle_buffer, int(pidx), pos);
+  }
+}
+
+void main(void)
+{
+  if(mod((texCoord.x + texCoord.y) * 2048, 80) < 1.0)
+  {
+    vec4 pos = texToScreen * vec4(texCoord, 0.0, 1.0);
+    addParticle(pos);
   }
 }
