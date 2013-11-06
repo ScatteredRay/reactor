@@ -18,6 +18,7 @@ void main(void)
   out_Position = vec_Position[0];
   out_Velocity = vec_Velocity[0];
   gl_Position = gl_in[0].gl_Position;
+  gl_PointSize = 1.0;
   if(gl_Position.y > -1.0 && gl_Position.y < 1.0 &&
      gl_Position.x > -1.0 && gl_Position.x < 1.0)
     EmitVertex();

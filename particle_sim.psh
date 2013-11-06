@@ -2,9 +2,16 @@
 // See the LICENSE file for usage, modification, and distribution terms.
 #version 420
 
-//layout (rgba32f) uniform image2D particle_buffer;
+const mat4 texToScreen = mat4(
+  2.0, 0.0, 0.0, 0.0,
+  0.0, 2.0, 0.0, 0.0,
+  0.0, 0.0, 2.0, 0.0,
+  -1.0, -1.0, -1.0, 1.0
+);
 
 void main(void)
 {
-  gl_FragColor = vec4(1.00, 1.00, 1.00, 0.10);
+  // This is really only useful with point size > 1.0
+  float glow = 1.0 - pow(length((texToScreen * vec4(gl_PointCoord, 0.0, 1.0)).xy) / sqrt(2.0), 2.0);
+  gl_FragColor = vec4(1.0, 1.0, 1.0, glow * 0.3);
 }

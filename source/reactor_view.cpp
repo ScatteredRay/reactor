@@ -137,6 +137,8 @@ ViewInfo* InitView(int width, int height, GameData* game_data)
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_PROGRAM_POINT_SIZE);
+    glEnable(GL_POINT_SPRITE);
     glCullFace(GL_BACK);
     view->basic_shader = CreateShaderProgram(SHADER_CONSTANT_COLOR);
     view->diffuse_color_uniform = glGetUniformLocation(view->basic_shader,
