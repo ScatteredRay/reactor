@@ -58,7 +58,7 @@ struct Particles
 
     unsigned int scene_depth_uniform;
 
-    Particles() : gen_uniforms(4), sim_uniforms(1)
+    Particles() : gen_uniforms(4), sim_uniforms(2)
     {
     }
 
@@ -73,8 +73,8 @@ struct Particles
         assert(i == gen_uniforms.num_uniforms);
 
         i = 0;
-        scene_depth_uniform = sim_uniforms.add_uniform("scene_depth", NULL, Uniform_Texture, i++, shader_gen);
-        //sim_uniforms.add_uniform("particle_buffer", &vertex_texture, Uniform_Image, i++, shader_sim);
+        sim_uniforms.add_uniform("particle_count", &atomic_count_buffer, Uniform_Atomic, i++, shader_sim);
+        scene_depth_uniform = sim_uniforms.add_uniform("scene_depth", NULL, Uniform_Texture, i++, shader_sim);
         assert(i == sim_uniforms.num_uniforms);
     }
 
