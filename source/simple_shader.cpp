@@ -64,22 +64,40 @@ GLuint CreateShader(const char* filename, GLenum type)
 }
 
 const char* GetVShaderFilename(shader_id shader);
+const char* GetGShaderFilename(shader_id shader);
 const char* GetPShaderFilename(shader_id shader);
 
 GLuint CreateShaderProgram(shader_id shader)
 {
-    GLuint vshader, pshader, program;
+    GLuint vshader, gshader, pshader, program;
     vshader = CreateShader(GetVShaderFilename(shader), GL_VERTEX_SHADER);
     if(!vshader) goto error;
 
     pshader = CreateShader(GetPShaderFilename(shader), GL_FRAGMENT_SHADER);
     if(!pshader) goto error_pshader;
 
+    const char* gshader_file = GetGShaderFilename(shader);
+    if(gshader_file)
+    {
+        gshader = CreateShader(gshader_file, GL_GEOMETRY_SHADER);
+        if(!gshader) goto error_gshader;
+    }
+    else
+    {
+        gshader = NULL;
+    }
+
     program = glCreateProgram();
     assert(program);
 
     glAttachShader(program, vshader);
     glAttachShader(program, pshader);
+    if(gshader)
+        glAttachShader(program, gshader);
+
+    glProgramParameteri(program, GL_GEOMETRY_INPUT_TYPE, GL_POINTS);
+    glProgramParameteri(program, GL_GEOMETRY_OUTPUT_TYPE, GL_POINTS);
+    glProgramParameteri(program, GL_GEOMETRY_VERTICES_OUT, 1);
 
     glLinkProgram(program);
 
@@ -89,27 +107,42 @@ GLuint CreateShaderProgram(shader_id shader)
 
      if(link_status == GL_FALSE)
      {
-         size_t buf_len;
+         size_t buf_len = 0;
          glGetProgramiv(shader, GL_INFO_LOG_LENGTH, (GLsizei*)&buf_len);
-         char* buffer = (char*)malloc(buf_len);
-         size_t read_len;
-         glGetProgramInfoLog(shader, buf_len, (GLsizei*)&read_len, buffer);
-         assert(buf_len == read_len + 1);
-         buffer[buf_len] = '\0';
-         log(LOG_ERROR, buffer);
-         free(buffer);
+         if(buf_len)
+         {
+             char* buffer = (char*)malloc(buf_len);
+             assert(buffer);
+             size_t read_len = 0;
+             glGetProgramInfoLog(shader, buf_len, (GLsizei*)&read_len, buffer);
+             assert(buf_len == read_len + 1);
+             buffer[buf_len] = '\0';
+             log(LOG_ERROR, buffer);
+             free(buffer);
+         }
+         else
+         {
+             log(LOG_ERROR, "Unknown error linking program");
+         }
          goto error_program;
      }
 
      glDeleteShader(pshader);
      glDeleteShader(vshader);
+     if(gshader)
+         glDeleteShader(gshader);
 
      return program;
 
 error_program:
      glDetachShader(program, pshader);
      glDetachShader(program, vshader);
+     if(gshader)
+         glDetachShader(program, gshader);
      glDeleteProgram(program);
+     if(gshader)
+         glDeleteShader(gshader);
+error_gshader:
      glDeleteShader(pshader);
 error_pshader:
      glDeleteShader(vshader);
@@ -119,32 +152,18 @@ error:
 
 void DestroyProgramAndAttachedShaders(GLuint program)
 {
-
-    const int MAX_ATTACHED_SHADERS = 2;
-
-    GLsizei attached_shaders;
-    GLuint shaders[MAX_ATTACHED_SHADERS];
-
-    glGetAttachedShaders(program, MAX_ATTACHED_SHADERS, &attached_shaders, shaders);
-
-    for(int i=0; i<attached_shaders; i++)
-    {
-        glDetachShader(program, shaders[i]);
-        glDeleteShader(shaders[i]);
-    }
-
     glDeleteProgram(program);
 }
 
-const char* ShaderFileMap[][2] =
+const char* ShaderFileMap[][3] =
 
 {
-    { "standard.vsh",  "constant_color.psh" },
-    { "environment.vsh",  "environment.psh" },
-    { "character.vsh", "character.psh" },
-    { "alignedquad.vsh", "atmospherics.psh" },
-    { "alignedquad.vsh", "particle_gen.psh" },
-    { "particle_sim.vsh", "particle_sim.psh" }
+    { "standard.vsh", NULL, "constant_color.psh" },
+    { "environment.vsh",  NULL, "environment.psh" },
+    { "character.vsh", NULL, "character.psh" },
+    { "alignedquad.vsh", NULL, "atmospherics.psh" },
+    { "alignedquad.vsh", NULL, "particle_gen.psh" },
+    { "particle_sim.vsh", "particle_sim.gsh", "particle_sim.psh" }
 };
 
 const char* GetVShaderFilename(shader_id shader)
@@ -152,7 +171,12 @@ const char* GetVShaderFilename(shader_id shader)
     return ShaderFileMap[shader][0];
 }
 
-const char* GetPShaderFilename(shader_id shader)
+const char* GetGShaderFilename(shader_id shader)
 {
     return ShaderFileMap[shader][1];
+}
+
+const char* GetPShaderFilename(shader_id shader)
+{
+    return ShaderFileMap[shader][2];
 }

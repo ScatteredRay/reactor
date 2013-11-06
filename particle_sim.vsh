@@ -4,8 +4,8 @@
 attribute vec4 in_Position;
 attribute vec4 in_Velocity;
 
-varying vec4 out_Position;
-varying vec4 out_Velocity;
+varying vec4 vec_Position;
+varying vec4 vec_Velocity;
 
 uniform sampler2D scene_depth;
 
@@ -20,23 +20,23 @@ const mat4 screenToTex = mat4(
 
 void main(void)
 {
-  out_Position = in_Position;
-  //out_Position.y -= 0.01;
-  //if(out_Position.y < -1.0)
-  //  out_Position.y += 2.0;
-  out_Position += in_Velocity;
+  vec_Position = in_Position;
+  //vec_Position.y -= 0.01;
+  //if(vec_Position.y < -1.0)
+  //  vec_Position.y += 2.0;
+  vec_Position += in_Velocity;
 
-  vec4 depth = texture2D(scene_depth, screenToTex * out_Position);
+  vec4 depth = texture2D(scene_depth, (screenToTex * vec_Position).xy);
 
   float a = PI/20.0;
 
   mat2 rotMat = mat2(cos(a), sin(a),
                      -sin(a), cos(a));
 
-  out_Velocity = in_Velocity * depth;
+  vec_Velocity = in_Velocity * depth;
 
 
-  out_Velocity.xy = rotMat * out_Velocity.xy;
-  out_Velocity +=  vec4(0.00, -0.001, 0.00, 0.00);
-  gl_Position = out_Position;
+  vec_Velocity.xy = rotMat * vec_Velocity.xy;
+  vec_Velocity +=  vec4(0.00, -0.001, 0.00, 0.00);
+  gl_Position = vec_Position;
 }
