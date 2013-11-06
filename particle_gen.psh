@@ -17,7 +17,7 @@ const mat4 texToScreen = mat4(
   -1.0, -1.0, -1.0, 1.0
 );
 
-void addParticle(vec4 pos)
+void addParticle(vec4 pos, vec4 vel)
 {
   uint pidx = atomicCounterIncrement(particle_count);
   // The race condition for this is that we don't add a particle we could have when near max.
@@ -28,7 +28,8 @@ void addParticle(vec4 pos)
   else
   {
     // Add particle.
-    imageStore(particle_buffer, int(pidx), pos);
+    imageStore(particle_buffer, int(pidx) * 2, pos);
+    imageStore(particle_buffer, int(pidx) * 2 + 1, vel);
   }
 }
 
@@ -39,7 +40,8 @@ void main(void)
   if(snoise((texCoord * 4092.0) + frame_count) > 0.9f)
   {
     vec4 pos = texToScreen * vec4(texCoord, 0.0, 1.0);
-    addParticle(pos);
+    vec4 vel = vec4(0.00, 0.01, 0.00, 0.00);
+    addParticle(pos, vel);
   }
 }
 

@@ -26,14 +26,16 @@ struct GLArraysIndirectCommand
 struct ParticleVert
 {
     vector4 location;
+    vector4 velocity;
 };
 
 VertexDef GenParticleVertDef()
 {
     ParticleVert* proxy = 0;
-    VertexDef VD = CreateVertexDef(sizeof(ParticleVert), 1);
+    VertexDef VD = CreateVertexDef(sizeof(ParticleVert), 2);
     int i = 0;
-    AddVertexAttribute(VD, i++, VERTEX_POSITION_ATTR, (size_t)&proxy->location, 4, GL_FLOAT);
+    AddVertexAttribute(VD, i++, VERTEX_OTHER_ATTR, (size_t)&proxy->location, 4, GL_FLOAT, "in_Position");
+    AddVertexAttribute(VD, i++, VERTEX_OTHER_ATTR, (size_t)&proxy->velocity, 4, GL_FLOAT, "in_Velocity");
 
     return VD;
 }
@@ -86,8 +88,8 @@ Particles* InitParticles()
     particles->shader_gen = CreateShaderProgram(SHADER_PARTICLE_GEN);
     particles->shader_sim = CreateShaderProgram(SHADER_PARTICLE_SIM);
     BindShaderToUnitQuad(particles->shader_gen);
-    const char* varyings[] = {"out_Position"};
-    glTransformFeedbackVaryings(particles->shader_sim, 1, varyings, GL_INTERLEAVED_ATTRIBS);
+    const char* varyings[] = {"out_Position", "out_Velocity"};
+    glTransformFeedbackVaryings(particles->shader_sim, 2, varyings, GL_INTERLEAVED_ATTRIBS);
     VertexDefBindToShader(particles->particle_vertex_def, particles->shader_sim);
     particles->CaptureUniforms();
 
