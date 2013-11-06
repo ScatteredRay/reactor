@@ -90,9 +90,9 @@ struct MetaUniform<unsigned int>
 };
 
 template<typename T>
-void Uniforms::add_uniform(const char* name, T* source, unsigned int i, GLuint shader)
+unsigned int Uniforms::add_uniform(const char* name, T* source, unsigned int i, GLuint shader)
 {
-    add_uniform(name,
+    return add_uniform(name,
                 MetaUniform<T>::ptr(source),
                 MetaUniform<T>::type(),
                 i, shader);

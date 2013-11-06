@@ -4,10 +4,11 @@
 #define _PARTICLES_H_
 
 struct Particles;
+struct RenderTarget;
 
 Particles* InitParticles();
 void DestroyParticles(Particles* particles);
 // This runs on the GPU, so should be called in render.
-void UpdateParticles(Particles* particles);
+void UpdateParticles(Particles* particles, RenderTarget* scene);
 
 #endif //_PARTICLES_H_

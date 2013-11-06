@@ -56,7 +56,9 @@ struct Particles
 
     VertexDef particle_vertex_def;
 
-    Particles() : gen_uniforms(4), sim_uniforms(0)
+    unsigned int scene_depth_uniform;
+
+    Particles() : gen_uniforms(4), sim_uniforms(1)
     {
     }
 
@@ -71,6 +73,7 @@ struct Particles
         assert(i == gen_uniforms.num_uniforms);
 
         i = 0;
+        scene_depth_uniform = sim_uniforms.add_uniform("scene_depth", NULL, Uniform_Texture, i++, shader_gen);
         //sim_uniforms.add_uniform("particle_buffer", &vertex_texture, Uniform_Image, i++, shader_sim);
         assert(i == sim_uniforms.num_uniforms);
     }
@@ -139,7 +142,7 @@ void DestroyParticles(Particles* particles)
     delete particles;
 }
 
-void UpdateParticles(Particles* particles)
+void UpdateParticles(Particles* particles, RenderTarget* scene)
 {
     Matrix4 identity = Matrix4::identity();
 
@@ -156,10 +159,12 @@ void UpdateParticles(Particles* particles)
 
     glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT | GL_COMMAND_BARRIER_BIT);
 
-    glBlendFunc(GL_ONE, GL_ZERO);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     glUseProgram(particles->shader_sim);
-    particles->sim_uniforms.bind();
+    UniformBindState bind_state;
+    particles->sim_uniforms.bind(bind_state);
+    particles->sim_uniforms.bind_uniform(particles->scene_depth_uniform, RenderTargetTexture(scene, 1), bind_state);    
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, particles->atomic_count_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, particles->vertex_buffers[0]);

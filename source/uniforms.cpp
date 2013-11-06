@@ -96,9 +96,10 @@ Uniforms::~Uniforms()
     delete[] uniforms;
 }
 
-void Uniforms::add_uniform(const char* name, void* source, UniformType type, unsigned int i, GLuint shader)
+unsigned int Uniforms::add_uniform(const char* name, void* source, UniformType type, unsigned int i, GLuint shader)
 {
     uniforms[i].init(name, source, type, shader);
+    return i;
 }
 
 unsigned int Uniforms::get_uniform_idx(const char* name, GLuint shader)

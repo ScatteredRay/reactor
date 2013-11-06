@@ -46,10 +46,10 @@ struct Uniforms
     Uniforms(unsigned int num);
     ~Uniforms();
 
-    void add_uniform(const char* name, void* source, UniformType type, unsigned int i, GLuint shader);
+    unsigned int add_uniform(const char* name, void* source, UniformType type, unsigned int i, GLuint shader);
 
     template<typename T>
-    void add_uniform(const char* name, T* source, unsigned int i, GLuint shader);
+    unsigned int add_uniform(const char* name, T* source, unsigned int i, GLuint shader);
 
     unsigned int get_uniform_idx(const char* name, GLuint shader);
 
