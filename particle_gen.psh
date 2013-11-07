@@ -8,6 +8,9 @@ layout (binding = 0) uniform atomic_uint particle_count;
 uniform uint max_particles;
 uniform uint frame_count;
 
+uniform mat4 view_projection;
+uniform mat4 inv_view_projection;
+
 varying vec2 texCoord;
 
 const mat4 texToScreen = mat4(
@@ -39,7 +42,8 @@ void main(void)
 {
   if(snoise((texCoord * 4092.0) + frame_count) > 0.9f)
   {
-    vec4 pos = texToScreen * vec4(texCoord, 0.0, 1.0);
+    vec4 pos = inv_view_projection * texToScreen * vec4(texCoord, 0.0, 1.0);
+    pos /= pos.w;
     vec4 vel = vec4(0.00, 0.01, 0.00, 0.00);
     addParticle(pos, vel);
   }

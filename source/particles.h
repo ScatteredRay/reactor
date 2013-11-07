@@ -5,10 +5,11 @@
 
 struct Particles;
 struct RenderTarget;
+struct Camera;
 
 Particles* InitParticles();
 void DestroyParticles(Particles* particles);
 // This runs on the GPU, so should be called in render.
-void UpdateParticles(Particles* particles, RenderTarget* scene);
+void UpdateParticles(Particles* particles, Camera* camera, RenderTarget* scene);
 
 #endif //_PARTICLES_H_

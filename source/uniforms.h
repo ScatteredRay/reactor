@@ -11,6 +11,7 @@ enum UniformType {
     Uniform_Float2,
     Uniform_Float3,
     Uniform_Float4,
+    Uniform_Mat4,
     Uniform_Int,
     Uniform_UInt,
     Uniform_Texture,
@@ -56,10 +57,7 @@ struct Uniforms
     void bind_uniform(unsigned int idx, void* ptr, UniformBindState& bind_state);
 
     template<typename t>
-    void bind_uniform(unsigned int idx, t val, UniformBindState& bind_state)
-    {
-        bind_uniform(idx, (void*)&val, bind_state);
-    }
+    void bind_uniform(unsigned int idx, t val, UniformBindState& bind_state);
 
     void bind(UniformBindState& bind_state);
     void bind();

@@ -62,6 +62,21 @@ struct MetaUniform<Vector4>
 };
 
 template<>
+struct MetaUniform<Matrix4>
+{
+    static float* ptr(Matrix4* p)
+    {
+        // This should work in theory.
+        return (float*)p;
+    }
+
+    static UniformType type()
+    {
+        return Uniform_Mat4;
+    }
+};
+
+template<>
 struct MetaUniform<int>
 {
     static int* ptr(int* p)
@@ -96,4 +111,10 @@ unsigned int Uniforms::add_uniform(const char* name, T* source, unsigned int i, 
                 MetaUniform<T>::ptr(source),
                 MetaUniform<T>::type(),
                 i, shader);
+}
+
+template<typename t>
+void Uniforms::bind_uniform(unsigned int idx, t val, UniformBindState& bind_state)
+{
+    bind_uniform(idx, (void*)MetaUniform<t>::ptr(&val), bind_state);
 }

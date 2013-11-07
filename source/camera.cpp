@@ -4,7 +4,7 @@
 const Vector3 camera_start_location = Vector3(0.0, 0.0, 85.0);
 const Vector3 camera_up_vector = Vector3(0.0, 1.0, 0.0);
 const float fovx = (40.0f / 360.0f) * 2 * PI;
-const float zNear = 10.0f;
+const float zNear = 85.0f;
 const float zFar = 500.0f; //1000.0f to get background plane
 
 struct Camera
@@ -19,7 +19,16 @@ struct Camera
 void SetCameraProjection(Camera* camera, float screen_width, float screen_height)
 {
     camera->aspect = screen_width/screen_height;
-    camera->projection = Matrix4::perspective(fovx*screen_height/screen_width, camera->aspect, zNear, zFar);
+    //camera->projection = Matrix4::perspective(fovx*screen_height/screen_width, camera->aspect, zNear, zFar);
+
+    // Infinite projection, Thanks Eric Lengyel
+    float e = tanf( PI * 0.5f - (0.5f * fovx / camera->aspect));
+    camera->projection =
+        Matrix4(
+            Vector4(e/camera->aspect,    0.0f,    0.0f,       0.0f),
+            Vector4(0.0f, e,     0.0f,       0.0f),
+            Vector4(0.0f, 0.0f,   -1.0f,      -1.0f),
+            Vector4(0.0f, 0.0f,   -2.0f*zNear, 0.0f));
 }
 
 Camera* InitCamera(int screen_width, int screen_height)

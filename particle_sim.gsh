@@ -13,9 +13,13 @@ in vec4 vec_Velocity[];
 out vec4 out_Position;
 out vec4 out_Velocity;
 
+uniform mat4 view_projection;
+uniform mat4 inv_view_projection;
+
 void main(void)
 {
-  out_Position = vec_Position[0];
+  out_Position = inv_view_projection * vec_Position[0];
+  out_Position /= out_Position.w;
   out_Velocity = vec_Velocity[0];
   gl_Position = gl_in[0].gl_Position;
   gl_PointSize = 1.0;

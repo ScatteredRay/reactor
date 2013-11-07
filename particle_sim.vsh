@@ -9,6 +9,9 @@ varying vec4 vec_Velocity;
 
 uniform sampler2D scene_depth;
 
+uniform mat4 view_projection;
+uniform mat4 inv_view_projection;
+
 #define PI 3.1415926535897932384626433832795
 
 const mat4 screenToTex = mat4(
@@ -20,7 +23,8 @@ const mat4 screenToTex = mat4(
 
 void main(void)
 {
-  vec_Position = in_Position;
+  vec_Position = view_projection * in_Position;
+  vec_Position /= vec_Position.w;
   //vec_Position.y -= 0.01;
   //if(vec_Position.y < -1.0)
   //  vec_Position.y += 2.0;

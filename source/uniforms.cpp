@@ -45,6 +45,9 @@ void UniformElem::bind(void* _ptr, UniformBindState& bind_state)
     case Uniform_Float4:
         glUniform4fv(uniform, 1, (GLfloat*)_ptr);
         break;
+    case Uniform_Mat4:
+        glUniformMatrix4fv(uniform, 1, false, (GLfloat*)_ptr);
+        break;
     case Uniform_Int:
         glUniform1iv(uniform, 1, (GLint*)_ptr);
         break;

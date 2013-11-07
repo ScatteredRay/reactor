@@ -3,6 +3,7 @@
 
 #include "particles.h"
 
+#include "camera.h"
 #include "simple_texture.h"
 #include "simple_shader.h"
 #include "simple_mesh.h"
@@ -56,9 +57,13 @@ struct Particles
 
     VertexDef particle_vertex_def;
 
+    unsigned int projection_uniform_gen;
+    unsigned int inv_projection_uniform_gen;
+    unsigned int projection_uniform_sim;
+    unsigned int inv_projection_uniform_sim;
     unsigned int scene_depth_uniform;
 
-    Particles() : gen_uniforms(4), sim_uniforms(2)
+    Particles() : gen_uniforms(6), sim_uniforms(4)
     {
     }
 
@@ -70,10 +75,14 @@ struct Particles
         gen_uniforms.add_uniform("particle_count", &atomic_count_buffer, Uniform_Atomic, i++, shader_gen);
         gen_uniforms.add_uniform("max_particles", &vertex_count, i++, shader_gen);
         gen_uniforms.add_uniform("frame_count", &frame_count, i++, shader_gen);
+        projection_uniform_gen = gen_uniforms.add_uniform("view_projection", NULL, Uniform_Mat4, i++, shader_gen);
+        inv_projection_uniform_gen = gen_uniforms.add_uniform("inv_view_projection", NULL, Uniform_Mat4, i++, shader_gen);
         assert(i == gen_uniforms.num_uniforms);
 
         i = 0;
         sim_uniforms.add_uniform("particle_count", &atomic_count_buffer, Uniform_Atomic, i++, shader_sim);
+        projection_uniform_sim = sim_uniforms.add_uniform("view_projection", NULL, Uniform_Mat4, i++, shader_sim);
+        inv_projection_uniform_sim = sim_uniforms.add_uniform("inv_view_projection", NULL, Uniform_Mat4, i++, shader_sim);
         scene_depth_uniform = sim_uniforms.add_uniform("scene_depth", NULL, Uniform_Texture, i++, shader_sim);
         assert(i == sim_uniforms.num_uniforms);
     }
@@ -142,8 +151,10 @@ void DestroyParticles(Particles* particles)
     delete particles;
 }
 
-void UpdateParticles(Particles* particles, RenderTarget* scene)
+void UpdateParticles(Particles* particles, Camera* camera, RenderTarget* scene)
 {
+    Matrix4 viewProjection = CameraGetWorldToProjection(camera);
+    Matrix4 invViewProjection = inverse(viewProjection);
     Matrix4 identity = Matrix4::identity();
 
     glMatrixMode(GL_MODELVIEW);
@@ -154,7 +165,12 @@ void UpdateParticles(Particles* particles, RenderTarget* scene)
     glBlendFunc(GL_ZERO, GL_ONE);
 
     glUseProgram(particles->shader_gen);
-    particles->gen_uniforms.bind();
+    {
+        UniformBindState bind_state;
+        particles->gen_uniforms.bind(bind_state);
+        particles->gen_uniforms.bind_uniform(particles->projection_uniform_gen, viewProjection, bind_state);
+        particles->gen_uniforms.bind_uniform(particles->inv_projection_uniform_gen, invViewProjection, bind_state);
+    }
     RenderUnitQuad();
 
     glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT | GL_COMMAND_BARRIER_BIT);
@@ -162,9 +178,13 @@ void UpdateParticles(Particles* particles, RenderTarget* scene)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     glUseProgram(particles->shader_sim);
-    UniformBindState bind_state;
-    particles->sim_uniforms.bind(bind_state);
-    particles->sim_uniforms.bind_uniform(particles->scene_depth_uniform, RenderTargetTexture(scene, 1), bind_state);    
+    {
+        UniformBindState bind_state;
+        particles->sim_uniforms.bind(bind_state);
+        particles->sim_uniforms.bind_uniform(particles->scene_depth_uniform, RenderTargetTexture(scene, 1), bind_state);
+        particles->sim_uniforms.bind_uniform(particles->projection_uniform_sim, viewProjection, bind_state);
+        particles->sim_uniforms.bind_uniform(particles->inv_projection_uniform_sim, invViewProjection, bind_state);
+    }
 
     glBindBuffer(GL_DRAW_INDIRECT_BUFFER, particles->atomic_count_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, particles->vertex_buffers[0]);

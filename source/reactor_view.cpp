@@ -281,17 +281,6 @@ void UpdateView(ViewInfo* view)
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf((float*)&modelview);
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf((float*)&projection);
-
-    glUseProgram(view->basic_shader);
-
-    glUniform4f(view->diffuse_color_uniform,
-                0.25f, 0.0f, 0.0f, 1.0f);
-    DrawEditorMesh(view->grid);
-
     //glUniform4f(view->diffuse_color_uniform,
     //            160.0f / 255.0f, 0.0f, 1.0f, 1.0f);
 
@@ -321,7 +310,18 @@ void UpdateView(ViewInfo* view)
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     RenderDeferred(view->deferred, view->scene_target, view->environment);
-    UpdateParticles(view->particles, view->scene_target);
+    UpdateParticles(view->particles, view->camera, view->scene_target);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixf((float*)&modelview);
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf((float*)&projection);
+
+    glUseProgram(view->basic_shader);
+
+    glUniform4f(view->diffuse_color_uniform,
+                0.25f, 0.0f, 0.0f, 1.0f);
+    DrawEditorMesh(view->grid);
 }
 
 InputHandler* GetInputHandler(ViewInfo* view)
