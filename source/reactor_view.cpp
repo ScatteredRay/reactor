@@ -1,5 +1,9 @@
 // Copyright (c) 2010, Nicholas "Indy" Ray. All rights reserved.
 // See the LICENSE file for usage, modification, and distribution terms.
+//
+// "[They] do not play because they are young, but they have a youth
+// because they must play" -- Karl Groos
+//
 #include <stdio.h>
 #include "view_decl.h"
 #include "simple_shader.h"

@@ -1,6 +1,8 @@
 // Copyright (c) 2013, Nicholas "Indy" Ray. All rights reserved.
 // See the LICENSE file for usage, modification, and distribution terms.
-
+//
+// "Have no fear of perfection - you'll never reach it." -- Salvador Dali
+//
 #include "particles.h"
 
 #include "camera.h"

@@ -1,5 +1,9 @@
 // Copyright (c) 2013, Nicholas "Indy" Ray. All rights reserved.
 // See the LICENSE file for usage, modification, and distribution terms.
+//
+// "To doubt everything or to believe everything are two equally convenient
+// solutions; both dispense with the necessity of reflection." --  Henri Poincare
+//
 #include "reflect.h"
 #include "reporting.h"
 
