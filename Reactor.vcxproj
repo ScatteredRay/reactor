@@ -24,6 +24,7 @@
     <ClInclude Include="source\glwindow_qt.h" />
     <ClInclude Include="source\gl_all.h" />
     <ClInclude Include="source\input.h" />
+    <ClInclude Include="source\memory.h" />
     <ClInclude Include="source\obj_load.h" />
     <ClInclude Include="source\particles.h" />
     <ClInclude Include="source\persist.h" />

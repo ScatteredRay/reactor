@@ -3,10 +3,10 @@
 
 #include "render_target.h"
 
+#include "memory.h"
+
 #include "gl_all.h"
 #include <assert.h>
-#include <memory>
-using std::unique_ptr;
 
 struct RenderTarget
 {

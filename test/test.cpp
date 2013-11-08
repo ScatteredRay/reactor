@@ -3,10 +3,12 @@
 
 #include <assert.h>
 
+void TestMemory();
 void TestPersist();
 
 int main(int argc, char* argv)
 {
+    TestMemory();
     TestPersist();
     return 0;
 }
