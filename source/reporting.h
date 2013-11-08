@@ -8,7 +8,8 @@ enum log_level
 {
     LOG_INFO,
     LOG_WARN,
-    LOG_ERROR
+    LOG_ERROR,
+    LOG_TRACE
 };
 
 void log(log_level, const char*);
