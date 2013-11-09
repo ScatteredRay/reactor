@@ -29,7 +29,7 @@ struct string_compare
 {
     bool operator() (const char* x, const char* y) const
     {
-        return stricmp(x, y);
+        return stricmp(x, y) < 0;
     }
     typedef char* first_argument_type;
     typedef char* second_argument_type;
