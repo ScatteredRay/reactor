@@ -119,7 +119,7 @@ public:
     void* get_pointer(void* owner);
 
     void* construct();
-    void* construct_in(void* owner);
+    void* construct_child(void* ptr);
     void set_int(void* ptr, int i);
     void set_bool(void* ptr, bool b);
     void set_float(void* ptr, float f);

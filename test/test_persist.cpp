@@ -2,6 +2,7 @@
 // See the LICENSE file for usage, modification, and distribution terms.
 
 #include "persist.h"
+#include "memory.h"
 #include <assert.h>
 
 struct InternalObj
@@ -28,6 +29,7 @@ struct PersistObj
     struct {} G;
     int H[3][4];
     InternalObj O;
+    unique_ptr<InternalObj> P;
 };
 
 REFLECT_TYPE(PersistObj)
@@ -41,6 +43,7 @@ REFLECT_TYPE(PersistObj)
     //reflect(&Environment::G, "G");
     //reflect(&Environment::H, "H");
     reflect(&PersistObj::O, "O");
+    reflect(&PersistObj::P, "P");
 }
 
 void TestPersist()
@@ -53,6 +56,10 @@ void TestPersist()
     assert(p->O.J == 7);
     assert(p->O.K == 24.0f);
     assert(p->O.L == -44);
+
+    assert(p->P->J == 98);
+    assert(p->P->K == 38.6f);
+    assert(p->P->L == 4);
     delete p;
 }
 

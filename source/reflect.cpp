@@ -151,14 +151,14 @@ void* Reflect::construct()
     return obj;
 }
 
-void* Reflect::construct_in(void* owner)
+void* Reflect::construct_child(void* ptr)
 {
     assert(type == Type_Pointer);
-    assert(owner == NULL); // Still have to figure out pointers for this.
     void* obj = get_subtype()->construct();
-    if(owner)
+    if(ptr)
     {
-        set_basicvalue(this, owner, &obj);
+        assert(type == Type_Pointer);
+        set_basicvalue(this, ptr, &obj);
     }
     return obj;
 }

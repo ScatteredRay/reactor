@@ -136,7 +136,7 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
             if(!objs.empty())
                 owner = objs.top();
 
-            void* obj = reflect->construct_in(owner);
+            void* obj = reflect->construct_child(reflect->get_pointer(owner));
             AddObj(obj);
 
             Push(reflect->get_subtype());

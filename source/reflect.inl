@@ -1,6 +1,8 @@
 // Copyright (c) 2013, Nicholas "Indy" Ray. All rights reserved.
 // See the LICENSE file for usage, modification, and distribution terms.
 
+#include "memory.h"
+
 #include <typeinfo>
 #include <type_traits>
 
@@ -11,6 +13,21 @@ void set_basicvalue(Reflect* reflect, void* ptr, void* field)
 {
     assert(sizeof(DestT) == reflect->get_size());
     *((DestT*)ptr) = (DestT)(*((SrcT*)field));
+}
+
+// Can we just use this as set_basicvalue?
+template <typename DestT, typename SrcT>
+void set_constructvalue(Reflect* reflect, void* ptr, void* field)
+{
+    assert(sizeof(DestT) == reflect->get_size());
+    *((DestT*)ptr) = DestT(*((SrcT*)field));
+}
+
+template <typename T>
+void set_uniqueptr(Reflect* reflect, void* ptr, void* field)
+{
+    ((unique_ptr<T>*)ptr)->reset(*((T**)field));
+
 }
 
 template <typename T>
@@ -139,6 +156,18 @@ struct Base_Reflect_Type<T, typename std::enable_if<std::is_pointer<T>::value>::
     {
         reflect.base_data(Type_Pointer, set_basicvalue<T, void*>, construct_obj<T>);
         reflect.reflect<std::remove_pointer<T>::type>(NULL, reflect.get_name());
+    }
+};
+
+// TODO: some persitance backends will be able to support a generic DAG.
+// Need to tag that this in unique.
+template <typename T>
+struct Base_Reflect_Type<unique_ptr<T>, typename std::enable_if<std::is_class<T>::value>::type>
+{
+    static void metadata(class Reflect& reflect)
+    {
+        reflect.base_data(Type_Pointer, set_uniqueptr<T>, construct_obj<T>);
+        reflect.reflect<T>(NULL, reflect.get_name());
     }
 };
 
