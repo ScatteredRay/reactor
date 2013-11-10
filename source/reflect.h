@@ -31,13 +31,16 @@ static const char* BasicTypeNames[] =
 
 const char* basictype_to_name(BasicType);
 
+class Reflect;
+class ReflectBuilder;
+
 template <typename T, typename = void>
 struct Base_Reflect_Type;
 
 template <typename T>
 struct Reflect_Type
 {
-    static void metadata(class Reflect& reflect) {}
+    static void metadata(ReflectBuilder& reflect) {}
 };
 
 typedef void (*set_basicvalue_t)(Reflect* reflect, void* owner, void* val);
@@ -67,20 +70,6 @@ class Reflect
     set_basicvalue_t set_basicvalue;
     construct_obj_t construct_obj;
 
-    // Temporary state.
-    unsigned int counter;
-    // Don't do anything while counting.
-    bool counting;
-
-private:
-    void count(unsigned int count);
-
-    // This is a little messy, perhaps we should just use dynamic arrays?
-    void finish_count();
-
-    template <typename FieldT>
-        size_t get_offset(FieldT* prop);
-
 public:
     Reflect();
     ~Reflect();
@@ -92,14 +81,7 @@ public:
 
     Reflect& heap_alloc();
 
-    template <typename FieldT>
-    Reflect& init(FieldT* prop, const char* prop_name);
-
-    template <typename FieldT>
-    Reflect& reflect (FieldT* prop, const char* prop_name);
-
-    template <typename FieldT, typename StructureT>
-    Reflect& operator()(FieldT StructureT::* prop, const char* prop_name);
+    Reflect& init(size_t offset, const char* prop_name, const char* _type_name, size_t _size);
 
     // Runtime reflection info.
 
@@ -123,6 +105,52 @@ public:
     void set_int(void* ptr, int i);
     void set_bool(void* ptr, bool b);
     void set_float(void* ptr, float f);
+
+    friend class ReflectBuilder;
+};
+
+class ReflectBuilder
+{
+    Reflect* reflect_data;
+
+    unsigned int num_properties;
+    ReflectBuilder* properties;
+
+    unsigned int counter;
+    // Don't do anything while counting.
+    bool counting;
+
+private:
+    template <typename FieldT>
+        size_t get_offset(FieldT* prop);
+
+    void count(unsigned int count);
+
+    // This is a little messy, perhaps we should just use dynamic arrays?
+    void finish_count();
+
+public:
+
+    ReflectBuilder();
+    ~ReflectBuilder();
+
+    Reflect* get_reflect();
+
+    ReflectBuilder& base_data(BasicType ty, set_basicvalue_t set, construct_obj_t con);
+    ReflectBuilder& static_array(unsigned int elems);
+
+    ReflectBuilder& heap_alloc();
+
+    const char* get_name();
+
+    template <typename FieldT>
+    ReflectBuilder& init(FieldT* prop, const char* prop_name);
+
+    template <typename FieldT>
+    ReflectBuilder& reflect (FieldT* prop, const char* prop_name);
+
+    template <typename FieldT, typename StructureT>
+    ReflectBuilder& operator()(FieldT StructureT::* prop, const char* prop_name);
 };
 
 template<typename T>
@@ -138,7 +166,7 @@ Reflect* get_reflection_for(type**);
 template <> \
 struct Reflect_Type<type> \
 { \
-    static void metadata(Reflect& reflect); \
+    static void metadata(ReflectBuilder& reflect); \
 }; \
 Reflect* get_reflection_for(type*) { \
     return get_reflection_impl<type>(); \
@@ -146,7 +174,7 @@ Reflect* get_reflection_for(type*) { \
 Reflect* get_reflection_for(type**) { \
     return get_reflection_impl<type*>(); \
 } \
-void Reflect_Type<type>::metadata(Reflect& reflect)
+void Reflect_Type<type>::metadata(ReflectBuilder& reflect)
 
 #include "reflect.inl"
 

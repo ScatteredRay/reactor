@@ -38,28 +38,23 @@ void* construct_obj(Reflect* reflect)
 }
 
 template <typename FieldT>
-size_t Reflect::get_offset(FieldT* prop)
+size_t ReflectBuilder::get_offset(FieldT* prop)
 {
     return (size_t) (int*) prop;
 }
 
 template <typename FieldT>
-Reflect& Reflect::init(FieldT* prop, const char* prop_name)
+ReflectBuilder& ReflectBuilder::init(FieldT* prop, const char* prop_name)
 {
-
+    if(!reflect_data) {
+        // We should assert that this only happens when we have no parent.
+        reflect_data = new Reflect();
+    }
     Base_Reflect_Type<FieldT>::metadata(*this);
     Reflect_Type<FieldT>::metadata(*this);
     finish_count();
 
-    size_t buf_len = strlen(prop_name) + 1;
-    name = new char[buf_len];
-    strncpy(name, prop_name, buf_len);
-
-    // This should return a static string, so we shouldn't have to worry about cleaning it up.
-    type_name = typeid(FieldT).name();
-
-    offset = get_offset(prop);
-    size = sizeof(FieldT);
+    reflect_data->init(get_offset(prop), prop_name, typeid(FieldT).name(), sizeof(FieldT));
 
     Base_Reflect_Type<FieldT>::metadata(*this);
     Reflect_Type<FieldT>::metadata(*this);
@@ -68,7 +63,7 @@ Reflect& Reflect::init(FieldT* prop, const char* prop_name)
 }
 
 template <typename FieldT>
-Reflect& Reflect::reflect(FieldT* prop, const char* prop_name)
+ReflectBuilder& ReflectBuilder::reflect(FieldT* prop, const char* prop_name)
 {
     if(counting)
     {
@@ -76,15 +71,17 @@ Reflect& Reflect::reflect(FieldT* prop, const char* prop_name)
         return *this;
     }
     assert(counter < num_properties);
-    Reflect& reflect = properties[counter++];
-    reflect.parent = this;
+    ReflectBuilder& reflect = properties[counter];
+    reflect.reflect_data = &reflect_data->properties[counter];
+    counter++;
     reflect.init(prop, prop_name);
+    reflect.reflect_data->parent = reflect_data;
 
     return reflect;
 }
 
 template <typename FieldT, typename StructureT>
-Reflect& Reflect::operator()(FieldT StructureT::* prop, const char* prop_name)
+ReflectBuilder& ReflectBuilder::operator()(FieldT StructureT::* prop, const char* prop_name)
 {
     return reflect(&(((StructureT*)NULL)->*prop), prop_name);
 }
@@ -99,8 +96,11 @@ Reflect* get_reflection()
 template<typename T>
 Reflect* get_reflection_impl()
 {
-    Reflect* reflect = new Reflect();
-    reflect->init<T>(NULL, "");
+    ReflectBuilder* reflect_builder = new ReflectBuilder();
+    reflect_builder->init<T>(NULL, "");
+
+    Reflect* reflect = reflect_builder->get_reflect();
+    delete reflect_builder;
 
     return reflect;
 }
@@ -134,7 +134,7 @@ unsigned int count_array_elems()
 template <typename T>
 struct Base_Reflect_Type<T, typename std::enable_if<std::is_integral<T>::value>::type>
 {
-    static void metadata(class Reflect& reflect)
+    static void metadata(class ReflectBuilder& reflect)
     {
         reflect.base_data(Type_Integer, set_basicvalue<T, int>, construct_obj<T>);
     }
@@ -143,7 +143,7 @@ struct Base_Reflect_Type<T, typename std::enable_if<std::is_integral<T>::value>:
 template <typename T>
 struct Base_Reflect_Type<T, typename std::enable_if<std::is_floating_point<T>::value>::type>
 {
-    static void metadata(class Reflect& reflect)
+    static void metadata(class ReflectBuilder& reflect)
     {
         reflect.base_data(Type_Float, set_basicvalue<T, float>, construct_obj<T>);
     }
@@ -152,7 +152,7 @@ struct Base_Reflect_Type<T, typename std::enable_if<std::is_floating_point<T>::v
 template <typename T>
 struct Base_Reflect_Type<T, typename std::enable_if<std::is_pointer<T>::value>::type>
 {
-    static void metadata(class Reflect& reflect)
+    static void metadata(class ReflectBuilder& reflect)
     {
         reflect.base_data(Type_Pointer, set_basicvalue<T, void*>, construct_obj<T>);
         reflect.reflect<std::remove_pointer<T>::type>(NULL, reflect.get_name());
@@ -164,7 +164,7 @@ struct Base_Reflect_Type<T, typename std::enable_if<std::is_pointer<T>::value>::
 template <typename T>
 struct Base_Reflect_Type<unique_ptr<T>, typename std::enable_if<std::is_class<T>::value>::type>
 {
-    static void metadata(class Reflect& reflect)
+    static void metadata(class ReflectBuilder& reflect)
     {
         reflect.base_data(Type_Pointer, set_uniqueptr<T>, construct_obj<T>);
         reflect.reflect<T>(NULL, reflect.get_name());
@@ -174,7 +174,7 @@ struct Base_Reflect_Type<unique_ptr<T>, typename std::enable_if<std::is_class<T>
 template <typename T>
 struct Base_Reflect_Type<T, typename std::enable_if<std::is_array<T>::value>::type>
 {
-    static void metadata(class Reflect& reflect)
+    static void metadata(class ReflectBuilder& reflect)
     {
         // We may want to actually save this data off, but this should be fine for now.
         int elems = count_array_elems<T>();
@@ -186,7 +186,7 @@ struct Base_Reflect_Type<T, typename std::enable_if<std::is_array<T>::value>::ty
 template <typename T>
 struct Base_Reflect_Type<T, typename std::enable_if<std::is_enum<T>::value>::type>
 {
-    static void metadata(class Reflect& reflect)
+    static void metadata(class ReflectBuilder& reflect)
     {
         reflect.base_data(Type_Enum, set_basicvalue<T, int>, construct_obj<T>);
     }
@@ -195,7 +195,7 @@ struct Base_Reflect_Type<T, typename std::enable_if<std::is_enum<T>::value>::typ
 template <typename T>
 struct Base_Reflect_Type<T, typename std::enable_if<std::is_class<T>::value>::type>
 {
-    static void metadata(class Reflect& reflect)
+    static void metadata(class ReflectBuilder& reflect)
     {
         reflect.base_data(Type_Struct, NULL, construct_obj<T>);
     }
@@ -204,7 +204,7 @@ struct Base_Reflect_Type<T, typename std::enable_if<std::is_class<T>::value>::ty
 template <>
 struct Base_Reflect_Type<bool, typename std::enable_if<true>::type>
 {
-    static void metadata(class Reflect& reflect)
+    static void metadata(class ReflectBuilder& reflect)
     {
         reflect.base_data(Type_Bool, set_basicvalue<bool, bool>, construct_obj<bool>);
     }
@@ -213,7 +213,7 @@ struct Base_Reflect_Type<bool, typename std::enable_if<true>::type>
 template <>
 struct Base_Reflect_Type<char *, typename std::enable_if<true>::type>
 {
-    static void metadata(class Reflect& reflect)
+    static void metadata(class ReflectBuilder& reflect)
     {
         reflect.base_data(Type_String, set_basicvalue<char*, char*>, NULL);
     }

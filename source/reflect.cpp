@@ -14,17 +14,65 @@ const char* basictype_to_name(BasicType type)
     return BasicTypeNames[type];
 }
 
-void Reflect::count(unsigned int count)
+ReflectBuilder::ReflectBuilder()
 {
-    num_properties = count;
-    properties = new Reflect[count];
+    reflect_data = NULL;
+    properties = NULL;
+    counter = 0;
+    counting = true;
 }
 
-void Reflect::finish_count()
+ReflectBuilder::~ReflectBuilder()
+{
+    delete[] properties;
+}
+
+Reflect* ReflectBuilder::get_reflect()
+{
+    return reflect_data;
+}
+
+void ReflectBuilder::count(unsigned int count)
+{
+    num_properties = count;
+    properties = new ReflectBuilder[count];
+    reflect_data->num_properties = count;
+    reflect_data->properties = new Reflect[count];
+}
+
+void ReflectBuilder::finish_count()
 {
     count(counter);
     counter = 0;
     counting = false;
+}
+
+ReflectBuilder& ReflectBuilder::base_data(BasicType ty, set_basicvalue_t set, construct_obj_t con)
+{
+    if(!counting)
+        reflect_data->base_data(ty, set, con);
+    return *this;
+}
+
+ReflectBuilder& ReflectBuilder::static_array(unsigned int elems)
+{
+    if(!counting)
+        reflect_data->static_array(elems);
+    return *this;
+}
+
+ReflectBuilder& ReflectBuilder::heap_alloc()
+{
+    if(!counting)
+        reflect_data->heap_alloc();
+    return *this;
+}
+
+const char* ReflectBuilder::get_name()
+{
+    if(counting)
+        return NULL;
+    return reflect_data->get_name();
 }
 
 Reflect::Reflect()
@@ -40,8 +88,6 @@ Reflect::Reflect()
     properties = NULL;
     set_basicvalue = NULL;
     construct_obj = NULL;
-    counter = 0;
-    counting = true;
 }
 
 Reflect::~Reflect()
@@ -50,10 +96,23 @@ Reflect::~Reflect()
     delete[] properties;
 }
 
+Reflect& Reflect::init(size_t _offset, const char* prop_name, const char* _type_name, size_t _size)
+{
+    size_t buf_len = strlen(prop_name) + 1;
+    name = new char[buf_len];
+    strncpy(name, prop_name, buf_len);
+
+    // This should be a static string, so we shouldn't have to worry about cleaning it up.
+    type_name = _type_name;
+
+    offset = _offset;
+    size = _size;
+
+    return *this;
+}
+
 Reflect& Reflect::base_data(BasicType ty, set_basicvalue_t set, construct_obj_t con)
 {
-    if(counting)
-        return *this;
     type = ty;
     set_basicvalue = set;
     construct_obj = con;
@@ -62,8 +121,6 @@ Reflect& Reflect::base_data(BasicType ty, set_basicvalue_t set, construct_obj_t 
 
 Reflect& Reflect::static_array(unsigned int elems)
 {
-    if(counting)
-        return *this;
     array_elems = elems;
     return *this;
 }
