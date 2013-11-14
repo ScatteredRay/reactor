@@ -154,6 +154,8 @@ struct PersistJsonHandler : public rapidjson::BaseReaderHandler<>
         if(!CheckType(Type_Struct))
             return;
 
+        reflect->finished_load(objs.top());
+
         assert(!objs.empty());
         objs.pop();
         Pop();

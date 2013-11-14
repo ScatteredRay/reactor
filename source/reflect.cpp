@@ -47,10 +47,10 @@ void ReflectBuilder::finish_count()
     counting = false;
 }
 
-ReflectBuilder& ReflectBuilder::base_data(BasicType ty, set_basicvalue_t set, construct_obj_t con)
+ReflectBuilder& ReflectBuilder::base_data(BasicType ty, set_basicvalue_t set, construct_obj_t con, finish_load_t loaded)
 {
     if(!counting)
-        reflect_data->base_data(ty, set, con);
+        reflect_data->base_data(ty, set, con, loaded);
     return *this;
 }
 
@@ -88,6 +88,7 @@ Reflect::Reflect()
     properties = NULL;
     set_basicvalue = NULL;
     construct_obj = NULL;
+    finish_load = NULL;
 }
 
 Reflect::~Reflect()
@@ -111,11 +112,12 @@ Reflect& Reflect::init(size_t _offset, const char* prop_name, const char* _type_
     return *this;
 }
 
-Reflect& Reflect::base_data(BasicType ty, set_basicvalue_t set, construct_obj_t con)
+Reflect& Reflect::base_data(BasicType ty, set_basicvalue_t set, construct_obj_t con, finish_load_t loaded)
 {
     type = ty;
     set_basicvalue = set;
     construct_obj = con;
+    finish_load = loaded;
     return *this;
 }
 
@@ -202,6 +204,14 @@ void* Reflect::get_pointer(void* owner)
     return ((char*)owner) + get_offset();
 }
 
+void Reflect::finished_load(void* ptr)
+{
+    if(finish_load)
+    {
+        finish_load(this, ptr);
+    }
+}
+
 void* Reflect::construct()
 {
     void* obj = construct_obj(this);
@@ -236,4 +246,9 @@ void Reflect::set_float(void* ptr, float f)
 {
     assert(type == Type_Float);
     set_basicvalue(this, ptr, &f);
+}
+
+void Reflect::set_onloaded(finish_load_t loaded)
+{
+    finish_load = loaded;
 }

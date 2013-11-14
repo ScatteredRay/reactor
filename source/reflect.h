@@ -46,6 +46,8 @@ struct Reflect_Type
 typedef void (*set_basicvalue_t)(Reflect* reflect, void* owner, void* val);
 typedef void* (*construct_obj_t)(Reflect* reflect);
 
+typedef void (*finish_load_t)(Reflect* reflect, void* obj);
+
 // Not using Array to keep circular dependiencies out.
 // TODO: Seperate this into a metadata class, and a reflection builder class
 // I'd like it if the metadata class could be template free.
@@ -69,6 +71,7 @@ class Reflect
 
     set_basicvalue_t set_basicvalue;
     construct_obj_t construct_obj;
+    finish_load_t finish_load;
 
 public:
     Reflect();
@@ -76,7 +79,7 @@ public:
 
     // Reflection metadata construction.
 
-    Reflect& base_data(BasicType ty, set_basicvalue_t set, construct_obj_t con);
+    Reflect& base_data(BasicType ty, set_basicvalue_t set, construct_obj_t con, finish_load_t loaded);
     Reflect& static_array(unsigned int elems);
 
     Reflect& heap_alloc();
@@ -100,11 +103,13 @@ public:
 
     void* get_pointer(void* owner);
 
+    void finished_load(void* ptr);
     void* construct();
     void* construct_child(void* ptr);
     void set_int(void* ptr, int i);
     void set_bool(void* ptr, bool b);
     void set_float(void* ptr, float f);
+    void set_onloaded(finish_load_t loaded);
 
     friend class ReflectBuilder;
 };
@@ -136,7 +141,7 @@ public:
 
     Reflect* get_reflect();
 
-    ReflectBuilder& base_data(BasicType ty, set_basicvalue_t set, construct_obj_t con);
+    ReflectBuilder& base_data(BasicType ty, set_basicvalue_t set, construct_obj_t con, finish_load_t loaded);
     ReflectBuilder& static_array(unsigned int elems);
 
     ReflectBuilder& heap_alloc();

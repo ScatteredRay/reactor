@@ -10,13 +10,25 @@ struct InternalObj
     int J;
     float K;
     int L;
+    int M;
+
+public:
+    static int loaded_count;
+    void persist_finish_loaded()
+    {
+        assert(M == 50);
+        loaded_count++;
+    }
 };
+
+int InternalObj::loaded_count;
 
 REFLECT_TYPE(InternalObj)
 {
     reflect(&InternalObj::J, "J");
     reflect(&InternalObj::K, "K");
     reflect(&InternalObj::L, "L");
+    reflect(&InternalObj::M, "M");
 }
 
 struct PersistObj
@@ -48,6 +60,7 @@ REFLECT_TYPE(PersistObj)
 
 void TestPersist()
 {
+    InternalObj::loaded_count = 0;
     PersistObj* p = persist_create_from_config<PersistObj>("persist.json");
     assert(p->X == 13);
     assert(p->Y == 18.0f);
@@ -60,6 +73,9 @@ void TestPersist()
     assert(p->P->J == 98);
     assert(p->P->K == 38.6f);
     assert(p->P->L == 4);
+
+    assert(InternalObj::loaded_count == 2);
+
     delete p;
 }
 
