@@ -139,6 +139,8 @@ struct Environment
     Scattering scattering;
 
     Vector2 bounds;
+
+    Environment();
 };
 
 REFLECT_TYPE(Environment)
@@ -148,6 +150,10 @@ REFLECT_TYPE(Environment)
     reflect(&Environment::screen_height, "ScreenHeight");
     reflect(&Environment::scattering, "Scattering");
     reflect(&Environment::bounds, "BoundsPx");
+}
+
+Environment::Environment() : bounds(0, 0, 0)
+{
 }
 
 Reflect* GetEnvironmentReflection()

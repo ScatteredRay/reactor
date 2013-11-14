@@ -61,13 +61,16 @@ void UpdateCamera(Camera* camera, Vector3* tracking_points, unsigned int num_tra
 
     if(num_tracking_points)
     {
-        location /= num_tracking_points + 1;
+        location /= num_tracking_points + 1.0f;
     }
 
-    location =
-        minPerElem(
-            maxPerElem(location, camera->lower_bounds),
-            camera->upper_bounds);
+    if(lengthSqr(camera->upper_bounds) != 0.0f)
+    {
+        location =
+            minPerElem(
+                maxPerElem(location, camera->lower_bounds),
+                camera->upper_bounds);
+    }
 
     location.setZ(camera->location.getZ());
     camera->location = location;
