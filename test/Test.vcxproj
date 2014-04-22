@@ -71,6 +71,7 @@
     <ClCompile Include="test.cpp">
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Level1</WarningLevel>
     </ClCompile>
+    <ClCompile Include="test_collections.cpp" />
     <ClCompile Include="test_memory.cpp" />
     <ClCompile Include="test_persist.cpp" />
   </ItemGroup>

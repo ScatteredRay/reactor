@@ -5,10 +5,12 @@
 
 void TestMemory();
 void TestPersist();
+void TestCollections();
 
 int main(int argc, char* argv)
 {
     TestMemory();
     TestPersist();
+    TestCollections();
     return 0;
 }
