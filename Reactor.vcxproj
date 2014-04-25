@@ -14,6 +14,7 @@
     <ClInclude Include="source\camera.h" />
     <ClInclude Include="source\character.h" />
     <ClInclude Include="source\collections.h" />
+    <ClInclude Include="source\component.h" />
     <ClInclude Include="source\core_systems.h" />
     <ClInclude Include="source\deferred.h" />
     <ClInclude Include="source\editor_meshes.h" />

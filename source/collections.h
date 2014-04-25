@@ -39,7 +39,7 @@ public:
     }
 
     // We should consider if we want a resize, which would keep existing
-    // contents intact, It would then not be save to hold an internal pointer.
+    // contents intact, It would then not be safe to hold an internal pointer.
 
     t& operator[](unsigned int index)
     {
