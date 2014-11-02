@@ -33,12 +33,14 @@
     <ClInclude Include="source\render_target.h" />
     <ClInclude Include="source\render_util.h" />
     <ClInclude Include="source\reporting.h" />
+    <ClInclude Include="source\scope_defer.h" />
     <ClInclude Include="source\simple_mesh.h" />
     <ClInclude Include="source\simple_shader.h" />
     <ClInclude Include="source\simple_texture.h" />
     <ClInclude Include="source\simple_vectors.h" />
     <ClInclude Include="source\system.h" />
     <ClInclude Include="source\sys_win.h" />
+    <ClInclude Include="source\types.h" />
     <ClInclude Include="source\uniforms.h" />
     <ClInclude Include="source\vectormath.h" />
     <ClInclude Include="source\view_decl.h" />

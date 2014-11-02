@@ -85,4 +85,20 @@ void TestCollections()
 
 	assert(obj.list.First() == nullptr);
 	assert(obj.list.Last() == nullptr);
+
+
+    SegmentList<int, 64> segmentList;
+
+    segmentList.append() = 1;
+    segmentList.append() = 2;
+    segmentList.append() = 3;
+    segmentList.append() = 4;
+
+    auto it = segmentList.begin();
+    assert(it != segmentList.end());
+    assert(*(it++) == 4);
+    assert(*(it++) == 3);
+    assert(*(it++) == 2);
+    assert(*(it++) == 1);
+    assert(it == segmentList.end());
 }

@@ -3,14 +3,18 @@
 
 #include <assert.h>
 
+void TestTypes();
 void TestMemory();
 void TestPersist();
 void TestCollections();
+void TestScopeDefer();
 
 int main(int argc, char* argv)
 {
+	TestTypes();
     TestMemory();
     TestPersist();
     TestCollections();
+    TestScopeDefer();
     return 0;
 }

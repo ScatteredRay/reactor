@@ -3,8 +3,12 @@
 #ifndef _COLLECTIONS_H_
 #define _COLLECTIONS_H_
 
+#include "types.h"
+
 #include "stdlib.h"
 #include <assert.h>
+#include <new.h>
+#include <utility>
 
 template<typename t>
 class StaticArray
@@ -138,14 +142,14 @@ struct ListNode
             parent->last = this;
 
         next = after->next;
-            
+
         after->next = this;
     }
 
-	void Insert(NodeT& after)
+    void Insert(NodeT& after)
     {
-		Insert(&after);
-	}
+        Insert(&after);
+    }
 
     void Append(ListBase<T>* list)
     {
@@ -154,7 +158,7 @@ struct ListNode
         {
             assert(list->first && "malformed list.");
             prev = list->last;
-			prev->next = this;
+            prev->next = this;
             list->last = this;
         }
         else
@@ -187,7 +191,7 @@ template<typename T, ListNode<T> T::* elem>
 struct ListIter
 {
     typedef ListIter<T, elem> IterT;
-	typedef ListNode<T> NodeT;
+    typedef ListNode<T> NodeT;
 
     NodeT* node;
 
@@ -211,10 +215,10 @@ struct ListIter
         return node->Get<elem>();
     }
 
-	operator ListNode<T>*()
-	{
-		return node;
-	}
+    operator ListNode<T>*()
+    {
+        return node;
+    }
 
     operator bool() const
     {
@@ -246,6 +250,11 @@ struct List : ListBase<T>
     {
         return IterT(last);
     }
+
+    void Add(T* node)
+    {
+        node->*elem.Append(this);
+    }
 };
 
 template<typename T>
@@ -256,5 +265,148 @@ ListBase<T>::~ListBase()
         first->Remove();
     }
 }
+
+template <class type, uint32 segmentLen>
+class SegmentList
+{
+    struct Segment
+    {
+        //union{ type elems[segmentLen] }; // Needs unrestricted union support on msvc...
+        char buffer[segmentLen * sizeof(type)];
+        Segment* next;
+
+        Segment() {}
+        ~Segment() {}
+    };
+
+    Segment* first;
+    uint32 segmentCount;
+
+public:
+
+    struct iterator
+    {
+        Segment* seg;
+        int32 idx;
+
+        iterator() : seg(nullptr), idx(segmentLen - 1)
+        {}
+
+        iterator(iterator const & rhs) : seg(rhs.seg), idx(rhs.idx)
+        {}
+
+        iterator(SegmentList* lst) : seg(lst->first), idx(lst->segmentCount - 1)
+        {}
+
+        iterator& operator++()
+        {
+            idx--;
+            if(idx < 0 && seg)
+            {
+                seg = seg->next;
+                idx = segmentLen - 1;
+            }
+            return *this;
+        }
+
+        iterator operator++(int)
+        {
+            iterator copy(*this);
+            ++(*this);
+            return copy;
+        }
+
+        bool operator==(iterator const& rhs) const
+        {
+            return seg == rhs.seg && idx == rhs.idx;
+        }
+
+        bool operator!=(iterator const& rhs) const
+        {
+            return seg != rhs.seg || idx != rhs.idx;
+        }
+
+        type& operator*() const
+        {
+            return reinterpret_cast<type&>(seg->buffer[idx*sizeof(type)]);
+        }
+    };
+
+    iterator begin()
+    {
+        return iterator(this);
+    }
+
+    iterator end()
+    {
+        return iterator();
+    }
+
+    SegmentList()
+    {
+        first = nullptr;
+        segmentCount = segmentLen;
+    }
+
+    ~SegmentList()
+    {
+        clear();
+    }
+
+    type& append()
+    {
+        if(segmentCount == segmentLen)
+        {
+            Segment* s = new Segment;
+            s->next = first;
+
+            first = s;
+            segmentCount = 0;
+        }
+
+        type& t = reinterpret_cast<type&>(first->buffer[(segmentCount++) * sizeof(type)]);
+
+        new(&t) type();
+
+        return t;
+    }
+
+    iterator erase(iterator position)
+    {
+        iterator next = position;
+        next++;
+
+        (*position).~type();
+
+        iterator first = begin();
+        if(position != first)
+            (*position) = std::move(*first);
+
+        segmentCount--;
+
+        if(segmentCount == 0)
+        {
+            Segment* old = this->first;
+            if(old)
+                this->first = old->next;
+            else
+                this->first = nullptr;
+
+            segmentCount = segmentLen;
+        }
+
+        return next;
+    }
+
+    void clear()
+    {
+        iterator it = begin();
+
+        while(it != end())
+        {
+            it = erase(it);
+        }
+    }
+};
 
 #endif //_COLLECTIONS_H_

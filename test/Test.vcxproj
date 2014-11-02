@@ -74,6 +74,8 @@
     <ClCompile Include="test_collections.cpp" />
     <ClCompile Include="test_memory.cpp" />
     <ClCompile Include="test_persist.cpp" />
+    <ClCompile Include="test_scope_defer.cpp" />
+    <ClCompile Include="test_types.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="persist.json" />
