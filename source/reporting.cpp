@@ -1,8 +1,9 @@
 #include "reporting.h"
 #include "system.h"
 
-#include <cstdio>
-#include <cstdarg>
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 void log(log_level, const char* str)
 {

@@ -1,9 +1,8 @@
 #ifndef _DEFERRED_H_
 #define _DEFERRED_H_
 
-#include "render_target.h" // Temp, remove me.
-
 struct DeferredRender;
+struct RenderTarget;
 
 DeferredRender* InitDeferred(struct Environment* e);
 void DestroyDeferred(DeferredRender* r);

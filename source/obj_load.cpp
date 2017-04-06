@@ -107,7 +107,7 @@ float parse_float(char** c)
 
     *c = curr;
 
-    return atof(buffer);
+    return (float)atof(buffer);
 }
 
 int parse_int(char** c)

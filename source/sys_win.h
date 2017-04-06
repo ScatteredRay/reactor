@@ -5,7 +5,7 @@
 
 const unsigned int MAX_KEYCODES = 255;
 
-#if _MSC_VER
+#if _MSC_VER < 1900
 #define snprintf _snprintf
 #endif
 

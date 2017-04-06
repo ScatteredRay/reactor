@@ -4,13 +4,13 @@
 // "[They] do not play because they are young, but they have a youth
 // because they must play" -- Karl Groos
 //
-#include <stdio.h>
 #include "view_decl.h"
 #include "simple_shader.h"
 #include "simple_vectors.h"
 #include "simple_texture.h"
 #include "simple_mesh.h"
 #include "obj_load.h"
+#include "render_target.h"
 #include "render_util.h"
 #include "input.h"
 #include "core_systems.h"
@@ -27,6 +27,7 @@
 #include "edit_server.h"
 
 #include <assert.h>
+#include <stdio.h>
 #include "gl_all.h"
 
 struct boot_vert

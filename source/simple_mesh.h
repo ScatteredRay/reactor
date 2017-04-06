@@ -3,8 +3,6 @@
 #ifndef _SIMPLE_MESH_H_
 #define _SIMPLE_MESH_H_
 
-#include <cstring> // size_t
-
 typedef unsigned int GLenum;
 typedef unsigned int GLuint;
 typedef int GLsizei;

@@ -2,7 +2,6 @@
 // See the LICENSE file for usage, modification, and distribution terms.
 #ifndef _REPORTING_H_
 #define _REPORTING_H_
-#include <cstdlib>
 
 enum log_level
 {

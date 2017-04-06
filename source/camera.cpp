@@ -1,3 +1,4 @@
+#include "camera.h"
 #include "vectormath.h"
 #include <stdio.h>
 
