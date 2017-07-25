@@ -96,11 +96,10 @@ Reflect* get_reflection()
 template<typename T>
 Reflect* get_reflection_impl()
 {
-    ReflectBuilder* reflect_builder = new ReflectBuilder();
-    reflect_builder->init<T>(NULL, "");
+    ReflectBuilder reflect_builder;
+    reflect_builder.init<T>(NULL, "");
 
-    Reflect* reflect = reflect_builder->get_reflect();
-    delete reflect_builder;
+    Reflect* reflect = reflect_builder.get_reflect();
 
     return reflect;
 }
@@ -188,28 +187,6 @@ struct Base_Reflect_Type<T, typename std::enable_if<std::is_floating_point<T>::v
 };
 
 template <typename T>
-struct Base_Reflect_Type<T, typename std::enable_if<std::is_pointer<T>::value>::type>
-{
-    static void metadata(class ReflectBuilder& reflect)
-    {
-        reflect.base_data(Type_Pointer, set_basicvalue<T, void*>, construct_obj<T>, loaded_fun<T>);
-        reflect.reflect<std::remove_pointer<T>::type>(NULL, reflect.get_name());
-    }
-};
-
-// TODO: some persitance backends will be able to support a generic DAG.
-// Need to tag that this in unique.
-template <typename T>
-struct Base_Reflect_Type<unique_ptr<T>, typename std::enable_if<std::is_class<T>::value>::type>
-{
-    static void metadata(class ReflectBuilder& reflect)
-    {
-        reflect.base_data(Type_Pointer, set_uniqueptr<T>, construct_obj<T>, loaded_fun<T>);
-        reflect.reflect<T>(NULL, reflect.get_name());
-    }
-};
-
-template <typename T>
 struct Base_Reflect_Type<T, typename std::enable_if<std::is_array<T>::value>::type>
 {
     static void metadata(class ReflectBuilder& reflect)
@@ -227,6 +204,30 @@ struct Base_Reflect_Type<T, typename std::enable_if<std::is_enum<T>::value>::typ
     static void metadata(class ReflectBuilder& reflect)
     {
         reflect.base_data(Type_Enum, set_basicvalue<T, int>, construct_obj<T>, loaded_fun<T>);
+    }
+};
+
+template <typename T>
+struct Base_Reflect_Type<T, typename std::enable_if<std::is_pointer<T>::value>::type>
+{
+    static void metadata(class ReflectBuilder& reflect)
+    {
+        reflect.base_data(Type_Pointer, set_basicvalue<T, void*>, construct_obj<T>, loaded_fun<T>);
+        reflect.reflect<std::remove_pointer<T>::type>(NULL, reflect.get_name());
+    }
+};
+
+// TODO: some persitance backends will be able to support a generic DAG.
+// Need to tag that this in unique.
+// The enable_if<is_class<unique_ptr>> Is mostly just to make this a "more specialized"
+// version of the other is_class one.
+template <typename T, typename D>
+struct Base_Reflect_Type<std::unique_ptr<T, D>, typename std::enable_if<std::is_class<std::unique_ptr<T, D>>::value>::type>
+{
+    static void metadata(class ReflectBuilder& reflect)
+    {
+        reflect.base_data(Type_Pointer, set_uniqueptr<T>, construct_obj<T>, loaded_fun<T>);
+        reflect.reflect<T>(NULL, reflect.get_name());
     }
 };
 

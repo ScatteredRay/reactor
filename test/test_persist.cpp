@@ -46,14 +46,13 @@ struct PersistObj
 
 REFLECT_TYPE(PersistObj)
 {
-    //reflect(&Environment::Layers, "Layers");
     reflect(&PersistObj::X, "X");
     reflect(&PersistObj::Y, "Y");
-    //reflect(&Environment::Z, "Z");
+    //reflect(&PersistObj::Z, "Z");
     reflect(&PersistObj::W, "W");
-    //reflect(&Environment::F, "F");
-    //reflect(&Environment::G, "G");
-    //reflect(&Environment::H, "H");
+    //reflect(&PersistObj::F, "F");
+    //reflect(&PersistObj::G, "G");
+    //reflect(&PersistObj::H, "H");
     reflect(&PersistObj::O, "O");
     reflect(&PersistObj::P, "P");
 }
@@ -64,15 +63,18 @@ void TestPersist()
     PersistObj* p = persist_create_from_config<PersistObj>("persist.json");
     assert(p->X == 13);
     assert(p->Y == 18.0f);
+    //assert(*(p->Z) == 98);
     assert(p->W == true);
 
     assert(p->O.J == 7);
     assert(p->O.K == 24.0f);
     assert(p->O.L == -44);
+    assert(p->O.M == 50);
 
     assert(p->P->J == 98);
     assert(p->P->K == 38.6f);
     assert(p->P->L == 4);
+    assert(p->P->M == 50);
 
     assert(InternalObj::loaded_count == 2);
 
