@@ -25,10 +25,10 @@ int InternalObj::loaded_count;
 
 REFLECT_TYPE(InternalObj)
 {
-    reflect(&InternalObj::J, "J");
-    reflect(&InternalObj::K, "K");
-    reflect(&InternalObj::L, "L");
-    reflect(&InternalObj::M, "M");
+    REFLECT_MEMBER(int, J, "J");
+    REFLECT_MEMBER(float, K, "K");
+    REFLECT_MEMBER(int, L, "L");
+    REFLECT_MEMBER(int, M, "M");
 }
 
 struct PersistObj
@@ -46,15 +46,15 @@ struct PersistObj
 
 REFLECT_TYPE(PersistObj)
 {
-    reflect(&PersistObj::X, "X");
-    reflect(&PersistObj::Y, "Y");
-    //reflect(&PersistObj::Z, "Z");
-    reflect(&PersistObj::W, "W");
-    //reflect(&PersistObj::F, "F");
-    //reflect(&PersistObj::G, "G");
-    //reflect(&PersistObj::H, "H");
-    reflect(&PersistObj::O, "O");
-    reflect(&PersistObj::P, "P");
+    REFLECT_MEMBER(int, X, "X");
+    REFLECT_MEMBER(float, Y, "Y");
+    //REFLECT_MEMBER(int*, Z, "Z");
+    REFLECT_MEMBER(bool, W, "W");
+    //REFLECT_MEMBER(enum, F, "F");
+    //REFLECT_MEMBER(struct, G, "G");
+    //REFLECT_MEMBER(int[3][4], G, "G");
+    REFLECT_MEMBER(InternalObj, O, "O");
+    REFLECT_MEMBER(unique_ptr<InternalObj>, P, "P");
 }
 
 void TestPersist()

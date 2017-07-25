@@ -19,8 +19,8 @@ struct Character
 
 REFLECT_TYPE(Character)
 {
-    reflect(&Character::speed, "Speed");
-    reflect(&Character::height, "Height");
+    REFLECT_MEMBER(float, speed, "Speed");
+    REFLECT_MEMBER(float, height, "Height");
 }
 
 VertexDef character_vert_def;

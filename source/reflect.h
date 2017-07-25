@@ -179,7 +179,13 @@ Reflect* get_reflection_for(type*) { \
 Reflect* get_reflection_for(type**) { \
     return get_reflection_impl<type*>(); \
 } \
-void Reflect_Type<type>::metadata(ReflectBuilder& reflect)
+void reflect_type_impl_##type(ReflectBuilder& reflect, type* dummy); \
+void Reflect_Type<type>::metadata(ReflectBuilder& reflect) { \
+    reflect_type_impl_##type(reflect, (type*)0); \
+} \
+void reflect_type_impl_##type(ReflectBuilder& reflect, type* dummy)
+
+#define REFLECT_MEMBER(type, nam, enam) reflect.reflect(&dummy->nam, enam)
 
 #include "reflect.inl"
 

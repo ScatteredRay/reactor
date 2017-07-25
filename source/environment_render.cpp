@@ -35,9 +35,9 @@ struct EnvLayer
 
 REFLECT_TYPE(EnvLayer)
 {
-    reflect(&EnvLayer::parallax, "Depth");
-    //reflect(&EnvLayer::layer_texture, "Texture");
-    //reflect(&EnvLayer::color_mask, "ColorMask");
+    REFLECT_MEMBER(float, parallax, "Depth");
+    //REFLECT_MEMBER(GLuint, layer_texture, "Texture");
+    //REFLECT_MEMBER(Vector4, color_mask, "ColorMask");
 }
 
 struct Scattering
@@ -101,27 +101,30 @@ struct Scattering
 
 REFLECT_TYPE(Vector3)
 {
-    // So bad!
+    // Should we be able to reflect private members? How?
+    //REFLECT_MEMBER(float, mX, "X");
     reflect.reflect((float*)0, "X");
+    //REFLECT_MEMBER(float, mY, "Y");
     reflect.reflect((float*)4, "Y");
+    //REFLECT_MEMBER(float, mZ, "Z");
     reflect.reflect((float*)8, "Z");
 }
 
 REFLECT_TYPE(Scattering)
 {
-    reflect(&Scattering::light_source, "LightLocation");
-    reflect(&Scattering::sun_color, "LightColor");
-    reflect(&Scattering::sun_power, "LightPower");
-    reflect(&Scattering::num_samples, "NumSamples");
-    reflect(&Scattering::weight, "Weight");
-    reflect(&Scattering::decay, "Decay");
-    reflect(&Scattering::extinction, "Extinction");
-    reflect(&Scattering::ambient, "Ambient");
-    reflect(&Scattering::angular, "Angular");
-    reflect(&Scattering::out_scattering, "Outscattering");
-    reflect(&Scattering::rayleigh, "Rayleigh");
-    reflect(&Scattering::mie, "Mie");
-    reflect(&Scattering::mie_eccentricity, "MieEccentricity");
+    REFLECT_MEMBER(Vector3, light_source, "LightLocation");
+    REFLECT_MEMBER(Vector3, sun_color, "LightColor");
+    REFLECT_MEMBER(float, sun_power, "LightPower");
+    REFLECT_MEMBER(float, num_samples, "NumSamples");
+    REFLECT_MEMBER(float, weight, "Weight");
+    REFLECT_MEMBER(float, decay, "Decay");
+    REFLECT_MEMBER(float, extinction, "Extinction");
+    REFLECT_MEMBER(float, ambient, "Ambient");
+    REFLECT_MEMBER(float, angular, "Angular");
+    REFLECT_MEMBER(float, out_scattering, "Outscattering");
+    REFLECT_MEMBER(float, rayleigh, "Rayleigh");
+    REFLECT_MEMBER(float, mie, "Mie");
+    REFLECT_MEMBER(float, mie_eccentricity, "MieEccentricity");
 }
 
 struct Environment
@@ -145,11 +148,11 @@ struct Environment
 
 REFLECT_TYPE(Environment)
 {
-    //reflect(&Environment::Layers, "Layers");
-    reflect(&Environment::num_layers, "NumLayers");
-    reflect(&Environment::screen_height, "ScreenHeight");
-    reflect(&Environment::scattering, "Scattering");
-    reflect(&Environment::bounds, "BoundsPx");
+    //REFLECT_MEMBER(StaticArray<EnvLayer*>, Layers, "Layers");
+    REFLECT_MEMBER(unsigned int, num_layers, "NumLayers");
+    REFLECT_MEMBER(float, screen_height, "ScreenHeight");
+    REFLECT_MEMBER(Scattering, scattering, "Scattering");
+    REFLECT_MEMBER(Vector2, bounds, "BoundsPx");
 }
 
 Environment::Environment() : bounds(0, 0, 0)
